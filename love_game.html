@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>爱心大作战 ❤️ (流畅版)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffeff5;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", sans-serif;
+            touch-action: none; /* 禁止页面回弹 */
+            user-select: none;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* UI层 */
+        #ui-layer {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #score-bar-bg {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #ff69b4;
+        }
+
+        #score-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #ff69b4 100%);
+            transition: width 0.1s linear; /* 更流畅的过渡 */
+        }
+
+        #score-text {
+            text-align: center;
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 5px;
+            text-shadow: 1px 1px 0 #fff;
+        }
+
+        /* 遮罩层通用样式 */
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transition: opacity 0.3s;
+        }
+
+        .btn {
+            background: #ff69b4;
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: 3px solid #fff;
+            margin-top: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 胜利弹窗 */
+        #win-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 350px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.6);
+            z-index: 1000;
+            border: 4px solid #ff69b4;
+        }
+
+        #win-modal h2 {
+            color: #ff69b4;
+            margin: 0 0 15px 0;
+        }
+
+        #win-modal p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 音乐资源 (建议使用较小的文件或稳定外链) -->
+<audio id="bgm" loop>
+    <source src="https://music.163.com/song/media/outer/url?id=5264842.mp3" type="audio/mpeg">
+</audio>
+
+<div id="ui-layer">
+    <div id="score-bar-bg">
+        <div id="score-bar-fill"></div>
+    </div>
+    <div id="score-text">爱意收集: 0%</div>
+</div>
+
+<!-- 开始界面 -->
+<div id="start-screen" class="mask">
+    <h1 style="font-size: 2rem; margin-bottom: 10px;">❤️ 爱心大作战</h1>
+    <p style="color: #ddd; font-size: 0.9rem;">左右滑动小熊，接住爱心，躲避炸弹</p>
+    <div class="btn" id="start-btn">开始挑战</div>
+</div>
+
+<!-- 胜利弹窗 -->
+<div id="win-modal">
+    <h2>🎉 挑战成功！</h2>
+    <p>亲爱的：<br>恭喜你攒满了我对你的爱意！<br>以后的日子里，<br>所有的快乐都给你，<br>所有的风雨我来挡。<br>爱你哟！❤️</p>
+    <div class="btn" style="font-size: 1rem; padding: 8px 20px;" onclick="location.reload()">再玩一次</div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+    // === 性能优化配置 ===
+    const CONFIG = {
+        spawnInterval: 600, // 生成物品间隔(毫秒)
+        gravity: 4,         // 物品下落基础速度
+        maxItems: 20,       // 屏幕上最多同时存在的物品数 (防止卡死)
+        winScore: 100       // 胜利分数
+    };
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreFill = document.getElementById('score-bar-fill');
+    const scoreText = document.getElementById('score-text');
+
+    let width, height;
+    let lastTime = 0;
+    let spawnTimer = 0;
+    let gameRunning = false;
+    let score = 0;
+
+    // 对象池
+    let items = [];
+    let particles = [];
+    let fireworksInterval = null;
+
+    const player = { x: 0, y: 0, w: 50, h: 50, emoji: "🐻" };
+
+    // 物品定义
+    const itemTypes = [
+        { emoji: "❤️", val: 10, speedFix: 0 },
+        { emoji: "🍬", val: 5, speedFix: 1 },
+        { emoji: "🌹", val: 8, speedFix: 0.5 },
+        { emoji: "💣", val: -20, speedFix: 2 }, // 炸弹快一点
+        { emoji: "🥦", val: -5, speedFix: 1 }
+    ];
+
+    function initWindow() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        player.y = height - 80;
+        player.x = width / 2;
+    }
+    initWindow();
+    window.addEventListener('resize', initWindow);
+
+    // 玩家移动
+    function setPlayerX(x) {
+        player.x = x;
+        if (player.x < 25) player.x = 25;
+        if (player.x > width - 25) player.x = width - 25;
+    }
+
+    canvas.addEventListener('touchmove', e => {
+        e.preventDefault();
+        setPlayerX(e.touches[0].clientX);
+    }, { passive: false });
+
+    canvas.addEventListener('mousemove', e => {
+        setPlayerX(e.clientX);
+    });
+
+    // 核心游戏循环 (带时间戳，防止后台加速)
+    function loop(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        const deltaTime = timestamp - lastTime;
+        lastTime = timestamp;
+
+        // 清空画布
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. 绘制玩家
+        ctx.font = "50px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(player.emoji, player.x, player.y);
+
+        // 2. 游戏逻辑
+        if (gameRunning) {
+            // 生成物品 (基于时间差，而不是setTimeout)
+            spawnTimer += deltaTime;
+            if (spawnTimer > CONFIG.spawnInterval) {
+                spawnItem();
+                spawnTimer = 0;
+            }
+
+            // 更新物品位置
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                item.y += item.speed;
+
+                // 绘制
+                ctx.font = "30px Arial";
+                ctx.fillText(item.emoji, item.x, item.y);
+
+                // 碰撞检测
+                let dist = Math.abs(player.x - item.x) + Math.abs(player.y - item.y);
+                if (dist < 50) { // 简单距离碰撞
+                    handleScore(item.val, item.x, item.y);
+                    items.splice(i, 1);
+                    continue;
+                }
+
+                // 越界移除
+                if (item.y > height + 50) {
+                    items.splice(i, 1);
+                }
+            }
+        }
+
+        // 3. 粒子特效 (飘字 + 烟花)
+        updateParticles();
+
+        requestAnimationFrame(loop);
+    }
+
+    function spawnItem() {
+        // 限制最大数量，防止卡顿
+        if (items.length >= CONFIG.maxItems) return;
+
+        const type = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+        items.push({
+            x: Math.random() * (width - 60) + 30,
+            y: -40,
+            emoji: type.emoji,
+            val: type.val,
+            speed: CONFIG.gravity + type.speedFix + Math.random()
+        });
+    }
+
+    function handleScore(val, x, y) {
+        score += val;
+        if (score < 0) score = 0;
+        if (score > CONFIG.winScore) score = CONFIG.winScore;
+
+        // 更新UI
+        let pct = (score / CONFIG.winScore) * 100;
+        scoreFill.style.width = pct + "%";
+        scoreText.innerText = `爱意收集: ${Math.floor(pct)}%`;
+
+        // 飘字
+        createFloatText(val > 0 ? "+" + val : val, x, y, val > 0 ? "#ff69b4" : "#888");
+
+        // 胜利
+        if (score >= CONFIG.winScore && gameRunning) {
+            winGame();
+        }
+    }
+
+    // === 简易粒子系统 (优化性能) ===
+    function createFloatText(txt, x, y, color) {
+        particles.push({ type: 'text', txt, x, y, color, life: 1.0 });
+    }
+
+    function createFirework() {
+        // 限制屏幕上总粒子数
+        if (particles.length > 300) return;
+
+        const cx = Math.random() * width;
+        const cy = Math.random() * (height / 2);
+        const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+
+        for (let i = 0; i < 40; i++) { // 减少每个烟花的粒子数，提高流畅度
+            const angle = (Math.PI * 2 * i) / 40;
+            const speed = Math.random() * 3 + 2;
+            particles.push({
+                type: 'spark',
+                x: cx, y: cy,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: color,
+                life: 1.0,
+                decay: 0.01 + Math.random() * 0.02
+            });
+        }
+    }
+
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+
+            if (p.type === 'text') {
+                p.y -= 1.5;
+                p.life -= 0.02;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.font = "bold 24px Arial";
+                ctx.fillText(p.txt, p.x, p.y);
+            } else if (p.type === 'spark') {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // 重力
+                p.life -= p.decay;
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 3, 3); // 用fillRect代替arc，性能更好
+            }
+
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+        ctx.globalAlpha = 1.0;
+    }
+
+    function winGame() {
+        gameRunning = false;
+        document.getElementById('bgm').pause();
+
+        // 显示胜利UI
+        setTimeout(() => {
+            document.getElementById('win-modal').style.display = 'block';
+        }, 500);
+
+        // 放烟花
+        fireworksInterval = setInterval(createFirework, 500);
+
+        // 5秒后停止放烟花，防止手机发烫
+        setTimeout(() => {
+            if(fireworksInterval) clearInterval(fireworksInterval);
+        }, 8000);
+    }
+
+    // 启动逻辑
+    const startBtn = document.getElementById('start-btn');
+    const startScreen = document.getElementById('start-screen');
+    const bgm = document.getElementById('bgm');
+
+    startBtn.addEventListener('click', () => {
+        startScreen.style.opacity = 0;
+        setTimeout(() => startScreen.style.display = 'none', 300);
+
+        gameRunning = true;
+        bgm.play().catch(e => console.log('BGM需交互'));
+
+        lastTime = performance.now();
+        requestAnimationFrame(loop);
+    });
+
+</script>
+</body>
+</html>
