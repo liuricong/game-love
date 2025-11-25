@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>爱心大作战 ❤️ (流畅版)</title>
+    <title>爱心大作战 ❤️/title>
     <style>
         body {
             margin: 0;
@@ -136,7 +136,7 @@
 <!-- 开始界面 -->
 <div id="start-screen" class="mask">
     <h1 style="font-size: 2rem; margin-bottom: 10px;">❤️ 爱心大作战</h1>
-    <p style="color: #ddd; font-size: 0.9rem;">左右滑动小熊，接住爱心，躲避炸弹</p>
+    <p style="color: #ddd; font-size: 0.9rem;">左右滑动角色，接住爱心，躲避炸弹</p>
     <div class="btn" id="start-btn">开始挑战</div>
 </div>
 
@@ -174,7 +174,19 @@
     let particles = [];
     let fireworksInterval = null;
 
-    const player = { x: 0, y: 0, w: 50, h: 50, emoji: "🐻" };
+    // 玩家图片
+    const playerImage = new Image();
+    playerImage.src = 'img/1.jpg';
+    let playerImageLoaded = false;
+    playerImage.onload = () => {
+        playerImageLoaded = true;
+        // 根据图片实际尺寸调整玩家大小
+        const aspectRatio = playerImage.width / playerImage.height;
+        player.w = 80;
+        player.h = 80 / aspectRatio;
+    };
+
+    const player = { x: 0, y: 0, w: 80, h: 80 };
 
     // 物品定义
     const itemTypes = [
@@ -199,8 +211,8 @@
     // 玩家移动
     function setPlayerX(x) {
         player.x = x;
-        if (player.x < 25) player.x = 25;
-        if (player.x > width - 25) player.x = width - 25;
+        if (player.x < player.w / 2) player.x = player.w / 2;
+        if (player.x > width - player.w / 2) player.x = width - player.w / 2;
     }
 
     canvas.addEventListener('touchmove', e => {
@@ -222,10 +234,15 @@
         ctx.clearRect(0, 0, width, height);
 
         // 1. 绘制玩家
-        ctx.font = "50px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(player.emoji, player.x, player.y);
+        if (playerImageLoaded) {
+            ctx.drawImage(playerImage, player.x - player.w / 2, player.y - player.h / 2, player.w, player.h);
+        } else {
+            // 如果图片还没加载，显示占位符
+            ctx.font = "50px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("🐻", player.x, player.y);
+        }
 
         // 2. 游戏逻辑
         if (gameRunning) {
@@ -247,7 +264,8 @@
 
                 // 碰撞检测
                 let dist = Math.abs(player.x - item.x) + Math.abs(player.y - item.y);
-                if (dist < 50) { // 简单距离碰撞
+                let collisionRadius = Math.max(player.w, player.h) / 2 + 15;
+                if (dist < collisionRadius) { // 根据玩家大小调整碰撞范围
                     handleScore(item.val, item.x, item.y);
                     items.splice(i, 1);
                     continue;
