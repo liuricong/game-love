@@ -11,21 +11,62 @@
 
 ## 部署说明
 
-### 通过 GitHub Pages 部署
+### 通过 GitHub Pages 部署（推荐）
 
-1. 在 GitHub 上创建一个新仓库
-2. 将代码推送到仓库：
-   ```bash
-   git remote add origin <你的仓库URL>
-   git branch -M main
-   git push -u origin main
-   ```
-3. 在仓库设置中启用 GitHub Pages：
-   - 进入 Settings > Pages
-   - Source 选择 `main` 分支
-   - 保存后，你的游戏将在 `https://<你的用户名>.github.io/<仓库名>/love_game.html` 访问
+#### 步骤 1: 在 GitHub 上创建仓库
 
-### 或者使用 index.html
+1. 登录 GitHub
+2. 点击右上角的 "+" 号，选择 "New repository"
+3. 输入仓库名称（例如：`love_game`）
+4. 选择 Public（GitHub Pages 需要公开仓库）
+5. **不要**勾选 "Initialize this repository with a README"（因为本地已有代码）
+6. 点击 "Create repository"
 
-如果想直接通过根URL访问，可以将 `love_game.html` 重命名为 `index.html`，这样访问 `https://<你的用户名>.github.io/<仓库名>/` 即可。
+#### 步骤 2: 推送代码到 GitHub
+
+在终端执行以下命令（将 `<你的用户名>` 和 `<仓库名>` 替换为实际值）：
+
+```bash
+git remote add origin https://github.com/<你的用户名>/<仓库名>.git
+git branch -M main
+git push -u origin main
+```
+
+例如：
+```bash
+git remote add origin https://github.com/yourusername/love_game.git
+git branch -M main
+git push -u origin main
+```
+
+#### 步骤 3: 启用 GitHub Pages
+
+1. 在 GitHub 仓库页面，点击右上角的 "Settings"
+2. 在左侧菜单中找到 "Pages"
+3. 在 "Source" 部分：
+   - 选择 "Deploy from a branch"
+   - Branch 选择 `main`
+   - Folder 选择 `/ (root)`
+4. 点击 "Save"
+
+#### 步骤 4: 访问游戏
+
+等待几分钟后（通常 1-2 分钟），你的游戏就可以通过以下 URL 访问：
+
+- **主入口（推荐）**: `https://<你的用户名>.github.io/<仓库名>/`
+- **备用入口**: `https://<你的用户名>.github.io/<仓库名>/love_game.html`
+
+例如：`https://yourusername.github.io/love_game/`
+
+### 后续更新
+
+如果修改了代码，只需要：
+
+```bash
+git add .
+git commit -m "更新说明"
+git push
+```
+
+GitHub Pages 会自动更新（通常需要几分钟）。
 
