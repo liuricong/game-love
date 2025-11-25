@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>爱心大作战 ❤️/title>
+    <title>爱心大作战 ❤️</title>
     <style>
         body {
             margin: 0;
@@ -182,11 +182,11 @@
         playerImageLoaded = true;
         // 根据图片实际尺寸调整玩家大小
         const aspectRatio = playerImage.width / playerImage.height;
-        player.w = 80;
-        player.h = 80 / aspectRatio;
+        player.w = 50;  // 减小尺寸
+        player.h = 50 / aspectRatio;
     };
 
-    const player = { x: 0, y: 0, w: 80, h: 80 };
+    const player = { x: 0, y: 0, w: 50, h: 50 };
 
     // 物品定义
     const itemTypes = [
@@ -233,9 +233,17 @@
         // 清空画布
         ctx.clearRect(0, 0, width, height);
 
-        // 1. 绘制玩家
+        // 1. 绘制玩家（圆形裁剪）
         if (playerImageLoaded) {
+            ctx.save();
+            // 创建圆形裁剪路径
+            ctx.beginPath();
+            const radius = Math.min(player.w, player.h) / 2;
+            ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
+            ctx.clip();
+            // 绘制图片
             ctx.drawImage(playerImage, player.x - player.w / 2, player.y - player.h / 2, player.w, player.h);
+            ctx.restore();
         } else {
             // 如果图片还没加载，显示占位符
             ctx.font = "50px Arial";
