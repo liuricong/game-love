@@ -176,15 +176,41 @@
 
     // 玩家图片
     const playerImage = new Image();
-    playerImage.src = 'img/1.jpg';
+    // 尝试多种路径格式，确保在GitHub Pages上能加载
+    const imagePaths = [
+        'img/1.jpg',
+        './img/1.jpg',
+        '/game-love/img/1.jpg',
+        window.location.pathname.replace(/\/$/, '') + '/img/1.jpg'
+    ];
+    let currentPathIndex = 0;
     let playerImageLoaded = false;
+    
+    function tryLoadImage() {
+        if (currentPathIndex >= imagePaths.length) {
+            console.error('所有图片路径都加载失败');
+            return;
+        }
+        playerImage.src = imagePaths[currentPathIndex];
+    }
+    
     playerImage.onload = () => {
         playerImageLoaded = true;
         // 根据图片实际尺寸调整玩家大小
         const aspectRatio = playerImage.width / playerImage.height;
         player.w = 50;  // 减小尺寸
         player.h = 50 / aspectRatio;
+        console.log('玩家图片加载成功:', playerImage.src, playerImage.width, playerImage.height);
     };
+    
+    playerImage.onerror = (e) => {
+        console.warn('图片路径失败，尝试下一个:', imagePaths[currentPathIndex]);
+        currentPathIndex++;
+        tryLoadImage();
+    };
+    
+    // 开始加载图片
+    tryLoadImage();
 
     const player = { x: 0, y: 0, w: 50, h: 50 };
 
