@@ -311,6 +311,8 @@
             { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 300 },
             { type: 'bad', subtype: 'ice', r: 40, color: '#00BCD4', speed: [2, 4], name: '冷战', minScore: 300 },
             { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 800 },
+            { type: 'bad', subtype: 'tropical', r: 18, color: '#E91E63', speed: [3, 4], name: '烂桃花', minScore: 500 },
+            { type: 'bad', subtype: 'angelfish', r: 20, color: '#FF9800', speed: [2.5, 3.5], name: '小烦恼', minScore: 600 },
             { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 1500 },
             { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 2500 }
         ]
@@ -333,37 +335,291 @@
         if (type === 'player' || type === 'guardian') { ctx.rotate(angle); }
         const tailWag = Math.sin(frameCount * 0.2) * 0.2;
         const finWag = Math.cos(frameCount * 0.15) * 5;
-        const grad = ctx.createRadialGradient(0, -r*0.2, 0, 0, 0, r * 1.5);
-        grad.addColorStop(0, 'white'); grad.addColorStop(0.4, color); grad.addColorStop(1, 'black');
-        ctx.fillStyle = color;
+        const bodyWave = Math.sin(frameCount * 0.1) * 0.05;
+        
+        // 绘制尾巴
         ctx.save(); ctx.translate(-r, 0); ctx.rotate(tailWag); ctx.beginPath(); ctx.moveTo(0, 0);
-        if (type === 'shark') { ctx.lineTo(-r * 1.5, -r * 0.8); ctx.quadraticCurveTo(-r * 1.2, 0, -r * 1.5, r * 0.8); }
-        else if (type === 'whale') { ctx.lineTo(-r * 1.2, -r * 0.6); ctx.quadraticCurveTo(-r * 1.8, 0, -r * 1.2, r * 0.6); }
-        else { ctx.lineTo(-r * 1.2, -r * 0.6); ctx.lineTo(-r * 1.2, r * 0.6); }
-        ctx.lineTo(0, 0); ctx.fillStyle = color; ctx.fill(); ctx.restore();
-        ctx.beginPath();
-        if (type === 'shark') ctx.ellipse(0, 0, r * 1.8, r * 0.7, 0, 0, Math.PI * 2);
-        else if (type === 'whale') ctx.ellipse(0, 0, r * 1.5, r * 0.9, 0, 0, Math.PI * 2);
-        else ctx.ellipse(0, 0, r * 1.3, r * 0.9, 0, 0, Math.PI * 2);
-        const bodyGrad = ctx.createRadialGradient(-r*0.3, -r*0.3, r*0.2, 0, 0, r*1.5);
-        bodyGrad.addColorStop(0, '#ffffff'); bodyGrad.addColorStop(0.3, color); bodyGrad.addColorStop(1, color);
-        ctx.fillStyle = bodyGrad; ctx.fill();
-        ctx.beginPath();
-        if (type === 'shark') { ctx.moveTo(0, -r * 0.5); ctx.lineTo(r * 0.5, -r * 1.3); ctx.lineTo(r * 0.8, -r * 0.5); ctx.fillStyle=color; ctx.fill(); }
-        ctx.beginPath(); ctx.ellipse(0, r*0.4, r*0.4, r*0.2 + Math.abs(finWag)/20, Math.PI/4, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
-        ctx.fillStyle = 'white'; ctx.beginPath();
-        let eyeX = r * 0.5; let eyeY = -r * 0.3; let eyeSize = r * 0.35;
-        if (type === 'shark') { eyeX = r * 1.0; eyeY = -r * 0.2; eyeSize = r * 0.2; }
-        if (type === 'whale') { eyeX = r * 0.8; eyeY = -r * 0.1; eyeSize = r * 0.15; }
-        ctx.arc(eyeX, eyeY, eyeSize, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(eyeX + 2, eyeY, eyeSize * 0.4, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(eyeX + 4, eyeY - 3, eyeSize * 0.2, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath();
-        if (type === 'guardian') { ctx.moveTo(eyeX - 5, eyeY - 8); ctx.lineTo(eyeX + 5, eyeY - 5); }
-        else if (type === 'player') { ctx.moveTo(eyeX + 5, eyeY - 5); ctx.lineTo(eyeX + 8, eyeY - 8); }
-        else if (type === 'bad' || type === 'shark') { ctx.moveTo(eyeX - 5, eyeY - 8); ctx.lineTo(eyeX + 5, eyeY - 3); }
+        if (type === 'shark') { 
+            ctx.lineTo(-r * 1.5, -r * 0.8); 
+            ctx.quadraticCurveTo(-r * 1.2, 0, -r * 1.5, r * 0.8); 
+        }
+        else if (type === 'whale') { 
+            ctx.lineTo(-r * 1.2, -r * 0.6); 
+            ctx.quadraticCurveTo(-r * 1.8, 0, -r * 1.2, r * 0.6); 
+        }
+        else if (type === 'goldfish') {
+            // 金鱼：大而飘逸的尾巴
+            ctx.lineTo(-r * 1.8, -r * 0.7); 
+            ctx.quadraticCurveTo(-r * 1.5, -r * 0.3, -r * 1.2, 0);
+            ctx.quadraticCurveTo(-r * 1.5, r * 0.3, -r * 1.8, r * 0.7);
+            ctx.lineTo(-r * 1.0, r * 0.4);
+        }
+        else if (type === 'tropical') {
+            // 热带鱼：分叉尾巴
+            ctx.lineTo(-r * 1.3, -r * 0.5);
+            ctx.lineTo(-r * 1.5, -r * 0.8);
+            ctx.lineTo(-r * 1.0, 0);
+            ctx.lineTo(-r * 1.5, r * 0.8);
+            ctx.lineTo(-r * 1.3, r * 0.5);
+        }
+        else if (type === 'clownfish') {
+            // 小丑鱼：圆润尾巴
+            ctx.lineTo(-r * 1.2, -r * 0.5);
+            ctx.quadraticCurveTo(-r * 1.4, 0, -r * 1.2, r * 0.5);
+        }
+        else if (type === 'dolphin') {
+            // 海豚：水平尾鳍
+            ctx.lineTo(-r * 1.5, -r * 0.3);
+            ctx.lineTo(-r * 1.8, 0);
+            ctx.lineTo(-r * 1.5, r * 0.3);
+        }
+        else if (type === 'angelfish') {
+            // 天使鱼：三角形尾巴
+            ctx.lineTo(-r * 1.4, -r * 0.6);
+            ctx.lineTo(-r * 1.6, 0);
+            ctx.lineTo(-r * 1.4, r * 0.6);
+        }
+        else {
+            ctx.lineTo(-r * 1.2, -r * 0.6); 
+            ctx.lineTo(-r * 1.2, r * 0.6); 
+        }
+        ctx.lineTo(0, 0); 
+        // 尾巴渐变效果，让尾巴边缘更透明
+        const tailGrad = ctx.createLinearGradient(0, -r * 0.5, 0, r * 0.5);
+        tailGrad.addColorStop(0, color);
+        tailGrad.addColorStop(0.5, color);
+        tailGrad.addColorStop(1, color);
+        ctx.fillStyle = tailGrad; 
+        ctx.fill(); 
+        // 添加尾巴边缘高光
+        ctx.globalAlpha = 0.3;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 1;
         ctx.stroke();
-        if (type === 'guardian') { ctx.fillStyle = 'white'; ctx.font = `bold ${r*0.8}px Arial`; ctx.textAlign = 'center'; ctx.fillText("聪仔", 0, 0); }
+        ctx.globalAlpha = 1.0;
+        ctx.restore();
+        
+        // 绘制身体
+        ctx.beginPath();
+        if (type === 'shark') {
+            ctx.ellipse(0, 0, r * 1.8, r * 0.7, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'whale') {
+            ctx.ellipse(0, 0, r * 1.5, r * 0.9, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'goldfish') {
+            // 金鱼：圆润身体
+            ctx.ellipse(0, 0, r * 1.4, r * 1.0, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'tropical') {
+            // 热带鱼：扁平身体
+            ctx.ellipse(0, 0, r * 1.3, r * 0.8, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'clownfish') {
+            // 小丑鱼：椭圆形
+            ctx.ellipse(0, 0, r * 1.2, r * 0.9, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'dolphin') {
+            // 海豚：流线型
+            ctx.ellipse(0, 0, r * 1.6, r * 0.6, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'angelfish') {
+            // 天使鱼：高而扁
+            ctx.ellipse(0, 0, r * 1.0, r * 1.3, 0, 0, Math.PI * 2);
+        }
+        else {
+            ctx.ellipse(0, 0, r * 1.3, r * 0.9, 0, 0, Math.PI * 2);
+        }
+        
+        // 身体渐变和纹理
+        const bodyGrad = ctx.createRadialGradient(-r*0.3, -r*0.3, r*0.2, 0, 0, r*1.5);
+        if (type === 'goldfish') {
+            bodyGrad.addColorStop(0, '#FFD700');
+            bodyGrad.addColorStop(0.3, '#FFA500');
+            bodyGrad.addColorStop(0.7, '#FF8C00');
+            bodyGrad.addColorStop(1, '#FF6347');
+        }
+        else if (type === 'tropical') {
+            bodyGrad.addColorStop(0, '#FF69B4');
+            bodyGrad.addColorStop(0.4, '#FF1493');
+            bodyGrad.addColorStop(0.7, '#DC143C');
+            bodyGrad.addColorStop(1, '#8B0000');
+        }
+        else if (type === 'clownfish') {
+            bodyGrad.addColorStop(0, '#FFA500');
+            bodyGrad.addColorStop(0.5, '#FF8C00');
+            bodyGrad.addColorStop(1, '#FF4500');
+        }
+        else if (type === 'dolphin') {
+            bodyGrad.addColorStop(0, '#87CEEB');
+            bodyGrad.addColorStop(0.4, '#4682B4');
+            bodyGrad.addColorStop(1, '#191970');
+        }
+        else if (type === 'angelfish') {
+            bodyGrad.addColorStop(0, '#FFD700');
+            bodyGrad.addColorStop(0.3, '#FFA500');
+            bodyGrad.addColorStop(0.6, '#FF6347');
+            bodyGrad.addColorStop(1, '#8B0000');
+        }
+        else {
+            bodyGrad.addColorStop(0, '#ffffff'); 
+            bodyGrad.addColorStop(0.3, color); 
+            bodyGrad.addColorStop(1, color);
+        }
+        ctx.fillStyle = bodyGrad; 
+        ctx.fill();
+        
+        // 添加纹理细节
+        if (type === 'clownfish') {
+            // 小丑鱼条纹
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.8 + i * r * 0.4, -r * 0.6);
+                ctx.lineTo(-r * 0.8 + i * r * 0.4, r * 0.6);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'tropical' || type === 'angelfish') {
+            // 热带鱼和天使鱼的斑点
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(-r * 0.3 + i * r * 0.3, Math.sin(i) * r * 0.3, r * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // 绘制背鳍
+        ctx.beginPath();
+        if (type === 'shark') { 
+            ctx.moveTo(0, -r * 0.5); 
+            ctx.lineTo(r * 0.5, -r * 1.3); 
+            ctx.lineTo(r * 0.8, -r * 0.5); 
+            ctx.fillStyle = color; 
+            ctx.fill(); 
+        }
+        else if (type === 'dolphin') {
+            // 海豚背鳍
+            ctx.moveTo(r * 0.3, -r * 0.4);
+            ctx.lineTo(r * 0.6, -r * 1.0);
+            ctx.lineTo(r * 0.9, -r * 0.3);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+        else if (type === 'angelfish') {
+            // 天使鱼高背鳍
+            ctx.moveTo(0, -r * 0.5);
+            ctx.lineTo(r * 0.2, -r * 1.5);
+            ctx.lineTo(r * 0.4, -r * 0.3);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+        
+        // 绘制侧鳍（胸鳍）
+        ctx.beginPath(); 
+        ctx.ellipse(0, r*0.4, r*0.4, r*0.2 + Math.abs(finWag)/20, Math.PI/4, 0, Math.PI*2); 
+        ctx.fillStyle = color; 
+        ctx.fill();
+        
+        // 绘制眼睛
+        ctx.fillStyle = 'white'; 
+        ctx.beginPath();
+        let eyeX = r * 0.5; 
+        let eyeY = -r * 0.3; 
+        let eyeSize = r * 0.35;
+        if (type === 'shark') { 
+            eyeX = r * 1.0; 
+            eyeY = -r * 0.2; 
+            eyeSize = r * 0.2; 
+        }
+        else if (type === 'whale') { 
+            eyeX = r * 0.8; 
+            eyeY = -r * 0.1; 
+            eyeSize = r * 0.15; 
+        }
+        else if (type === 'goldfish') {
+            eyeX = r * 0.6;
+            eyeY = -r * 0.2;
+            eyeSize = r * 0.3;
+        }
+        else if (type === 'dolphin') {
+            eyeX = r * 0.7;
+            eyeY = -r * 0.1;
+            eyeSize = r * 0.25;
+        }
+        ctx.arc(eyeX, eyeY, eyeSize, 0, Math.PI * 2); 
+        ctx.fill();
+        
+        // 瞳孔
+        ctx.fillStyle = '#333'; 
+        ctx.beginPath(); 
+        ctx.arc(eyeX + 2, eyeY, eyeSize * 0.4, 0, Math.PI * 2); 
+        ctx.fill();
+        
+        // 高光
+        ctx.fillStyle = 'white'; 
+        ctx.beginPath(); 
+        ctx.arc(eyeX + 4, eyeY - 3, eyeSize * 0.2, 0, Math.PI * 2); 
+        ctx.fill();
+        
+        // 眉毛/表情
+        ctx.strokeStyle = '#333'; 
+        ctx.lineWidth = 1.5; 
+        ctx.beginPath();
+        if (type === 'guardian') { 
+            ctx.moveTo(eyeX - 5, eyeY - 8); 
+            ctx.lineTo(eyeX + 5, eyeY - 5); 
+        }
+        else if (type === 'player') { 
+            ctx.moveTo(eyeX + 5, eyeY - 5); 
+            ctx.lineTo(eyeX + 8, eyeY - 8); 
+        }
+        else if (type === 'bad' || type === 'shark') { 
+            ctx.moveTo(eyeX - 5, eyeY - 8); 
+            ctx.lineTo(eyeX + 5, eyeY - 3); 
+        }
+        else if (type === 'goldfish' || type === 'tropical' || type === 'clownfish') {
+            // 友好表情
+            ctx.moveTo(eyeX - 3, eyeY - 5);
+            ctx.quadraticCurveTo(eyeX, eyeY - 8, eyeX + 3, eyeY - 5);
+        }
+        ctx.stroke();
+        
+        // 特殊标记
+        if (type === 'guardian') { 
+            ctx.fillStyle = 'white'; 
+            ctx.font = `bold ${r*0.8}px Arial`; 
+            ctx.textAlign = 'center'; 
+            ctx.fillText("聪仔", 0, 0); 
+        }
+        
+        // 为某些鱼类添加光晕效果
+        if (type === 'goldfish' || type === 'tropical' || type === 'clownfish') {
+            ctx.globalAlpha = 0.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 1.8, 0, Math.PI * 2);
+            const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 1.8);
+            glowGrad.addColorStop(0, color);
+            glowGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = glowGrad;
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // 为海豚添加水花效果
+        if (type === 'dolphin' && frameCount % 10 < 3) {
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(r * 1.2 + i * 5, Math.sin(frameCount * 0.1 + i) * 3, 2 + i, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+        }
+        
         ctx.restore();
     }
 
@@ -419,7 +675,12 @@
         else {
             let fishType = 'bad';
             if (item.subtype === 'shark') fishType = 'shark';
-            if (item.subtype === 'whale') fishType = 'whale';
+            else if (item.subtype === 'whale') fishType = 'whale';
+            else if (item.subtype === 'tropical') fishType = 'tropical';
+            else if (item.subtype === 'angelfish') fishType = 'angelfish';
+            else if (item.subtype === 'goldfish') fishType = 'goldfish';
+            else if (item.subtype === 'clownfish') fishType = 'clownfish';
+            else if (item.subtype === 'dolphin') fishType = 'dolphin';
             drawFishArt(ctx, 0, 0, r, color, 0, frameCount, fishType);
         }
         ctx.restore();
@@ -458,17 +719,48 @@
             this.y = Math.random() * canvas.height;
             this.r = Math.random() * 15 + 8;
             this.speed = Math.random() * 0.5 + 0.2;
-            this.color = `hsl(${Math.random()*360}, 70%, 80%)`;
             this.vx = this.speed * (Math.random() < 0.5 ? 1 : -1);
-            this.type = Math.random() < 0.3 ? 'whale' : 'normal';
+            
+            // 随机选择鱼类类型和颜色
+            const fishTypes = ['normal', 'goldfish', 'tropical', 'clownfish', 'dolphin', 'angelfish', 'whale'];
+            const rand = Math.random();
+            if (rand < 0.15) this.type = 'goldfish';
+            else if (rand < 0.3) this.type = 'tropical';
+            else if (rand < 0.45) this.type = 'clownfish';
+            else if (rand < 0.55) this.type = 'dolphin';
+            else if (rand < 0.65) this.type = 'angelfish';
+            else if (rand < 0.75) this.type = 'whale';
+            else this.type = 'normal';
+            
+            // 根据类型设置颜色
+            if (this.type === 'goldfish') {
+                this.color = `hsl(${30 + Math.random()*30}, 90%, 60%)`;
+            } else if (this.type === 'tropical') {
+                this.color = `hsl(${300 + Math.random()*60}, 80%, 70%)`;
+            } else if (this.type === 'clownfish') {
+                this.color = `hsl(${20 + Math.random()*20}, 90%, 55%)`;
+            } else if (this.type === 'dolphin') {
+                this.color = `hsl(${200 + Math.random()*20}, 60%, 70%)`;
+            } else if (this.type === 'angelfish') {
+                this.color = `hsl(${40 + Math.random()*20}, 85%, 65%)`;
+            } else if (this.type === 'whale') {
+                this.color = `hsl(${200 + Math.random()*30}, 40%, 50%)`;
+            } else {
+                this.color = `hsl(${Math.random()*360}, 70%, 80%)`;
+            }
         }
         update() {
             this.x += this.vx;
+            // 添加轻微的上下浮动
+            this.y += Math.sin(frameCount * 0.05 + this.x * 0.01) * 0.3;
             if (this.x > canvas.width + 50) this.x = -50;
             if (this.x < -50) this.x = canvas.width + 50;
+            if (this.y > canvas.height + 50) this.y = -50;
+            if (this.y < -50) this.y = canvas.height + 50;
         }
         draw() {
-            ctx.save(); ctx.translate(this.x, this.y);
+            ctx.save(); 
+            ctx.translate(this.x, this.y);
             if (this.vx < 0) ctx.scale(-1, 1);
             drawFishArt(ctx, 0, 0, this.r, this.color, 0, frameCount, this.type);
             ctx.restore();
@@ -777,9 +1069,10 @@
 
     function initAmbient() {
         ambientFish = [];
-        for(let i=0; i<20; i++) ambientFish.push(new AmbientFish());
+        // 增加鱼类数量，让画面更丰富
+        for(let i=0; i<35; i++) ambientFish.push(new AmbientFish());
         ambientBubbles = [];
-        for(let i=0; i<30; i++) ambientBubbles.push(new AmbientBubble());
+        for(let i=0; i<40; i++) ambientBubbles.push(new AmbientBubble());
         drawStartBackground();
     }
 
