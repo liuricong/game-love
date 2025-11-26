@@ -700,6 +700,68 @@
         }
     }
 
+    class Item {
+        constructor(diffSettings) {
+            const rand = Math.random(); const w = diffSettings.weights;
+            let category = 'bad';
+            let sum = 0;
+            for(let i=0; i<w.length; i++) { sum += w[i]; if(rand < sum) {
+                if (i === 0) category = 'good';
+                else if (i === 1) category = 'buff';
+                else category = 'bad';
+                break;
+            }}
+
+            let availableItems = GAME_OBJECTS[category].filter(i => score >= i.minScore);
+            if (availableItems.length === 0) availableItems = [GAME_OBJECTS[category][0]];
+
+            let c = availableItems[Math.floor(Math.random() * availableItems.length)];
+            if (c.rarity && Math.random() > c.rarity) c = availableItems[0];
+
+            if (currentEvent) {
+                if (c.subtype === 'lightning' || c.subtype === 'ice') {
+                    c = GAME_OBJECTS['bad'][1];
+                }
+            }
+
+            if (currentDifficultyName === 'hard' && c.subtype === 'summon') {
+                if (Math.random() > 0.1) c = GAME_OBJECTS['good'][0];
+            }
+
+            this.config = c;
+            this.type = c.type; this.subtype = c.subtype || 'normal';
+            this.radius = c.r; this.color = c.color;
+            this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
+
+            this.y = Math.random() * canvas.height;
+            const scoreFactor = 1 + Math.floor(score / 500) * 0.15;
+            const minSpd = c.speed[0]; const maxSpd = c.speed[1];
+            this.speed = (Math.random()*(maxSpd - minSpd) + minSpd) * diffSettings.speedMultiplier * scoreFactor;
+
+            const side = Math.random() < 0.5 ? 'left' : 'right';
+            const margin = this.radius * 3;
+            if (side === 'left') { this.x = -margin; this.vx = this.speed; }
+            else { this.x = canvas.width + margin; this.vx = -this.speed; }
+        }
+        update() {
+            this.x += this.vx;
+            if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
+            const magnetActive = player.buffs.magnet > 0 || isFeverMode;
+            const canMagnet = (this.type === 'heart' || this.type === 'buff') || isFeverMode;
+            if (magnetActive && canMagnet) {
+                const range = isFeverMode ? 300 : 200;
+                const dist = Math.hypot(player.x - this.x, player.y - this.y);
+                if (dist < range) {
+                    this.x += (player.x - this.x) * (isFeverMode ? 0.12 : 0.05);
+                    this.y += (player.y - this.y) * (isFeverMode ? 0.12 : 0.05);
+                }
+            }
+        }
+        draw() {
+            drawItemArt(ctx, this);
+        }
+    }
+
     // 首页动画循环
     function drawStartBackground() {
         if (gameRunning) return;
