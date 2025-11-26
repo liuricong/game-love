@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>爱的守护 - 进化挑战版</title>
+    <title>爱的守护 - 概率平衡版</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
             overflow: hidden;
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            user-select: none;
-            touch-action: none;
+            user-select: none; touch-action: none;
             transition: background 3s ease;
         }
 
@@ -93,13 +91,18 @@
             0% { box-shadow: inset 0 0 20px #ff0000; } 50% { box-shadow: inset 0 0 20px #00ffff; } 100% { box-shadow: inset 0 0 20px #ff00ff; }
         }
 
-        /* 解锁提示 */
         #unlock-msg {
             position: absolute; top: 20%; width: 100%; text-align: center;
             font-size: 24px; color: #ff4081; font-weight: bold; text-shadow: 2px 2px 0 #fff;
-            opacity: 0; pointer-events: none; z-index: 60;
-            transition: opacity 0.5s;
+            opacity: 0; pointer-events: none; z-index: 60; transition: opacity 0.5s;
         }
+
+        #event-banner {
+            position: absolute; top: 150px; width: 100%; text-align: center;
+            pointer-events: none; z-index: 55; opacity: 0; transition: opacity 0.5s;
+        }
+        .event-title { font-size: 28px; font-weight: 900; color: #fff; text-shadow: 0 0 10px #ff0055; margin-bottom: 5px; }
+        .event-desc { font-size: 16px; color: #fff; text-shadow: 1px 1px 2px #000; background: rgba(0,0,0,0.4); display: inline-block; padding: 5px 15px; border-radius: 20px;}
     </style>
 </head>
 <body>
@@ -107,7 +110,11 @@
 <div id="particles-container"></div>
 <div id="unlock-msg">⚠️ 新挑战出现! ⚠️</div>
 
-<!-- UI层 -->
+<div id="event-banner">
+    <div class="event-title" id="event-title">⚡ 事件发生 ⚡</div>
+    <div class="event-desc" id="event-desc">描述文字</div>
+</div>
+
 <div id="ui-layer" style="display:none;">
     <div class="score-text">恋爱指数: <span id="score">0</span> ❤️</div>
     <div class="sub-text">我们在一起: <span id="size-display">1</span> 天</div>
@@ -123,7 +130,8 @@
 <!-- 开始界面 -->
 <div id="start-screen" class="overlay-screen">
     <h1>💖 爱的守护 💖</h1>
-    <p>随着恋爱指数(分数)增加<br>会遇到<b>[嫉妒]</b>、<b>[压力]</b>和<b>[危机]</b><br>寻找护身符，我们会越来越强！</p>
+    <p><b>成长很慢，需要耐心积累</b><br><b>爆发很难，需要珍惜机会</b><br>无论发生什么，记得抓紧聪仔！</p>
+    <div class="hint">提示：只有爱心能增加心动值！</div>
     <div class="btn-group">
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
@@ -166,6 +174,9 @@
     const particlesContainer = document.getElementById('particles-container');
     const feverBar = document.getElementById('fever-bar');
     const unlockMsg = document.getElementById('unlock-msg');
+    const eventBanner = document.getElementById('event-banner');
+    const eventTitle = document.getElementById('event-title');
+    const eventDesc = document.getElementById('event-desc');
     const body = document.body;
 
     const input = { x: 0, y: 0 };
@@ -178,64 +189,63 @@
     let feverValue = 0;
     let isFeverMode = false;
     let feverTimer = 0;
-    // 记录解锁状态，避免重复提示
     let unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
+
+    let currentEvent = null;
+    let eventTimer = 0;
+    let nextEventCooldown = 600;
+    let currentForce = { x: 0, y: 0 };
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
-    // 难度配置 (概率权重：爱心, Buff, 敌人)
+    // === 核心配置：难度控制 ===
     const DIFFICULTY_SETTINGS = {
         'easy':   {
-            spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
-            // 更多爱心和buff
-            weights: [0.6, 0.3, 0.1]
+            spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0, fogRadius: 180,
+            // 物品权重：爱心多
+            weights: [0.6, 0.3, 0.1],
+            // 事件概率：雾30%, 激流30%, 星星40% (容易出星星)
+            eventProb: { fog: 0.3, current: 0.3, starfall: 0.4 }
         },
         'normal': {
-            spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0,
-            // 平衡
-            weights: [0.4, 0.2, 0.4]
+            spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0, fogRadius: 120,
+            weights: [0.4, 0.2, 0.4],
+            // 事件概率：雾40%, 激流40%, 星星20%
+            eventProb: { fog: 0.4, current: 0.4, starfall: 0.2 }
         },
         'hard':   {
-            spawnRate: 30, speedMultiplier: 1.3, feverFactor: 0.4,
-            // 敌人超多
-            weights: [0.25, 0.1, 0.65]
+            spawnRate: 30, speedMultiplier: 1.3, feverFactor: 0.4, fogRadius: 70,
+            weights: [0.25, 0.1, 0.65],
+            // 事件概率：雾50%, 激流45%, 星星5% (极难出星星)
+            eventProb: { fog: 0.5, current: 0.45, starfall: 0.05 }
         }
     };
 
-    // === 生态图鉴 (分数门槛 minScore) ===
     const GAME_OBJECTS = {
-        // === 爱心类 ===
         good: [
-            { type: 'heart', r: 8, color: '#ff4081', score: 10, fever: 10, speed: [1, 2], name: '小惊喜', minScore: 0 },
-            { type: 'heart', r: 15, color: '#ff0055', score: 20, fever: 15, speed: [1.5, 2.5], name: '大礼物', minScore: 100 },
-            { type: 'heart', subtype: 'star', r: 12, color: '#FFD700', score: 50, fever: 30, speed: [3, 5], name: '幸运星', minScore: 300 },
-            // 传说级道具
+            { type: 'heart', r: 8, color: '#ff4081', score: 10, fever: 2, speed: [1, 2], name: '小惊喜', minScore: 0 },
+            { type: 'heart', r: 15, color: '#ff0055', score: 20, fever: 5, speed: [1.5, 2.5], name: '大礼物', minScore: 100 },
+            { type: 'heart', subtype: 'star', r: 12, color: '#FFD700', score: 50, fever: 15, speed: [3, 5], name: '幸运星', minScore: 300 },
             { type: 'heart', subtype: 'diamond', r: 20, color: '#E0FFFF', score: 500, fever: 100, speed: [4, 6], name: '永恒钻戒', minScore: 2500, rarity: 0.01 }
         ],
-        // === Buff类 ===
         buff: [
             { type: 'buff', subtype: 'candy', r: 12, color: '#FFD700', speed: [1, 1.5], name: '甜蜜糖果', minScore: 0 },
             { type: 'buff', subtype: 'summon', r: 14, color: '#00BFFF', speed: [1, 1.5], name: '护身符', minScore: 0 },
             { type: 'buff', subtype: 'magnet', r: 12, color: '#FF6347', speed: [1, 1.5], name: '双向奔赴', minScore: 100 }
         ],
-        // === 敌人/挑战类 (随分数进化) ===
         bad: [
-            // 初始阶段
             { type: 'bad', subtype: 'normal', r: 12, color: '#8BC34A', speed: [2, 3], name: '小摩擦', minScore: 0 },
             { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 100 },
-            // 500分 - 进阶
             { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 500 },
             { type: 'bad', subtype: 'ice', r: 40, color: '#00BCD4', speed: [2, 4], name: '冷战', minScore: 500 },
-            // 1000分 - 困难
             { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 1000 },
-            // 2000分 - 巨型压力
             { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 2000 },
-            // 3000分 - 终极危机
             { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 3000 }
         ]
     };
 
-    // 兼容性
+    // --- 辅助绘图函数 ---
+
     if (!CanvasRenderingContext2D.prototype.roundRect) {
         CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
             if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
@@ -245,6 +255,51 @@
             this.closePath(); return this;
         };
     }
+
+    function drawCuteFish(ctx, x, y, r, angle, color, hasEyelashes, text) {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+        ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); const tailX = -r * 1.2; ctx.moveTo(tailX, 0); ctx.quadraticCurveTo(tailX - r, -r, tailX - r, 0); ctx.quadraticCurveTo(tailX - r, r, tailX, 0); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.3, r * 0.35, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(r * 0.7, -r * 0.3, r * 0.15, 0, Math.PI * 2); ctx.fill();
+        if (hasEyelashes) {
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.beginPath();
+            ctx.moveTo(r*0.6, -r*0.6); ctx.lineTo(r*0.5, -r*0.8);
+            ctx.moveTo(r*0.7, -r*0.65); ctx.lineTo(r*0.7, -r*0.9);
+            ctx.moveTo(r*0.8, -r*0.6); ctx.lineTo(r*0.9, -r*0.8); ctx.stroke();
+        }
+        if (text) {
+            ctx.fillStyle = 'white'; const fontSize = text.length > 1 ? r * 0.6 : r * 0.8;
+            ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, -r * 0.1, 0);
+        }
+        ctx.fillStyle = 'rgba(255,0,0,0.2)'; ctx.beginPath(); ctx.arc(r * 0.6, r * 0.1, r * 0.2, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawHeart(ctx, x, y, r, color) {
+        ctx.fillStyle = color; ctx.beginPath(); const topCurveHeight = r * 0.8; ctx.moveTo(0, r * 0.6);
+        ctx.bezierCurveTo(0, 0, -r, 0, -r, -topCurveHeight); ctx.bezierCurveTo(-r, -r * 1.6, 0, -r * 1.6, 0, -topCurveHeight);
+        ctx.bezierCurveTo(0, -r * 1.6, r, -r * 1.6, r, -topCurveHeight); ctx.bezierCurveTo(r, 0, 0, 0, 0, r * 0.6); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(-r*0.3, -r*0.8, r*0.15, 0, Math.PI*2); ctx.fill();
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
+        var rot = Math.PI / 2 * 3; var x = cx; var y = cy; var step = Math.PI / spikes;
+        ctx.beginPath(); ctx.moveTo(cx, cy - outerRadius);
+        for (i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; ctx.lineTo(x, y); rot += step;
+            x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; ctx.lineTo(x, y); rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+    }
+
+    function drawDiamond(ctx, r, color) {
+        ctx.fillStyle = color; ctx.beginPath();
+        ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0);
+        ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    // --- 系统函数 ---
 
     function resizeCanvas() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -269,8 +324,7 @@
     }
 
     function showUnlockMsg(text) {
-        unlockMsg.innerText = text;
-        unlockMsg.style.opacity = 1;
+        unlockMsg.innerText = text; unlockMsg.style.opacity = 1;
         setTimeout(() => { unlockMsg.style.opacity = 0; }, 3000);
     }
 
@@ -283,28 +337,89 @@
     }
 
     function checkGameEvolution() {
-        // 背景进化
-        if (score > 2000) body.style.background = "linear-gradient(to bottom, #000000, #434343)"; // 深渊黑
-        else if (score > 1000) body.style.background = "linear-gradient(to bottom, #0f2027, #203a43, #2c5364)"; // 深海蓝
-        else if (score > 500) body.style.background = "linear-gradient(to bottom, #6a11cb, #2575fc)"; // 梦幻紫
-        else body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)"; // 甜蜜粉
+        if (score > 2000) body.style.background = "linear-gradient(to bottom, #000000, #434343)";
+        else if (score > 1000) body.style.background = "linear-gradient(to bottom, #0f2027, #203a43, #2c5364)";
+        else if (score > 500) body.style.background = "linear-gradient(to bottom, #6a11cb, #2575fc)";
+        else body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
 
-        // 怪物解锁提示
-        if (!unlockedStages[500] && score >= 500) {
-            unlockedStages[500] = true;
-            showUnlockMsg("⚡ 争吵与冷战 出现了!");
+        if (!unlockedStages[500] && score >= 500) { unlockedStages[500] = true; showUnlockMsg("⚡ 争吵与冷战 出现了!"); }
+        if (!unlockedStages[1000] && score >= 1000) { unlockedStages[1000] = true; showUnlockMsg("🐡 嫉妒 出现了! 小心刺!"); }
+        if (!unlockedStages[2000] && score >= 2000) { unlockedStages[2000] = true; showUnlockMsg("🐳 巨大的现实压力 逼近!"); }
+        if (!unlockedStages[3000] && score >= 3000) { unlockedStages[3000] = true; showUnlockMsg("🦈 情感危机 袭来! 快跑!"); }
+    }
+
+    // === 事件系统逻辑 ===
+    function triggerEvent(type) {
+        currentEvent = type;
+        eventTimer = 600;
+
+        items = items.filter(i => i.subtype !== 'lightning' && i.subtype !== 'ice');
+
+        let title = "";
+        let desc = "";
+        let bgColor = "";
+
+        if (type === 'fog') {
+            title = "🌫️ 迷茫之雾";
+            desc = "看不清未来...但有你在";
+            bgColor = "#555";
+        } else if (type === 'current') {
+            title = "🌊 命运激流";
+            desc = "生活想把我们冲散，坚持住！";
+            currentForce.x = (Math.random() - 0.5) * 4;
+            currentForce.y = (Math.random() - 0.5) * 4;
+            bgColor = "#0077be";
+        } else if (type === 'starfall') {
+            title = "🌠 幸运流星";
+            desc = "属于我们的高光时刻，快许愿！";
+            bgColor = "#FFD700";
         }
-        if (!unlockedStages[1000] && score >= 1000) {
-            unlockedStages[1000] = true;
-            showUnlockMsg("🐡 嫉妒 出现了! 小心刺!");
-        }
-        if (!unlockedStages[2000] && score >= 2000) {
-            unlockedStages[2000] = true;
-            showUnlockMsg("🐳 巨大的现实压力 逼近!");
-        }
-        if (!unlockedStages[3000] && score >= 3000) {
-            unlockedStages[3000] = true;
-            showUnlockMsg("🦈 情感危机 袭来! 快跑!");
+
+        eventTitle.innerText = title;
+        eventDesc.innerText = desc;
+        eventTitle.style.color = bgColor;
+        eventBanner.style.opacity = 1;
+
+        setTimeout(() => { eventBanner.style.opacity = 0; }, 4000);
+    }
+
+    function updateEventLogic() {
+        if (currentEvent) {
+            eventTimer--;
+
+            if (currentEvent === 'current') {
+                player.x += currentForce.x;
+                player.y += currentForce.y;
+                if (guardian.active) {
+                    guardian.x += currentForce.x * 0.8;
+                    guardian.y += currentForce.y * 0.8;
+                }
+            }
+
+            if (currentEvent === 'starfall' && frameCount % 45 === 0) {
+                const star = new Item(currentDifficulty);
+                star.type = 'heart'; star.subtype = 'star';
+                star.color = '#FFD700'; star.score = 50; star.fever = 15;
+                star.speed *= 2;
+                items.push(star);
+            }
+
+            if (eventTimer <= 0) {
+                currentEvent = null;
+                spawnFloatingText("风平浪静了...", player.x, player.y - 50, '#fff');
+            }
+        } else {
+            nextEventCooldown--;
+            if (nextEventCooldown <= 0) {
+                // 根据难度概率触发事件
+                const probs = currentDifficulty.eventProb;
+                const rand = Math.random();
+                if (rand < probs.fog) triggerEvent('fog');
+                else if (rand < probs.fog + probs.current) triggerEvent('current');
+                else triggerEvent('starfall');
+
+                nextEventCooldown = Math.random() * 1000 + 1000;
+            }
         }
     }
 
@@ -317,8 +432,7 @@
     }
 
     function activateFever() {
-        isFeverMode = true;
-        feverTimer = 300; // 5秒
+        isFeverMode = true; feverTimer = 300;
         spawnFloatingText("🔥 恋爱爆发! 无敌! 🔥", canvas.width/2 - 100, canvas.height/2, '#FF1493', 30);
         body.classList.add('fever-mode-bg');
         if(navigator.vibrate) navigator.vibrate([100,50,100]);
@@ -348,8 +462,7 @@
             if (this.buffs.magnet > 0) this.buffs.magnet--;
 
             if (isFeverMode) {
-                feverTimer--;
-                feverBar.style.width = (feverTimer / 300 * 100) + "%";
+                feverTimer--; feverBar.style.width = (feverTimer / 300 * 100) + "%";
                 if (feverTimer <= 0) {
                     isFeverMode = false; feverValue = 0;
                     body.classList.remove('fever-mode-bg');
@@ -400,27 +513,22 @@
 
     class Item {
         constructor(diffSettings) {
-            // 1. 决定是 爱心、Buff 还是 敌人
-            const rand = Math.random();
-            const w = diffSettings.weights;
-            let category = 'bad'; // 默认
+            const rand = Math.random(); const w = diffSettings.weights;
+            let category = 'bad';
+            if (rand < w[0]) category = 'good';
+            else if (rand < w[0] + w[1]) category = 'buff';
+            else category = 'bad';
 
-            if (rand < w[0]) category = 'good'; // 爱心
-            else if (rand < w[0] + w[1]) category = 'buff'; // Buff
-            else category = 'bad'; // 敌人
-
-            // 2. 从对应类别中，根据分数筛选可生成的物品
             let availableItems = GAME_OBJECTS[category].filter(i => score >= i.minScore);
-            if (availableItems.length === 0) {
-                // 如果分数太低没解锁高级怪，就默认出第一个
-                availableItems = [GAME_OBJECTS[category][0]];
-            }
+            if (availableItems.length === 0) availableItems = [GAME_OBJECTS[category][0]];
 
-            // 3. 随机选择一个 (处理稀有度)
             let c = availableItems[Math.floor(Math.random() * availableItems.length)];
-            // 简单的稀有度检查 (如果随到了稀有的，再随一次，没中就换普通)
-            if (c.rarity && Math.random() > c.rarity) {
-                c = availableItems[0];
+            if (c.rarity && Math.random() > c.rarity) c = availableItems[0];
+
+            if (currentEvent) {
+                if (c.subtype === 'lightning' || c.subtype === 'ice') {
+                    c = GAME_OBJECTS['bad'][1];
+                }
             }
 
             this.config = c;
@@ -429,22 +537,19 @@
             this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
 
             this.y = Math.random() * canvas.height;
-            // 速度波动
             const minSpd = c.speed[0]; const maxSpd = c.speed[1];
             this.speed = (Math.random()*(maxSpd - minSpd) + minSpd) * diffSettings.speedMultiplier;
 
             const side = Math.random() < 0.5 ? 'left' : 'right';
-            const margin = this.radius * 3; // 生成在屏幕外更远一点
+            const margin = this.radius * 3;
             if (side === 'left') { this.x = -margin; this.vx = this.speed; }
             else { this.x = canvas.width + margin; this.vx = -this.speed; }
         }
         update() {
             this.x += this.vx;
             if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
-
             const magnetActive = player.buffs.magnet > 0 || isFeverMode;
             const canMagnet = (this.type === 'heart' || this.type === 'buff') || isFeverMode;
-
             if (magnetActive && canMagnet) {
                 const range = isFeverMode ? 300 : 200;
                 const dist = Math.hypot(player.x - this.x, player.y - this.y);
@@ -456,7 +561,6 @@
         }
         draw() {
             ctx.save(); ctx.translate(this.x, this.y);
-
             if (this.type === 'heart') {
                 if (this.subtype === 'star') drawStar(ctx, 0, 0, 5, this.radius, this.radius/2, this.color);
                 else if (this.subtype === 'diamond') drawDiamond(ctx, this.radius, this.color);
@@ -473,7 +577,6 @@
             else {
                 if (this.vx < 0) ctx.scale(-1, 1);
                 ctx.fillStyle = this.color;
-
                 if (this.subtype === 'lightning') {
                     ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius/2, 0); ctx.lineTo(-this.radius/2, 0); ctx.lineTo(0, this.radius); ctx.fill();
                 } else if (this.subtype === 'ice') {
@@ -485,14 +588,18 @@
                     for(let i=0; i<8; i++) { const ang = i * Math.PI/4; ctx.beginPath(); ctx.moveTo(Math.cos(ang)*this.radius, Math.sin(ang)*this.radius); ctx.lineTo(Math.cos(ang)*(this.radius+5), Math.sin(ang)*(this.radius+5)); ctx.strokeStyle = this.color; ctx.lineWidth=2; ctx.stroke(); }
                     ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(6, -5, 2, 0, Math.PI*2); ctx.fill();
                 } else if (this.subtype === 'whale') {
-                    // 巨鲸 - 大椭圆
                     ctx.beginPath(); ctx.ellipse(0, 0, this.radius*1.5, this.radius*0.8, 0, 0, Math.PI*2); ctx.fill();
                     ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.radius*0.8, -this.radius*0.2, this.radius*0.1, 0, Math.PI*2); ctx.fill();
                 } else if (this.subtype === 'shark') {
-                    // 鲨鱼 - 流线型
                     ctx.beginPath(); ctx.ellipse(0, 0, this.radius*1.8, this.radius*0.6, 0, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.moveTo(0, -this.radius*0.5); ctx.lineTo(this.radius*0.5, -this.radius*1.2); ctx.lineTo(this.radius*0.8, -this.radius*0.5); ctx.fill(); // 背鳍
+                    ctx.beginPath(); ctx.moveTo(0, -this.radius*0.5); ctx.lineTo(this.radius*0.5, -this.radius*1.2); ctx.lineTo(this.radius*0.8, -this.radius*0.5); ctx.fill();
                     ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.radius, -this.radius*0.1, 5, 0, Math.PI*2); ctx.fill();
+                } else if (this.subtype === 'octopus') {
+                    ctx.beginPath(); ctx.arc(0, -5, this.radius*0.8, Math.PI, 0); ctx.lineTo(this.radius*0.8, 5); ctx.quadraticCurveTo(5, 15, 0, 5); ctx.quadraticCurveTo(-5, 15, -this.radius*0.8, 5); ctx.fill();
+                    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(5, -5, 2, 0, Math.PI*2); ctx.fill();
+                } else if (this.subtype === 'shadow') {
+                    ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.moveTo(this.radius, 0); ctx.lineTo(-this.radius, -10); ctx.lineTo(-this.radius, 10); ctx.fill();
+                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0;
                 } else {
                     drawCuteFish(ctx, 0, 0, this.radius, 0, this.color, false, null);
                     ctx.save(); ctx.translate(this.radius*0.4, -this.radius*0.2); ctx.rotate(0.2); ctx.fillStyle = 'white'; ctx.fillRect(0,0,5,2); ctx.restore();
@@ -502,58 +609,10 @@
         }
     }
 
-    // 6. 绘图函数
-    function drawCuteFish(ctx, x, y, r, angle, color, hasEyelashes, text) {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
-        ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); const tailX = -r * 1.2; ctx.moveTo(tailX, 0); ctx.quadraticCurveTo(tailX - r, -r, tailX - r, 0); ctx.quadraticCurveTo(tailX - r, r, tailX, 0); ctx.fill();
-        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.3, r * 0.35, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(r * 0.7, -r * 0.3, r * 0.15, 0, Math.PI * 2); ctx.fill();
-        if (hasEyelashes) {
-            ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.beginPath();
-            ctx.moveTo(r*0.6, -r*0.6); ctx.lineTo(r*0.5, -r*0.8);
-            ctx.moveTo(r*0.7, -r*0.65); ctx.lineTo(r*0.7, -r*0.9);
-            ctx.moveTo(r*0.8, -r*0.6); ctx.lineTo(r*0.9, -r*0.8); ctx.stroke();
-        }
-        if (text) {
-            ctx.fillStyle = 'white'; const fontSize = text.length > 1 ? r * 0.6 : r * 0.8;
-            ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, -r * 0.1, 0);
-        }
-        ctx.fillStyle = 'rgba(255,0,0,0.2)'; ctx.beginPath(); ctx.arc(r * 0.6, r * 0.1, r * 0.2, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-    }
-
-    function drawHeart(ctx, x, y, r, color) {
-        ctx.fillStyle = color; ctx.beginPath(); const topCurveHeight = r * 0.8; ctx.moveTo(0, r * 0.6);
-        ctx.bezierCurveTo(0, 0, -r, 0, -r, -topCurveHeight); ctx.bezierCurveTo(-r, -r * 1.6, 0, -r * 1.6, 0, -topCurveHeight);
-        ctx.bezierCurveTo(0, -r * 1.6, r, -r * 1.6, r, -topCurveHeight); ctx.bezierCurveTo(r, 0, 0, 0, 0, r * 0.6); ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(-r*0.3, -r*0.8, r*0.15, 0, Math.PI*2); ctx.fill();
-    }
-
-    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
-        var rot = Math.PI / 2 * 3; var x = cx; var y = cy; var step = Math.PI / spikes;
-        ctx.beginPath(); ctx.moveTo(cx, cy - outerRadius);
-        for (i = 0; i < spikes; i++) {
-            x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; ctx.lineTo(x, y); rot += step;
-            x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; ctx.lineTo(x, y); rot += step;
-        }
-        ctx.lineTo(cx, cy - outerRadius); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
-    }
-
-    function drawDiamond(ctx, r, color) {
-        ctx.fillStyle = color; ctx.beginPath();
-        ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0);
-        ctx.fill();
-        ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
-    }
-
-    // 7. 核心逻辑
-    let player, guardian;
-
     function init(difficultyKey) {
         currentDifficulty = DIFFICULTY_SETTINGS[difficultyKey];
         player = new Player();
-        guardian = new Guardian(); // 默认不出现
+        guardian = new Guardian();
         items = [];
         score = 0;
         feverValue = 0; isFeverMode = false;
@@ -564,7 +623,8 @@
         sizeEl.innerText = 1;
         frameCount = 0;
         isPaused = false;
-        unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false }; // 重置解锁
+        unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
+        currentEvent = null; nextEventCooldown = 600; eventBanner.style.opacity = 0;
         input.x = canvas.width / 2; input.y = canvas.height / 2;
         updateBuffUI(player.buffs, guardian.active);
     }
@@ -577,13 +637,10 @@
 
         player.update();
         updateBuffUI(player.buffs, guardian.active);
-
-        if (guardian.active) {
-            guardian.update(player.x, player.y);
-            guardian.draw();
-        }
-
+        if (guardian.active) { guardian.update(player.x, player.y); guardian.draw(); }
         player.draw();
+
+        updateEventLogic();
 
         frameCount++;
         if (frameCount % currentDifficulty.spawnRate === 0) {
@@ -600,7 +657,6 @@
             const dist = Math.hypot(player.x - item.x, player.y - item.y);
             if (dist < player.radius + item.radius) {
 
-                // 1. 爱心 & 星星
                 if (item.type === 'heart') {
                     items.splice(i, 1);
                     score += item.score;
@@ -609,19 +665,14 @@
                     checkGameEvolution();
                     spawnFloatingText(item.name + "!", player.x, player.y - 30, item.color);
 
-                    if (item.subtype === 'diamond') {
-                        // 钻戒特效：满心动
-                        feverValue = 100;
-                        activateFever();
-                    }
+                    if (item.subtype === 'diamond') { feverValue = 100; activateFever(); }
 
                     if (player.radius < 60) {
-                        player.radius += 0.5;
-                        if (guardian.active) guardian.radius += 0.4;
+                        player.radius += 0.05;
+                        if (guardian.active) guardian.radius += 0.04;
                         sizeEl.innerText = Math.floor(player.radius - 9);
                     }
                 }
-                // 2. Buff
                 else if (item.type === 'buff') {
                     items.splice(i, 1);
                     if (item.subtype === 'summon') {
@@ -633,7 +684,6 @@
                         if (item.subtype === 'magnet') player.buffs.magnet = 400;
                     }
                 }
-                // 3. 敌人
                 else if (item.type === 'bad') {
                     if (isFeverMode) {
                         items.splice(i, 1);
@@ -666,61 +716,38 @@
                 }
             }
         }
+
+        if (currentEvent === 'fog') {
+            const fogR = currentDifficulty.fogRadius || 100;
+            const grad = ctx.createRadialGradient(player.x, player.y, fogR, player.x, player.y, Math.max(canvas.width, canvas.height)/2);
+            grad.addColorStop(0, "rgba(0,0,0,0)");
+            grad.addColorStop(1, "rgba(0,0,0,0.98)");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
         animationId = requestAnimationFrame(gameLoop);
     }
 
-    // 8. 流程控制
     function startGame(difficulty) {
-        startScreen.style.display = 'none';
-        gameOverScreen.style.display = 'none';
-        pauseScreen.style.display = 'none';
-        uiLayer.style.display = 'block';
-        pauseBtn.style.display = 'flex';
-        init(difficulty);
-        gameRunning = true;
-        gameLoop();
+        startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; pauseScreen.style.display = 'none';
+        uiLayer.style.display = 'block'; pauseBtn.style.display = 'flex';
+        init(difficulty); gameRunning = true; gameLoop();
     }
-
-    function pauseGame() {
-        if (!gameRunning) return;
-        isPaused = true;
-        cancelAnimationFrame(animationId);
-        pauseScreen.style.display = 'flex';
-    }
-
-    function resumeGame() {
-        isPaused = false;
-        pauseScreen.style.display = 'none';
-        gameLoop();
-    }
-
-    function quitGameFromPause() {
-        pauseScreen.style.display = 'none';
-        deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~";
-        endGame();
-    }
-
+    function pauseGame() { if (!gameRunning) return; isPaused = true; cancelAnimationFrame(animationId); pauseScreen.style.display = 'flex'; }
+    function resumeGame() { isPaused = false; pauseScreen.style.display = 'none'; gameLoop(); }
+    function quitGameFromPause() { pauseScreen.style.display = 'none'; deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~"; endGame(); }
     function showStartScreen() {
-        startScreen.style.display = 'flex';
-        gameOverScreen.style.display = 'none';
-        uiLayer.style.display = 'none';
-        pauseBtn.style.display = 'none';
-        pauseScreen.style.display = 'none';
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
+        pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
-
     function endGame() {
-        gameRunning = false;
-        isPaused = false;
-        cancelAnimationFrame(animationId);
-        finalScoreEl.innerText = score;
-        pauseBtn.style.display = 'none';
-        gameOverScreen.style.display = 'flex';
-        body.classList.remove('fever-mode-bg');
+        gameRunning = false; isPaused = false; cancelAnimationFrame(animationId);
+        finalScoreEl.innerText = score; pauseBtn.style.display = 'none'; gameOverScreen.style.display = 'flex';
+        body.classList.remove('fever-mode-bg'); body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
     }
 
     showStartScreen();
-
 </script>
 </body>
 </html>
