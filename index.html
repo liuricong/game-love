@@ -272,10 +272,7 @@
     let gameBubbles = [];
     let lightRays = []; // 光斑效果
     let particles = []; // 粒子特效
-    let comboCount = 0; // 连击数
-    let comboTimer = 0; // 连击计时器
     let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
-    let scoreAnimations = []; // 分数动画
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -352,6 +349,9 @@
             { type: 'bad', subtype: 'clownfish', r: 8, color: '#FF6347', speed: [2, 3], name: '小麻烦', minScore: 0 },
             { type: 'bad', subtype: 'tropical', r: 9, color: '#FF69B4', speed: [2, 3.5], name: '小波折', minScore: 0 },
             { type: 'bad', subtype: 'angelfish', r: 11, color: '#FFD700', speed: [1.8, 2.8], name: '小插曲', minScore: 0 },
+            { type: 'bad', subtype: 'seahorse', r: 9, color: '#FFB6C1', speed: [1.5, 2], name: '小烦恼', minScore: 0 },
+            { type: 'bad', subtype: 'jellyfish', r: 10, color: '#E6E6FA', speed: [1.2, 2.2], name: '小困扰', minScore: 0 },
+            { type: 'bad', subtype: 'flounder', r: 8, color: '#DDA0DD', speed: [1.8, 2.5], name: '小波折', minScore: 0 },
             
             // 中等大小的鱼（r: 20-30），50-200分阶段
             { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 50 },
@@ -360,6 +360,9 @@
             { type: 'bad', subtype: 'clownfish', r: 20, color: '#FF4500', speed: [2.2, 3.2], name: '中等麻烦', minScore: 50 },
             { type: 'bad', subtype: 'angelfish', r: 23, color: '#FFA500', speed: [2, 3], name: '中等插曲', minScore: 50 },
             { type: 'bad', subtype: 'dolphin', r: 28, color: '#4682B4', speed: [1.5, 2.5], name: '中等压力', minScore: 100 },
+            { type: 'bad', subtype: 'seahorse', r: 26, color: '#FF69B4', speed: [1.8, 2.5], name: '中等烦恼', minScore: 100 },
+            { type: 'bad', subtype: 'jellyfish', r: 27, color: '#9370DB', speed: [1.5, 2.2], name: '中等困扰', minScore: 100 },
+            { type: 'bad', subtype: 'grouper', r: 25, color: '#8B4513', speed: [1.6, 2.4], name: '中等波折', minScore: 150 },
             
             // 较大的鱼（r: 30-50），300-1000分阶段
             { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 300 },
@@ -371,6 +374,10 @@
             { type: 'bad', subtype: 'dolphin', r: 38, color: '#1E90FF', speed: [2, 3], name: '大压力', minScore: 400 },
             { type: 'bad', subtype: 'tropical', r: 18, color: '#E91E63', speed: [3, 4], name: '烂桃花', minScore: 500 },
             { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 800 },
+            { type: 'bad', subtype: 'seahorse', r: 32, color: '#FF1493', speed: [2, 2.8], name: '大烦恼', minScore: 400 },
+            { type: 'bad', subtype: 'jellyfish', r: 35, color: '#BA55D3', speed: [1.8, 2.5], name: '大困扰', minScore: 500 },
+            { type: 'bad', subtype: 'grouper', r: 40, color: '#654321', speed: [1.5, 2.2], name: '大波折', minScore: 600 },
+            { type: 'bad', subtype: 'flounder', r: 36, color: '#9370DB', speed: [2, 3], name: '大插曲', minScore: 500 },
             { type: 'bad', subtype: 'angelfish', r: 20, color: '#FF9800', speed: [2.5, 3.5], name: '小烦恼', minScore: 600 },
             { type: 'bad', subtype: 'goldfish', r: 42, color: '#FF4500', speed: [2, 3], name: '巨大困扰', minScore: 800 },
             { type: 'bad', subtype: 'dolphin', r: 45, color: '#0000CD', speed: [2.5, 3.5], name: '巨大压力', minScore: 1000 },
@@ -383,7 +390,9 @@
             { type: 'bad', subtype: 'dolphin', r: 65, color: '#191970', speed: [2, 3], name: '终极压力', minScore: 2000 },
             { type: 'bad', subtype: 'angelfish', r: 58, color: '#FF8C00', speed: [2.5, 3.5], name: '终极插曲', minScore: 2000 },
             { type: 'bad', subtype: 'whale', r: 90, color: '#2F4F4F', speed: [1, 1.5], name: '深海压力', minScore: 3000 },
-            { type: 'bad', subtype: 'shark', r: 70, color: '#8B0000', speed: [6, 8], name: '终极危机', minScore: 3500 }
+            { type: 'bad', subtype: 'shark', r: 70, color: '#8B0000', speed: [6, 8], name: '终极危机', minScore: 3500 },
+            { type: 'bad', subtype: 'jellyfish', r: 55, color: '#8A2BE2', speed: [2, 3], name: '终极困扰', minScore: 2500 },
+            { type: 'bad', subtype: 'grouper', r: 62, color: '#4B0082', speed: [1.8, 2.5], name: '终极波折', minScore: 2800 }
         ]
     };
 
@@ -448,6 +457,27 @@
             ctx.lineTo(-r * 1.6, 0);
             ctx.lineTo(-r * 1.4, r * 0.6);
         }
+        else if (type === 'seahorse') {
+            // 海马：卷曲尾巴
+            ctx.lineTo(-r * 0.8, -r * 0.4);
+            ctx.quadraticCurveTo(-r * 1.2, -r * 0.2, -r * 1.4, 0);
+            ctx.quadraticCurveTo(-r * 1.2, r * 0.2, -r * 0.8, r * 0.4);
+            ctx.quadraticCurveTo(-r * 1.0, r * 0.3, -r * 1.2, r * 0.5);
+        }
+        else if (type === 'jellyfish') {
+            // 水母：不绘制尾巴，水母没有尾巴，触手会在身体下方绘制
+            ctx.lineTo(0, 0); // 直接连接到身体
+        }
+        else if (type === 'flounder') {
+            // 比目鱼：扁平尾巴
+            ctx.lineTo(-r * 1.0, -r * 0.3);
+            ctx.lineTo(-r * 1.3, 0);
+            ctx.lineTo(-r * 1.0, r * 0.3);
+        }
+        else if (type === 'grouper') {
+            // 石斑鱼：圆形尾巴
+            ctx.arc(-r * 1.3, 0, r * 0.4, 0, Math.PI * 2);
+        }
         else {
             ctx.lineTo(-r * 1.2, -r * 0.6); 
             ctx.lineTo(-r * 1.2, r * 0.6); 
@@ -496,6 +526,22 @@
             // 天使鱼：高而扁
             ctx.ellipse(0, 0, r * 1.0, r * 1.3, 0, 0, Math.PI * 2);
         }
+        else if (type === 'seahorse') {
+            // 海马：S形身体
+            ctx.ellipse(0, 0, r * 0.8, r * 1.2, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'jellyfish') {
+            // 水母：伞状身体
+            ctx.ellipse(0, -r * 0.3, r * 1.2, r * 0.8, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'flounder') {
+            // 比目鱼：极扁平
+            ctx.ellipse(0, 0, r * 1.5, r * 0.4, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'grouper') {
+            // 石斑鱼：圆润身体
+            ctx.ellipse(0, 0, r * 1.3, r * 1.1, 0, 0, Math.PI * 2);
+        }
         else {
             ctx.ellipse(0, 0, r * 1.3, r * 0.9, 0, 0, Math.PI * 2);
         }
@@ -530,6 +576,30 @@
             bodyGrad.addColorStop(0.6, '#FF6347');
             bodyGrad.addColorStop(1, '#8B0000');
         }
+        else if (type === 'seahorse') {
+            bodyGrad.addColorStop(0, '#FFB6C1');
+            bodyGrad.addColorStop(0.4, '#FF69B4');
+            bodyGrad.addColorStop(0.7, '#FF1493');
+            bodyGrad.addColorStop(1, '#DC143C');
+        }
+        else if (type === 'jellyfish') {
+            bodyGrad.addColorStop(0, '#E6E6FA');
+            bodyGrad.addColorStop(0.3, '#DDA0DD');
+            bodyGrad.addColorStop(0.6, '#BA55D3');
+            bodyGrad.addColorStop(1, '#9370DB');
+        }
+        else if (type === 'flounder') {
+            bodyGrad.addColorStop(0, '#DDA0DD');
+            bodyGrad.addColorStop(0.4, '#BA55D3');
+            bodyGrad.addColorStop(0.7, '#9370DB');
+            bodyGrad.addColorStop(1, '#8A2BE2');
+        }
+        else if (type === 'grouper') {
+            bodyGrad.addColorStop(0, '#DEB887');
+            bodyGrad.addColorStop(0.3, '#8B4513');
+            bodyGrad.addColorStop(0.6, '#654321');
+            bodyGrad.addColorStop(1, '#4B0082');
+        }
         else {
             bodyGrad.addColorStop(0, '#ffffff'); 
             bodyGrad.addColorStop(0.3, color); 
@@ -542,7 +612,7 @@
         if (type === 'clownfish') {
             // 小丑鱼条纹
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.5;
             for (let i = 0; i < 3; i++) {
                 ctx.beginPath();
                 ctx.moveTo(-r * 0.8 + i * r * 0.4, -r * 0.6);
@@ -552,11 +622,97 @@
         }
         else if (type === 'tropical' || type === 'angelfish') {
             // 热带鱼和天使鱼的斑点
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-            for (let i = 0; i < 3; i++) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            for (let i = 0; i < 4; i++) {
                 ctx.beginPath();
-                ctx.arc(-r * 0.3 + i * r * 0.3, Math.sin(i) * r * 0.3, r * 0.15, 0, Math.PI * 2);
+                ctx.arc(-r * 0.3 + i * r * 0.25, Math.sin(i) * r * 0.3, r * 0.12, 0, Math.PI * 2);
                 ctx.fill();
+            }
+        }
+        else if (type === 'seahorse') {
+            // 海马：环形纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(0, -r * 0.5 + i * r * 0.25, r * 0.3, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'jellyfish') {
+            // 水母：伞状纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI * 2) / 6;
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.3);
+                ctx.lineTo(Math.cos(angle) * r * 1.0, -r * 0.3 + Math.sin(angle) * r * 0.5);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'grouper') {
+            // 石斑鱼：斑点纹理
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            for (let i = 0; i < 8; i++) {
+                ctx.beginPath();
+                ctx.arc((Math.random() - 0.5) * r * 1.0, (Math.random() - 0.5) * r * 0.8, r * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        else if (type === 'goldfish') {
+            // 金鱼：鳞片纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 3; j++) {
+                    ctx.beginPath();
+                    ctx.arc(-r * 0.5 + i * r * 0.2, -r * 0.4 + j * r * 0.3, r * 0.08, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+        }
+        else if (type === 'seahorse') {
+            // 海马：环形纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.arc(0, -r * 0.5 + i * r * 0.25, r * 0.3, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'jellyfish') {
+            // 水母：伞状纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI * 2) / 6;
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.3);
+                ctx.lineTo(Math.cos(angle) * r * 1.0, -r * 0.3 + Math.sin(angle) * r * 0.5);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'grouper') {
+            // 石斑鱼：斑点纹理
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            for (let i = 0; i < 8; i++) {
+                ctx.beginPath();
+                ctx.arc((Math.random() - 0.5) * r * 1.0, (Math.random() - 0.5) * r * 0.8, r * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        else if (type === 'goldfish') {
+            // 金鱼：鳞片纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 3; j++) {
+                    ctx.beginPath();
+                    ctx.arc(-r * 0.5 + i * r * 0.2, -r * 0.4 + j * r * 0.3, r * 0.08, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
             }
         }
         
@@ -618,6 +774,26 @@
             eyeY = -r * 0.1;
             eyeSize = r * 0.25;
         }
+        else if (type === 'seahorse') {
+            eyeX = r * 0.5;
+            eyeY = -r * 0.3;
+            eyeSize = r * 0.2;
+        }
+        else if (type === 'jellyfish') {
+            eyeX = r * 0.4;
+            eyeY = -r * 0.5;
+            eyeSize = r * 0.15;
+        }
+        else if (type === 'flounder') {
+            eyeX = r * 0.6;
+            eyeY = -r * 0.1;
+            eyeSize = r * 0.2;
+        }
+        else if (type === 'grouper') {
+            eyeX = r * 0.6;
+            eyeY = -r * 0.2;
+            eyeSize = r * 0.25;
+        }
         ctx.arc(eyeX, eyeY, eyeSize, 0, Math.PI * 2); 
         ctx.fill();
         
@@ -665,12 +841,13 @@
         }
         
         // 为某些鱼类添加光晕效果
-        if (type === 'goldfish' || type === 'tropical' || type === 'clownfish') {
-            ctx.globalAlpha = 0.2;
+        if (type === 'goldfish' || type === 'tropical' || type === 'clownfish' || type === 'seahorse' || type === 'jellyfish') {
+            ctx.globalAlpha = 0.25;
             ctx.beginPath();
             ctx.arc(0, 0, r * 1.8, 0, Math.PI * 2);
             const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 1.8);
             glowGrad.addColorStop(0, color);
+            glowGrad.addColorStop(0.5, color);
             glowGrad.addColorStop(1, 'transparent');
             ctx.fillStyle = glowGrad;
             ctx.fill();
@@ -687,6 +864,60 @@
                 ctx.fill();
             }
             ctx.globalAlpha = 1.0;
+        }
+        
+        // 为水母添加触手效果
+        if (type === 'jellyfish') {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.7;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI * 2) / 6;
+                const wave = Math.sin(frameCount * 0.15 + i) * 3;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(angle) * r * 0.8, r * 0.3);
+                ctx.quadraticCurveTo(
+                    Math.cos(angle) * r * 1.0 + wave, r * 0.8,
+                    Math.cos(angle) * r * 0.9 + wave * 0.5, r * 1.5
+                );
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // 为海马添加摆动动画
+        if (type === 'seahorse') {
+            ctx.save();
+            ctx.translate(0, Math.sin(frameCount * 0.12) * 2);
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(0, 0, r * 1.2, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            ctx.restore();
+        }
+        
+        // 为比目鱼添加侧边眼睛
+        if (type === 'flounder') {
+            // 比目鱼有两只眼睛在同一侧
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(r * 0.4, -r * 0.2, r * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(r * 0.4 + 2, -r * 0.2, r * 0.06, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(r * 0.6, -r * 0.15, r * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(r * 0.6 + 2, -r * 0.15, r * 0.05, 0, Math.PI * 2);
+            ctx.fill();
         }
         
         ctx.restore();
@@ -719,7 +950,8 @@
             ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(-2, -2, 2, 0, Math.PI*2); ctx.arc(2, -2, 2, 0, Math.PI*2); ctx.fill();
         }
         else if (item.subtype === 'goldfish' || item.subtype === 'clownfish' || item.subtype === 'tropical' || 
-                 item.subtype === 'angelfish' || item.subtype === 'dolphin') {
+                 item.subtype === 'angelfish' || item.subtype === 'dolphin' || item.subtype === 'seahorse' ||
+                 item.subtype === 'jellyfish' || item.subtype === 'flounder' || item.subtype === 'grouper') {
             // 所有鱼类类型，使用鱼类绘制
             let fishType = item.subtype;
             drawFishArt(ctx, 0, 0, r, color, 0, frameCount, fishType);
@@ -819,6 +1051,14 @@
                 this.color = `hsl(${200 + Math.random()*20}, 60%, 70%)`;
             } else if (this.type === 'angelfish') {
                 this.color = `hsl(${40 + Math.random()*20}, 85%, 65%)`;
+            } else if (this.type === 'seahorse') {
+                this.color = `hsl(${320 + Math.random()*40}, 70%, 75%)`;
+            } else if (this.type === 'jellyfish') {
+                this.color = `hsl(${260 + Math.random()*40}, 60%, 80%)`;
+            } else if (this.type === 'flounder') {
+                this.color = `hsl(${280 + Math.random()*30}, 50%, 70%)`;
+            } else if (this.type === 'grouper') {
+                this.color = `hsl(${30 + Math.random()*30}, 40%, 45%)`;
             } else if (this.type === 'whale') {
                 this.color = `hsl(${200 + Math.random()*30}, 40%, 50%)`;
             } else {
@@ -1001,37 +1241,6 @@
         }
     }
     
-    // 分数动画类
-    class ScoreAnimation {
-        constructor(x, y, points, color) {
-            this.x = x;
-            this.y = y;
-            this.points = points;
-            this.color = color;
-            this.life = 1.0;
-            this.vy = -2;
-        }
-        update() {
-            this.y += this.vy;
-            this.vy *= 0.95;
-            this.life -= 0.02;
-            return this.life > 0;
-        }
-        draw() {
-            ctx.save();
-            ctx.globalAlpha = this.life;
-            ctx.fillStyle = this.color;
-            ctx.font = `bold ${20 + (1 - this.life) * 10}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.lineWidth = 2;
-            ctx.strokeText(`+${this.points}`, this.x, this.y);
-            ctx.fillText(`+${this.points}`, this.x, this.y);
-            ctx.restore();
-        }
-    }
-    
     // 创建粒子爆炸效果
     function createParticleExplosion(x, y, color, count = 15) {
         for (let i = 0; i < count; i++) {
@@ -1116,8 +1325,6 @@
         else body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
 
         const scoreOffset = currentDifficultyName === 'hard' ? -200 : 0;
-        if (!unlockedStages[500] && score >= 500 + scoreOffset) { unlockedStages[500] = true; showUnlockMsg("⚡ 争吵与冷战 出现了!"); }
-        if (!unlockedStages[1000] && score >= 1000 + scoreOffset) { unlockedStages[1000] = true; showUnlockMsg("🐡 嫉妒 出现了! 小心刺!"); }
         if (!unlockedStages[2000] && score >= 2000 + scoreOffset) { unlockedStages[2000] = true; showUnlockMsg("🐳 巨大的现实压力 逼近!"); }
         if (!unlockedStages[3000] && score >= 3000 + scoreOffset) { unlockedStages[3000] = true; showUnlockMsg("🦈 情感危机 袭来! 快跑!"); }
     }
@@ -1582,23 +1789,29 @@
                     isChasing = true;
                     // 计算朝向玩家的方向
                     const angle = Math.atan2(player.y - this.y, player.x - this.x);
-                    // 大鱼越大，追击速度越快，但降低速度倍数
-                    const speedMultiplier = this.radius >= 50 ? 1.8 : (this.radius >= 30 ? 1.5 : 1.3);
-                    const baseChaseSpeed = Math.min(this.speed * speedMultiplier, this.radius >= 50 ? 4 : 3.5);
                     
-                    // 根据难度调整追击强度
-                    // 简单模式：更慢更温和，普通模式：中等，困难模式：更快更积极
+                    // 计算正常游动的速度（横向速度的绝对值）
+                    const normalSpeed = Math.abs(this.originalVx || this.vx || this.speed);
+                    
+                    // 大鱼越大，追击速度越快
+                    const speedMultiplier = this.radius >= 50 ? 1.5 : (this.radius >= 30 ? 1.3 : 1.2);
+                    
+                    // 根据难度调整追击强度，确保追击速度至少等于正常速度
                     let chaseIntensity;
                     if (currentDifficultyName === 'easy') {
-                        chaseIntensity = 0.15; // 简单模式：15%
+                        chaseIntensity = 1.0; // 简单模式：与正常速度相同
                     } else if (currentDifficultyName === 'normal') {
-                        chaseIntensity = 0.2; // 普通模式：20%
+                        chaseIntensity = 1.2; // 普通模式：比正常速度快20%
                     } else {
-                        chaseIntensity = 0.3; // 困难模式：30%
+                        chaseIntensity = 1.5; // 困难模式：比正常速度快50%
                     }
                     
-                    const chaseX = Math.cos(angle) * baseChaseSpeed * chaseIntensity;
-                    const chaseY = Math.sin(angle) * baseChaseSpeed * chaseIntensity;
+                    // 计算追击速度，确保至少等于正常速度
+                    const baseChaseSpeed = Math.max(normalSpeed * speedMultiplier, normalSpeed);
+                    const finalChaseSpeed = baseChaseSpeed * chaseIntensity;
+                    
+                    const chaseX = Math.cos(angle) * finalChaseSpeed;
+                    const chaseY = Math.sin(angle) * finalChaseSpeed;
                     
                     // 如果正在追击，优先使用追击移动，减少原来的横向移动
                     this.x += chaseX;
@@ -1733,10 +1946,7 @@
         
         // 初始化其他效果
         particles = [];
-        comboCount = 0;
-        comboTimer = 0;
         screenShake = { x: 0, y: 0, intensity: 0 };
-        scoreAnimations = [];
     }
 
     function gameLoop() {
@@ -1752,14 +1962,6 @@
                 screenShake.intensity = 0;
                 screenShake.x = 0;
                 screenShake.y = 0;
-            }
-        }
-        
-        // 更新连击计时器
-        if (comboTimer > 0) {
-            comboTimer--;
-            if (comboTimer <= 0) {
-                comboCount = 0;
             }
         }
         
@@ -1786,28 +1988,6 @@
             p.draw();
             return p.life > 0;
         });
-        
-        // 更新和绘制分数动画
-        scoreAnimations = scoreAnimations.filter(anim => {
-            anim.update();
-            anim.draw();
-            return anim.life > 0;
-        });
-        
-        // 绘制连击提示
-        if (comboCount > 1) {
-            ctx.save();
-            ctx.globalAlpha = Math.min(1, comboTimer / 60);
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 28px Arial';
-            ctx.textAlign = 'center';
-            ctx.strokeStyle = '#FF6347';
-            ctx.lineWidth = 3;
-            const comboText = `${comboCount} 连击!`;
-            ctx.strokeText(comboText, canvas.width / 2, 100);
-            ctx.fillText(comboText, canvas.width / 2, 100);
-            ctx.restore();
-        }
 
         player.update();
         updateBuffUI(player.buffs, guardian.active);
@@ -1871,11 +2051,6 @@
                     
                     // 添加粒子特效
                     createParticleExplosion(item.x, item.y, item.color, 12);
-                    // 添加分数动画
-                    scoreAnimations.push(new ScoreAnimation(item.x, item.y, item.score, item.color));
-                    // 连击系统
-                    comboTimer = 120; // 2秒内再次收集算连击
-                    comboCount++;
 
                     // === 核心修复：随机抽取一句情话 ===
                     const sweetWord = LOVE_WORDS[Math.floor(Math.random() * LOVE_WORDS.length)];
@@ -1884,8 +2059,34 @@
                     if (item.subtype === 'diamond') { feverValue = 100; activateFever(); }
 
                     if (player.radius < 60) {
-                        player.radius += 0.15;
-                        if (guardian.active) guardian.radius += 0.12;
+                        // 根据物品大小计算成长值
+                        // 基础成长：0.1，根据物品半径增加成长值
+                        // 小物品（r < 10）：0.08-0.12
+                        // 中物品（r 10-20）：0.15-0.25
+                        // 大物品（r 20-30）：0.25-0.4
+                        // 超大物品（r > 30）：0.4-0.6
+                        let growth = 0.1;
+                        if (item.radius < 10) {
+                            growth = 0.08 + (item.radius / 10) * 0.04; // 0.08-0.12
+                        } else if (item.radius < 20) {
+                            growth = 0.15 + ((item.radius - 10) / 10) * 0.1; // 0.15-0.25
+                        } else if (item.radius < 30) {
+                            growth = 0.25 + ((item.radius - 20) / 10) * 0.15; // 0.25-0.4
+                        } else {
+                            growth = 0.4 + Math.min((item.radius - 30) / 30, 1) * 0.2; // 0.4-0.6
+                        }
+                        
+                        // 根据分数也给予额外成长（大礼物、幸运星、钻戒等）
+                        if (item.score >= 500) {
+                            growth *= 1.5; // 钻戒等超高价值物品额外成长
+                        } else if (item.score >= 50) {
+                            growth *= 1.3; // 幸运星等高价值物品额外成长
+                        } else if (item.score >= 20) {
+                            growth *= 1.1; // 大礼物等中等价值物品额外成长
+                        }
+                        
+                        player.radius += growth;
+                        if (guardian.active) guardian.radius += growth * 0.8; // 守护者成长稍慢
                         sizeEl.innerText = Math.floor(player.radius - 9);
                     }
                 }
@@ -1949,6 +2150,26 @@
                         spawnFloatingText("粉碎障碍!", player.x, player.y - 30, '#FF1493', 24);
                         score += 10; scoreEl.innerText = score;
                         if(navigator.vibrate) navigator.vibrate(50);
+                        
+                        // 无敌模式下吃坏鱼也有成长
+                        if (player.radius < 60) {
+                            // 根据坏鱼大小计算成长值
+                            let growth = 0.1;
+                            if (item.radius < 10) {
+                                growth = 0.08 + (item.radius / 10) * 0.04; // 0.08-0.12
+                            } else if (item.radius < 20) {
+                                growth = 0.15 + ((item.radius - 10) / 10) * 0.1; // 0.15-0.25
+                            } else if (item.radius < 30) {
+                                growth = 0.25 + ((item.radius - 20) / 10) * 0.15; // 0.25-0.4
+                            } else {
+                                growth = 0.4 + Math.min((item.radius - 30) / 30, 1) * 0.2; // 0.4-0.6
+                            }
+                            
+                            // 无敌模式下吃坏鱼成长和吃爱心一样
+                            player.radius += growth;
+                            if (guardian.active) guardian.radius += growth * 0.8;
+                            sizeEl.innerText = Math.floor(player.radius - 9);
+                        }
                     }
                     else if (item.subtype === 'ice') {
                         items.splice(i, 1);
@@ -1961,6 +2182,31 @@
                             items.splice(i, 1);
                             spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
                             score += 5; scoreEl.innerText = score;
+                            
+                            // 添加粒子特效
+                            createParticleExplosion(item.x, item.y, item.color, 10);
+                            
+                            // 吃坏鱼也有成长，但比吃爱心成长少一些
+                            if (player.radius < 60) {
+                                // 根据坏鱼大小计算成长值（比爱心成长少30%）
+                                let growth = 0.1;
+                                if (item.radius < 10) {
+                                    growth = 0.06 + (item.radius / 10) * 0.03; // 0.06-0.09
+                                } else if (item.radius < 20) {
+                                    growth = 0.10 + ((item.radius - 10) / 10) * 0.07; // 0.10-0.17
+                                } else if (item.radius < 30) {
+                                    growth = 0.17 + ((item.radius - 20) / 10) * 0.10; // 0.17-0.27
+                                } else {
+                                    growth = 0.27 + Math.min((item.radius - 30) / 30, 1) * 0.15; // 0.27-0.42
+                                }
+                                
+                                // 坏鱼成长比爱心少30%
+                                growth *= 0.7;
+                                
+                                player.radius += growth;
+                                if (guardian.active) guardian.radius += growth * 0.8;
+                                sizeEl.innerText = Math.floor(player.radius - 9);
+                            }
                         } else {
                             if (guardian.active) {
                                 items.splice(i, 1);
@@ -1993,34 +2239,23 @@
         }
 
         if (currentEvent === 'fog') {
+            // 计算基础可见范围
             let fogR = currentDifficulty.fogRadius || 100;
-            if (!guardian.active) {
+            if (!guardian.active || guardian.isLeaving) {
                 fogR = fogR * 0.4; // 没有守护者时能见度进一步缩减到40%
             } else {
-                fogR = fogR * 1.5; // 有守护者时能见度增加到150%
+                fogR = fogR * 0.6; // 有守护者时能见度增加到60%
             }
-            fogR = Math.max(10, fogR); // 最小可见范围从15缩减到10
+            fogR = Math.max(10, fogR); // 最小可见范围
             
-            // 绘制以玩家为中心的迷雾
+            // 绘制以玩家为中心的迷雾（从透明到黑暗）
             const grad = ctx.createRadialGradient(player.x, player.y, fogR, player.x, player.y, Math.max(canvas.width, canvas.height)/2);
             grad.addColorStop(0, "rgba(0,0,0,0)");
-            grad.addColorStop(0.2, "rgba(0,0,0,0.5)"); // 更早开始变暗
-            grad.addColorStop(0.5, "rgba(0,0,0,0.85)"); // 中间更暗
-            grad.addColorStop(1, "rgba(0,0,0,0.99)"); // 边缘几乎完全黑暗
+            grad.addColorStop(0.2, "rgba(0,0,0,0.5)");
+            grad.addColorStop(0.5, "rgba(0,0,0,0.85)");
+            grad.addColorStop(1, "rgba(0,0,0,0.99)");
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 如果聪仔激活，在聪仔周围也创建一个亮区
-            if (guardian.active) {
-                const guardianFogR = fogR * 0.6; // 聪仔周围的可见范围是玩家的60%
-                const guardianGrad = ctx.createRadialGradient(guardian.x, guardian.y, guardianFogR, guardian.x, guardian.y, Math.max(canvas.width, canvas.height)/2);
-                guardianGrad.addColorStop(0, "rgba(0,0,0,0)");
-                guardianGrad.addColorStop(0.3, "rgba(0,0,0,0.3)");
-                guardianGrad.addColorStop(0.6, "rgba(0,0,0,0.7)");
-                guardianGrad.addColorStop(1, "rgba(0,0,0,0.99)");
-                ctx.fillStyle = guardianGrad;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            }
         }
 
         if (currentEvent === 'current') {
