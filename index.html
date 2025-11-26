@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>爱的守护 - 极限压迫版</title>
+    <title>爱的守护</title>
     <style>
         body {
             margin: 0; padding: 0;
@@ -15,29 +15,72 @@
             transition: background 3s ease;
         }
 
+        /* === 唯美动态背景 (首页专用) === */
+        #start-screen {
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 通用遮罩 */
         .overlay-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.95);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; color: #d63384; padding: 20px; box-sizing: border-box;
+            z-index: 100; padding: 20px; box-sizing: border-box;
             transition: opacity 0.3s;
         }
 
-        h1 { font-size: 32px; margin-bottom: 10px; text-align: center; font-weight: 800;
-            background: linear-gradient(to right, #ff758c, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        p { font-size: 16px; color: #666; text-align: center; margin-bottom: 20px; line-height: 1.6; max-width: 90%; }
+        /* 游戏中的半透明遮罩 (暂停/结束) */
+        .game-overlay {
+            background: rgba(255, 255, 255, 0.9);
+            color: #d63384;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 36px; margin-bottom: 15px; text-align: center; font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,105,180, 0.5), 2px 2px 0px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+        }
+
+        /* 首页动态描述文字 */
+        #start-desc {
+            font-size: 16px; color: #fff; text-align: center;
+            margin-bottom: 30px; line-height: 1.8; max-width: 90%;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            font-weight: 500;
+            min-height: 60px; /* 防止文字长度跳变导致按钮移位 */
+            display: flex; align-items: center; justify-content: center;
+        }
+
         .hint { font-size: 14px; color: #ff758c; background: #fff0f5; padding: 5px 10px; border-radius: 10px; margin-bottom: 20px;}
 
         .btn-group { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 300px; padding-bottom: 20px;}
+
         button {
-            padding: 15px 10px; font-size: 18px; border: none; border-radius: 25px;
-            cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
-            transition: transform 0.1s; color: white; outline: none; -webkit-tap-highlight-color: transparent;
+            padding: 15px 10px; font-size: 18px; border: none; border-radius: 50px;
+            cursor: pointer; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
+            color: white; outline: none; -webkit-tap-highlight-color: transparent;
+            background: rgba(255, 255, 255, 0.2); /* 半透明玻璃质感 */
+            border: 2px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(5px);
         }
         button:active { transform: scale(0.96); }
-        .btn-easy { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #c71585; }
-        .btn-normal { background: linear-gradient(45deg, #a18cd1, #fbc2eb); color: white; }
-        .btn-hard { background: linear-gradient(45deg, #ff5858, #f09819); color: white; }
+
+        /* 不同难度的按钮颜色微调 */
+        .btn-easy { background: linear-gradient(45deg, #a8e063, #56ab2f); box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3); }
+        .btn-normal { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #c71585; box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3); }
+        .btn-hard { background: linear-gradient(45deg, #ff512f, #dd2476); box-shadow: 0 4px 15px rgba(221, 36, 118, 0.3); }
+
         .btn-restart { background: #fff; border: 2px solid #ff758c; color: #ff758c; margin-top: 20px; width: 60%;}
         .btn-resume { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
         .btn-quit { background: #fff; border: 2px solid #999; color: #999; }
@@ -127,11 +170,12 @@
 
 <button id="pause-btn" style="display:none;" onclick="pauseGame()">⏸</button>
 
-<!-- 开始界面 -->
+<!-- 开始界面 (唯美动态) -->
 <div id="start-screen" class="overlay-screen">
     <h1>💖 爱的守护 💖</h1>
-    <p><b>成长很慢，需要耐心积累</b><br><b>困难模式迷雾极重，请小心！</b><br>无论发生什么，记得抓紧聪仔！</p>
-    <div class="hint">提示：被冰冻后速度会变得极慢！</div>
+    <!-- 动态描述文字 -->
+    <p id="start-desc">正在加载爱的誓言...</p>
+
     <div class="btn-group">
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
@@ -140,8 +184,8 @@
 </div>
 
 <!-- 暂停界面 -->
-<div id="pause-screen" class="overlay-screen" style="display: none;">
-    <h2>游戏暂停</h2>
+<div id="pause-screen" class="overlay-screen game-overlay" style="display: none;">
+    <h2 style="color:#ff758c;">游戏暂停</h2>
     <div class="btn-group">
         <button class="btn-resume" onclick="resumeGame()">▶ 继续爱</button>
         <button class="btn-quit" onclick="quitGameFromPause()">✖ 休息一下 (结束)</button>
@@ -149,7 +193,7 @@
 </div>
 
 <!-- 结束界面 -->
-<div id="game-over-screen" class="overlay-screen" style="display: none;">
+<div id="game-over-screen" class="overlay-screen game-overlay" style="display: none;">
     <h2 style="font-size: 28px; color: #ff5858;">别怕，聪仔在呢</h2>
     <p id="death-reason" style="font-size: 16px;">如果不开心了，我来哄你~</p>
     <p style="font-size: 20px;">收获爱心: <span id="final-score" style="color: #ff4081; font-weight:bold;">0</span></p>
@@ -165,6 +209,7 @@
     const buffBar = document.getElementById('buff-bar');
     const pauseBtn = document.getElementById('pause-btn');
     const startScreen = document.getElementById('start-screen');
+    const startDesc = document.getElementById('start-desc'); // 动态文案
     const gameOverScreen = document.getElementById('game-over-screen');
     const pauseScreen = document.getElementById('pause-screen');
     const scoreEl = document.getElementById('score');
@@ -186,6 +231,7 @@
     let isPaused = false;
     let frameCount = 0;
     let currentDifficulty = {};
+    let currentDifficultyName = '';
     let feverValue = 0;
     let isFeverMode = false;
     let feverTimer = 0;
@@ -199,6 +245,18 @@
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
+    // === 动态文案库 ===
+    const START_QUOTES = [
+        "开局就能吃掉绿色的[琐碎🦠]哦！<br>慢慢长大，再去挑战更大的困难。",
+        "困难模式下，[护身符🛡️]是 1% 的奇迹。<br>但只要有爱，我们无所畏惧。",
+        "当[迷雾]降临时，别害怕。<br>因为聪仔的光芒会指引你。",
+        "生活就像逆水行舟。<br>遇到[激流]时，要用力逆风前行哦！",
+        "想要[无敌爆发]吗？<br>只有收集粉色的爱心才能积攒心动值！",
+        "如果不小心被[冰冻]了，<br>记得躲在聪仔身后，等春暖花开。",
+        "这不仅仅是一个游戏。<br>这是我想一直守护你的决心。",
+        "别被[烂桃花]和[坏情绪]绊倒。<br>你值得拥有最好的爱心和星星！"
+    ];
+
     const DIFFICULTY_SETTINGS = {
         'easy':   {
             spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
@@ -211,9 +269,8 @@
             eventProb: { fog: 0.4, current: 0.4, starfall: 0.2 }
         },
         'hard':   {
-            spawnRate: 30, speedMultiplier: 1.3, feverFactor: 0.4,
-            fogRadius: 35, // 核心修改：能见度极低，半径仅35
-            weights: [0.25, 0.1, 0.65],
+            spawnRate: 30, speedMultiplier: 1.4, feverFactor: 0.3,
+            fogRadius: 35, weights: [0.12, 0.03, 0.85],
             eventProb: { fog: 0.5, current: 0.45, starfall: 0.05 }
         }
     };
@@ -231,18 +288,18 @@
             { type: 'buff', subtype: 'magnet', r: 12, color: '#FF6347', speed: [1, 1.5], name: '双向奔赴', minScore: 100 }
         ],
         bad: [
+            { type: 'bad', subtype: 'tiny', r: 6, color: '#AED581', speed: [1, 1.5], name: '琐碎', minScore: 0 },
             { type: 'bad', subtype: 'normal', r: 12, color: '#8BC34A', speed: [2, 3], name: '小摩擦', minScore: 0 },
-            { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 100 },
-            { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 500 },
-            { type: 'bad', subtype: 'ice', r: 40, color: '#00BCD4', speed: [2, 4], name: '冷战', minScore: 500 },
-            { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 1000 },
-            { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 2000 },
-            { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 3000 }
+            { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 50 },
+            { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 300 },
+            { type: 'bad', subtype: 'ice', r: 40, color: '#00BCD4', speed: [2, 4], name: '冷战', minScore: 300 },
+            { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 800 },
+            { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 1500 },
+            { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 2500 }
         ]
     };
 
-    // --- 辅助绘图函数 ---
-
+    // --- 辅助绘图 ---
     if (!CanvasRenderingContext2D.prototype.roundRect) {
         CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
             if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
@@ -328,7 +385,6 @@
     function updateBuffUI(buffs, guardianActive) {
         buffBar.innerHTML = '';
         if (isFeverMode) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF1493; animation: pulse 0.5s infinite;">🔥</div>`;
-        // 冰冻状态显示蓝色雪花
         if (buffs.slowed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#00BCD4">❄️</div>`;
         if (guardianActive) buffBar.innerHTML += `<div class="buff-icon" style="background:#00BFFF">🛡️</div>`;
         if (buffs.speed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FFD700">🍬</div>`;
@@ -341,85 +397,60 @@
         else if (score > 500) body.style.background = "linear-gradient(to bottom, #6a11cb, #2575fc)";
         else body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
 
-        if (!unlockedStages[500] && score >= 500) { unlockedStages[500] = true; showUnlockMsg("⚡ 争吵与冷战 出现了!"); }
-        if (!unlockedStages[1000] && score >= 1000) { unlockedStages[1000] = true; showUnlockMsg("🐡 嫉妒 出现了! 小心刺!"); }
-        if (!unlockedStages[2000] && score >= 2000) { unlockedStages[2000] = true; showUnlockMsg("🐳 巨大的现实压力 逼近!"); }
-        if (!unlockedStages[3000] && score >= 3000) { unlockedStages[3000] = true; showUnlockMsg("🦈 情感危机 袭来! 快跑!"); }
+        const scoreOffset = currentDifficultyName === 'hard' ? -200 : 0;
+        if (!unlockedStages[500] && score >= 500 + scoreOffset) { unlockedStages[500] = true; showUnlockMsg("⚡ 争吵与冷战 出现了!"); }
+        if (!unlockedStages[1000] && score >= 1000 + scoreOffset) { unlockedStages[1000] = true; showUnlockMsg("🐡 嫉妒 出现了! 小心刺!"); }
+        if (!unlockedStages[2000] && score >= 2000 + scoreOffset) { unlockedStages[2000] = true; showUnlockMsg("🐳 巨大的现实压力 逼近!"); }
+        if (!unlockedStages[3000] && score >= 3000 + scoreOffset) { unlockedStages[3000] = true; showUnlockMsg("🦈 情感危机 袭来! 快跑!"); }
     }
 
-    // === 事件系统逻辑 ===
     function triggerEvent(type) {
         currentEvent = type;
-        eventTimer = 600; // 10秒持续时间
+        eventTimer = 600;
 
         items = items.filter(i => i.subtype !== 'lightning' && i.subtype !== 'ice');
 
-        let title = "";
-        let desc = "";
-        let bgColor = "";
-
+        let title = ""; let desc = ""; let bgColor = "";
         if (type === 'fog') {
-            title = "🌫️ 迷茫之雾";
-            desc = "看不清未来...但有你在";
-            bgColor = "#555";
+            title = "🌫️ 迷茫之雾"; desc = "看不清未来...但有你在"; bgColor = "#555";
         } else if (type === 'current') {
-            title = "🌊 命运激流";
-            desc = "生活想把我们冲散，坚持住！";
-            // 激流力度增强
+            title = "🌊 命运激流"; desc = "生活想把我们冲散，坚持住！";
             const angle = Math.random() * Math.PI * 2;
             const strength = 6 + Math.random() * 4;
             currentForce.x = Math.cos(angle) * strength;
             currentForce.y = Math.sin(angle) * strength;
             bgColor = "#0077be";
-
             flowParticles = [];
             for(let i=0; i<60; i++) {
                 flowParticles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    len: Math.random() * 30 + 10,
-                    speed: Math.random() * 0.5 + 0.5
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                    len: Math.random() * 30 + 10, speed: Math.random() * 0.5 + 0.5
                 });
             }
-
         } else if (type === 'starfall') {
-            title = "🌠 幸运流星";
-            desc = "属于我们的高光时刻，快许愿！";
-            bgColor = "#FFD700";
+            title = "🌠 幸运流星"; desc = "属于我们的高光时刻，快许愿！"; bgColor = "#FFD700";
         }
 
-        eventTitle.innerText = title;
-        eventDesc.innerText = desc;
-        eventTitle.style.color = bgColor;
+        eventTitle.innerText = title; eventDesc.innerText = desc; eventTitle.style.color = bgColor;
         eventBanner.style.opacity = 1;
-
         setTimeout(() => { eventBanner.style.opacity = 0; }, 4000);
     }
 
     function updateEventLogic() {
         if (currentEvent) {
             eventTimer--;
-
             if (currentEvent === 'current') {
-                player.x += currentForce.x;
-                player.y += currentForce.y;
-                if (guardian.active) {
-                    guardian.x += currentForce.x * 0.8;
-                    guardian.y += currentForce.y * 0.8;
-                }
+                player.x += currentForce.x; player.y += currentForce.y;
+                if (guardian.active) { guardian.x += currentForce.x * 0.8; guardian.y += currentForce.y * 0.8; }
             }
-
             if (currentEvent === 'starfall' && frameCount % 45 === 0) {
                 const star = new Item(currentDifficulty);
                 star.type = 'heart'; star.subtype = 'star';
-                star.color = '#FFD700'; star.score = 50; star.fever = 15;
-                star.speed *= 2;
+                star.color = '#FFD700'; star.score = 50; star.fever = 15; star.speed *= 2;
                 items.push(star);
             }
-
             if (eventTimer <= 0) {
-                currentEvent = null;
-                spawnFloatingText("风平浪静了...", player.x, player.y - 50, '#fff');
+                currentEvent = null; spawnFloatingText("风平浪静了...", player.x, player.y - 50, '#fff');
             }
         } else {
             nextEventCooldown--;
@@ -429,7 +460,6 @@
                 if (rand < probs.fog) triggerEvent('fog');
                 else if (rand < probs.fog + probs.current) triggerEvent('current');
                 else triggerEvent('starfall');
-
                 nextEventCooldown = Math.random() * 1000 + 1000;
             }
         }
@@ -455,16 +485,13 @@
         constructor() {
             this.x = canvas.width / 2; this.y = canvas.height / 2;
             this.radius = 10; this.angle = 0;
-            this.buffs = { speed: 0, magnet: 0, slowed: 0 }; // 新增 slowed
+            this.buffs = { speed: 0, magnet: 0, slowed: 0 };
         }
         update() {
             const dx = input.x - this.x; const dy = input.y - this.y;
-
             let speed = 0.08;
             if (this.buffs.speed > 0) speed = 0.12;
-            // 核心修改：冰冻状态速度极慢
             if (this.buffs.slowed > 0) speed = 0.025;
-            // Fever 优先级最高，免疫减速
             if (isFeverMode) speed = 0.15;
 
             if (Math.hypot(dx, dy) > 5) {
@@ -476,7 +503,7 @@
 
             if (this.buffs.speed > 0) this.buffs.speed--;
             if (this.buffs.magnet > 0) this.buffs.magnet--;
-            if (this.buffs.slowed > 0) this.buffs.slowed--; // 减速倒计时
+            if (this.buffs.slowed > 0) this.buffs.slowed--;
 
             if (isFeverMode) {
                 feverTimer--; feverBar.style.width = (feverTimer / 300 * 100) + "%";
@@ -494,7 +521,6 @@
                 ctx.strokeStyle = `hsla(${hue}, 100%, 50%, 0.8)`; ctx.lineWidth = 4;
                 ctx.arc(0, 0, this.radius * 2.5, 0, Math.PI * 2); ctx.stroke();
             }
-            // 冰冻状态光环
             if (this.buffs.slowed > 0 && !isFeverMode) {
                 ctx.beginPath(); ctx.strokeStyle = '#00BCD4'; ctx.lineWidth = 3;
                 ctx.arc(0, 0, this.radius * 2.2, 0, Math.PI * 2); ctx.stroke();
@@ -537,9 +563,13 @@
         constructor(diffSettings) {
             const rand = Math.random(); const w = diffSettings.weights;
             let category = 'bad';
-            if (rand < w[0]) category = 'good';
-            else if (rand < w[0] + w[1]) category = 'buff';
-            else category = 'bad';
+            let sum = 0;
+            for(let i=0; i<w.length; i++) { sum += w[i]; if(rand < sum) {
+                if (i === 0) category = 'good';
+                else if (i === 1) category = 'buff';
+                else category = 'bad';
+                break;
+            }}
 
             let availableItems = GAME_OBJECTS[category].filter(i => score >= i.minScore);
             if (availableItems.length === 0) availableItems = [GAME_OBJECTS[category][0]];
@@ -553,14 +583,19 @@
                 }
             }
 
+            if (currentDifficultyName === 'hard' && c.subtype === 'summon') {
+                if (Math.random() > 0.1) c = GAME_OBJECTS['good'][0];
+            }
+
             this.config = c;
             this.type = c.type; this.subtype = c.subtype || 'normal';
             this.radius = c.r; this.color = c.color;
             this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
 
             this.y = Math.random() * canvas.height;
+            const scoreFactor = 1 + Math.floor(score / 500) * 0.15;
             const minSpd = c.speed[0]; const maxSpd = c.speed[1];
-            this.speed = (Math.random()*(maxSpd - minSpd) + minSpd) * diffSettings.speedMultiplier;
+            this.speed = (Math.random()*(maxSpd - minSpd) + minSpd) * diffSettings.speedMultiplier * scoreFactor;
 
             const side = Math.random() < 0.5 ? 'left' : 'right';
             const margin = this.radius * 3;
@@ -601,7 +636,11 @@
             else {
                 if (this.vx < 0) ctx.scale(-1, 1);
                 ctx.fillStyle = this.color;
-                if (this.subtype === 'lightning') {
+                if (this.subtype === 'tiny') {
+                    ctx.beginPath(); ctx.arc(0,0,this.radius,0,Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-this.radius*1.5, 0); ctx.strokeStyle = this.color; ctx.stroke();
+                }
+                else if (this.subtype === 'lightning') {
                     ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius/2, 0); ctx.lineTo(-this.radius/2, 0); ctx.lineTo(0, this.radius); ctx.fill();
                 } else if (this.subtype === 'ice') {
                     ctx.globalAlpha = 0.7; ctx.roundRect(-this.radius, -this.radius, this.radius*2, this.radius*2, 5); ctx.fill();
@@ -634,6 +673,7 @@
     }
 
     function init(difficultyKey) {
+        currentDifficultyName = difficultyKey;
         currentDifficulty = DIFFICULTY_SETTINGS[difficultyKey];
         player = new Player();
         guardian = new Guardian();
@@ -651,6 +691,9 @@
         currentEvent = null; nextEventCooldown = 600; eventBanner.style.opacity = 0;
         input.x = canvas.width / 2; input.y = canvas.height / 2;
         updateBuffUI(player.buffs, guardian.active);
+
+        // 初始化随机描述
+        startDesc.innerText = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)].replace(/<br>/g, ' ');
     }
 
     function gameLoop() {
@@ -692,8 +735,8 @@
                     if (item.subtype === 'diamond') { feverValue = 100; activateFever(); }
 
                     if (player.radius < 60) {
-                        player.radius += 0.05;
-                        if (guardian.active) guardian.radius += 0.04;
+                        player.radius += 0.15;
+                        if (guardian.active) guardian.radius += 0.12;
                         sizeEl.innerText = Math.floor(player.radius - 9);
                     }
                 }
@@ -717,9 +760,9 @@
                     }
                     else if (item.subtype === 'ice') {
                         items.splice(i, 1);
-                        spawnFloatingText("冻结! 减速!", player.x, player.y - 30, '#00BCD4');
-                        player.buffs.slowed = 180; // 3秒减速
-                        player.buffs.speed = 0;    // 移除加速
+                        spawnFloatingText("好冷...", player.x, player.y - 30, '#00BCD4');
+                        player.buffs.slowed = 180;
+                        player.buffs.speed = 0;
                     }
                     else {
                         if (player.radius > item.radius) {
@@ -766,6 +809,11 @@
         animationId = requestAnimationFrame(gameLoop);
     }
 
+    function randomizeDesc() {
+        const quote = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
+        startDesc.innerHTML = quote;
+    }
+
     function startGame(difficulty) {
         startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; pauseScreen.style.display = 'none';
         uiLayer.style.display = 'block'; pauseBtn.style.display = 'flex';
@@ -777,6 +825,7 @@
     function showStartScreen() {
         startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
         pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height);
+        randomizeDesc(); // 随机切换文案
     }
     function endGame() {
         gameRunning = false; isPaused = false; cancelAnimationFrame(animationId);
