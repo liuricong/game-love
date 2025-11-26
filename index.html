@@ -6,19 +6,49 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>爱的守护</title>
     <style>
-        body {
-            margin: 0; padding: 0;
-            background: linear-gradient(rgb(255, 154, 158), rgb(250, 208, 196)); /* 默认黑底，实际由Canvas绘制 */
+        html, body {
+            margin: 0; 
+            padding: 0;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        
+        body {
+            background: linear-gradient(rgb(255, 154, 158), rgb(250, 208, 196)); /* 默认黑底，实际由Canvas绘制 */
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-            user-select: none; touch-action: none;
+            user-select: none; 
+            touch-action: none;
+        }
+        
+        #gameCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            z-index: 1;
         }
 
         /* 遮罩层通用 */
         .overlay-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; padding: 20px; box-sizing: border-box;
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            margin: 0;
+            padding: 20px; 
+            box-sizing: border-box;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            z-index: 100; 
             transition: opacity 0.3s;
         }
 
@@ -161,7 +191,7 @@
     <div id="buff-bar"></div>
 </div>
 
-<button id="pause-btn" style="display:none;" onclick="pauseGame()">⏸</button>
+<button id="pause-btn" style="display:none;" onclick="pauseGame(event)">⏸</button>
 
 <!-- 开始界面 (背景透明，显示Canvas) -->
 <div id="start-screen" class="overlay-screen">
@@ -277,17 +307,17 @@
     const DIFFICULTY_SETTINGS = {
         'easy':   {
             spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
-            fogRadius: 180, weights: [0.6, 0.3, 0.1],
+            fogRadius: 80, weights: [0.6, 0.3, 0.1],
             eventProb: { fog: 0.3, current: 0.3, starfall: 0.4 }
         },
         'normal': {
             spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0,
-            fogRadius: 120, weights: [0.4, 0.2, 0.4],
+            fogRadius: 50, weights: [0.4, 0.2, 0.4],
             eventProb: { fog: 0.4, current: 0.4, starfall: 0.2 }
         },
         'hard':   {
-            spawnRate: 30, speedMultiplier: 1.4, feverFactor: 0.3,
-            fogRadius: 35, weights: [0.12, 0.03, 0.85],
+            spawnRate: 25, speedMultiplier: 1.4, feverFactor: 0.3,
+            fogRadius: 18, weights: [0.08, 0.02, 0.90], // 坏鱼权重高，但通过分数控制大鱼出现频率
             eventProb: { fog: 0.5, current: 0.45, starfall: 0.05 }
         }
     };
@@ -302,19 +332,49 @@
         buff: [
             { type: 'buff', subtype: 'candy', r: 12, color: '#FFD700', speed: [1, 1.5], name: '甜蜜糖果', minScore: 0 },
             { type: 'buff', subtype: 'summon', r: 14, color: '#00BFFF', speed: [1, 1.5], name: '护身符', minScore: 0 },
-            { type: 'buff', subtype: 'magnet', r: 12, color: '#FF6347', speed: [1, 1.5], name: '双向奔赴', minScore: 100 }
+            { type: 'buff', subtype: 'magnet', r: 12, color: '#FF6347', speed: [1, 1.5], name: '双向奔赴', minScore: 100 },
+            { type: 'buff', subtype: 'hunter', r: 13, color: '#00CED1', speed: [1, 1.5], name: '聪仔出击', minScore: 200 }
         ],
         bad: [
+            // 早期出现的各种小鱼，丰富颜色和类型
             { type: 'bad', subtype: 'tiny', r: 6, color: '#AED581', speed: [1, 1.5], name: '琐碎', minScore: 0 },
             { type: 'bad', subtype: 'normal', r: 12, color: '#8BC34A', speed: [2, 3], name: '小摩擦', minScore: 0 },
+            { type: 'bad', subtype: 'goldfish', r: 10, color: '#FFA500', speed: [1.5, 2.5], name: '小困扰', minScore: 0 },
+            { type: 'bad', subtype: 'clownfish', r: 8, color: '#FF6347', speed: [2, 3], name: '小麻烦', minScore: 0 },
+            { type: 'bad', subtype: 'tropical', r: 9, color: '#FF69B4', speed: [2, 3.5], name: '小波折', minScore: 0 },
+            { type: 'bad', subtype: 'angelfish', r: 11, color: '#FFD700', speed: [1.8, 2.8], name: '小插曲', minScore: 0 },
+            
+            // 中等大小的鱼（r: 20-30），50-200分阶段
             { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 50 },
+            { type: 'bad', subtype: 'goldfish', r: 22, color: '#FF8C00', speed: [1.8, 2.8], name: '中等困扰', minScore: 50 },
+            { type: 'bad', subtype: 'tropical', r: 24, color: '#FF1493', speed: [2, 3], name: '中等波折', minScore: 50 },
+            { type: 'bad', subtype: 'clownfish', r: 20, color: '#FF4500', speed: [2.2, 3.2], name: '中等麻烦', minScore: 50 },
+            { type: 'bad', subtype: 'angelfish', r: 23, color: '#FFA500', speed: [2, 3], name: '中等插曲', minScore: 50 },
+            { type: 'bad', subtype: 'dolphin', r: 28, color: '#4682B4', speed: [1.5, 2.5], name: '中等压力', minScore: 100 },
+            
+            // 较大的鱼（r: 30-50），300-1000分阶段
             { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 300 },
             { type: 'bad', subtype: 'ice', r: 40, color: '#00BCD4', speed: [2, 4], name: '冷战', minScore: 300 },
-            { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 800 },
+            { type: 'bad', subtype: 'goldfish', r: 35, color: '#FF6347', speed: [2, 3], name: '大困扰', minScore: 300 },
+            { type: 'bad', subtype: 'tropical', r: 32, color: '#E91E63', speed: [2.5, 3.5], name: '大波折', minScore: 300 },
+            { type: 'bad', subtype: 'angelfish', r: 30, color: '#FF9800', speed: [2.5, 3.5], name: '大插曲', minScore: 300 },
+            { type: 'bad', subtype: 'clownfish', r: 28, color: '#FF6B35', speed: [3, 4], name: '大麻烦', minScore: 300 },
+            { type: 'bad', subtype: 'dolphin', r: 38, color: '#1E90FF', speed: [2, 3], name: '大压力', minScore: 400 },
             { type: 'bad', subtype: 'tropical', r: 18, color: '#E91E63', speed: [3, 4], name: '烂桃花', minScore: 500 },
+            { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 800 },
             { type: 'bad', subtype: 'angelfish', r: 20, color: '#FF9800', speed: [2.5, 3.5], name: '小烦恼', minScore: 600 },
+            { type: 'bad', subtype: 'goldfish', r: 42, color: '#FF4500', speed: [2, 3], name: '巨大困扰', minScore: 800 },
+            { type: 'bad', subtype: 'dolphin', r: 45, color: '#0000CD', speed: [2.5, 3.5], name: '巨大压力', minScore: 1000 },
+            
+            // 超大型鱼（r: 50+），1500分以上
             { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 1500 },
-            { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 2500 }
+            { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 2500 },
+            { type: 'bad', subtype: 'goldfish', r: 60, color: '#DC143C', speed: [1.5, 2.5], name: '终极困扰', minScore: 2000 },
+            { type: 'bad', subtype: 'tropical', r: 55, color: '#C71585', speed: [3, 4], name: '终极波折', minScore: 2000 },
+            { type: 'bad', subtype: 'dolphin', r: 65, color: '#191970', speed: [2, 3], name: '终极压力', minScore: 2000 },
+            { type: 'bad', subtype: 'angelfish', r: 58, color: '#FF8C00', speed: [2.5, 3.5], name: '终极插曲', minScore: 2000 },
+            { type: 'bad', subtype: 'whale', r: 90, color: '#2F4F4F', speed: [1, 1.5], name: '深海压力', minScore: 3000 },
+            { type: 'bad', subtype: 'shark', r: 70, color: '#8B0000', speed: [6, 8], name: '终极危机', minScore: 3500 }
         ]
     };
 
@@ -640,13 +700,20 @@
             ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
             ctx.scale(item.vx < 0 ? -1 : 1, 1);
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '14px Arial';
-            const icons = { 'candy': '🍬', 'summon': '🛡️', 'magnet': '🧲' };
+            const icons = { 'candy': '🍬', 'summon': '🛡️', 'magnet': '🧲', 'hunter': '🎯' };
             ctx.fillText(icons[item.subtype], 0, 0);
         }
         else if (item.subtype === 'tiny') {
+            // 保持tiny为简单圆形，但其他早期鱼类使用鱼类绘制
             ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
             ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
             ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(-2, -2, 2, 0, Math.PI*2); ctx.arc(2, -2, 2, 0, Math.PI*2); ctx.fill();
+        }
+        else if (item.subtype === 'goldfish' || item.subtype === 'clownfish' || item.subtype === 'tropical' || 
+                 item.subtype === 'angelfish' || item.subtype === 'dolphin') {
+            // 所有鱼类类型，使用鱼类绘制
+            let fishType = item.subtype;
+            drawFishArt(ctx, 0, 0, r, color, 0, frameCount, fishType);
         }
         else if (item.subtype === 'lightning') {
             ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r/1.5, -r*0.2); ctx.lineTo(0, r*0.2); ctx.lineTo(0, r); ctx.lineTo(-r/1.5, 0.2*r); ctx.lineTo(0, -0.2*r); ctx.fill();
@@ -790,13 +857,44 @@
     // --- 系统函数 ---
 
     function resizeCanvas() {
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        input.x = canvas.width / 2; input.y = canvas.height / 2;
+        // 使用实际视口尺寸，确保全屏
+        const width = window.innerWidth || document.documentElement.clientWidth;
+        const height = window.innerHeight || document.documentElement.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+        input.x = canvas.width / 2; 
+        input.y = canvas.height / 2;
     }
     window.addEventListener('resize', resizeCanvas);
     function handleInput(x, y) { if(!isPaused && gameRunning) { input.x = x; input.y = y; } }
-    window.addEventListener('mousemove', e => handleInput(e.clientX, e.clientY));
-    const handleTouch = (e) => { if(e.cancelable) e.preventDefault(); if(e.touches.length > 0) handleInput(e.touches[0].clientX, e.touches[0].clientY); };
+    window.addEventListener('mousemove', e => {
+        // 如果鼠标在暂停按钮上，不更新input位置
+        const pauseBtn = document.getElementById('pause-btn');
+        if (pauseBtn && pauseBtn.style.display !== 'none') {
+            const rect = pauseBtn.getBoundingClientRect();
+            if (e.clientX >= rect.left && e.clientX <= rect.right && 
+                e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                return; // 鼠标在暂停按钮上，不更新位置
+            }
+        }
+        handleInput(e.clientX, e.clientY);
+    });
+    const handleTouch = (e) => { 
+        if(e.cancelable) e.preventDefault(); 
+        if(e.touches.length > 0) {
+            // 检查触摸点是否在暂停按钮上
+            const pauseBtn = document.getElementById('pause-btn');
+            if (pauseBtn && pauseBtn.style.display !== 'none') {
+                const rect = pauseBtn.getBoundingClientRect();
+                const touch = e.touches[0];
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right && 
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    return; // 触摸在暂停按钮上，不更新位置
+                }
+            }
+            handleInput(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    };
     canvas.addEventListener('touchstart', handleTouch, {passive:false});
     canvas.addEventListener('touchmove', handleTouch, {passive:false});
     resizeCanvas();
@@ -823,6 +921,7 @@
         if (guardianActive) buffBar.innerHTML += `<div class="buff-icon" style="background:#00BFFF">🛡️</div>`;
         if (buffs.speed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FFD700">🍬</div>`;
         if (buffs.magnet > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF6347">🧲</div>`;
+        if (buffs.hunter > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#00CED1">🎯</div>`;
     }
 
     function checkGameEvolution() {
@@ -907,7 +1006,16 @@
     }
 
     function activateFever() {
-        isFeverMode = true; feverTimer = 300;
+        isFeverMode = true;
+        // 根据难度模式设置不同的持续时间
+        // 简单模式：5秒（300帧），普通模式：4秒（240帧），困难模式：3秒（180帧）
+        if (currentDifficultyName === 'easy') {
+            feverTimer = 300;
+        } else if (currentDifficultyName === 'normal') {
+            feverTimer = 240;
+        } else {
+            feverTimer = 180; // 困难模式：3秒
+        }
         spawnFloatingText("🔥 恋爱爆发! 无敌! 🔥", canvas.width/2 - 100, canvas.height/2, '#FF1493', 30);
         body.classList.add('fever-mode-bg');
         if(navigator.vibrate) navigator.vibrate([100,50,100]);
@@ -918,7 +1026,7 @@
         constructor() {
             this.x = canvas.width / 2; this.y = canvas.height / 2;
             this.radius = 10; this.angle = 0;
-            this.buffs = { speed: 0, magnet: 0, slowed: 0 };
+            this.buffs = { speed: 0, magnet: 0, slowed: 0, hunter: 0, guardian: 0 };
         }
         update() {
             const dx = input.x - this.x; const dy = input.y - this.y;
@@ -937,9 +1045,22 @@
             if (this.buffs.speed > 0) this.buffs.speed--;
             if (this.buffs.magnet > 0) this.buffs.magnet--;
             if (this.buffs.slowed > 0) this.buffs.slowed--;
+            if (this.buffs.hunter > 0) this.buffs.hunter--;
+            if (this.buffs.guardian > 0) {
+                this.buffs.guardian--;
+                // 守护时间到了，聪仔去打工了（标记为离开，让Guardian自己处理游走）
+                if (this.buffs.guardian === 0 && guardian.active && !guardian.isLeaving) {
+                    guardian.isLeaving = true;
+                    guardian.wasActiveBeforeHunter = false;
+                    spawnFloatingText("聪仔去打工了~", player.x, player.y - 30, '#00BFFF');
+                }
+            }
 
             if (isFeverMode) {
-                feverTimer--; feverBar.style.width = (feverTimer / 300 * 100) + "%";
+                feverTimer--;
+                // 根据难度模式计算进度条百分比
+                const maxFeverTime = currentDifficultyName === 'easy' ? 300 : (currentDifficultyName === 'normal' ? 240 : 180);
+                feverBar.style.width = (feverTimer / maxFeverTime * 100) + "%";
                 if (feverTimer <= 0) {
                     isFeverMode = false; feverValue = 0;
                     body.classList.remove('fever-mode-bg');
@@ -973,14 +1094,119 @@
         constructor() {
             this.active = false; this.x = -100; this.y = -100;
             this.radius = 10; this.angle = 0;
+            this.wasActiveBeforeHunter = false; // 记录在hunter之前是否已经激活
+            this.isLeaving = false; // 标记是否正在游走离开
         }
         update(targetX, targetY) {
             if (!this.active) return;
-            const targetX_delayed = targetX - Math.cos(player.angle) * 25;
-            const targetY_delayed = targetY - Math.sin(player.angle) * 25;
-            const dx = targetX_delayed - this.x; const dy = targetY_delayed - this.y;
-            this.angle = Math.atan2(dy, dx);
-            this.x += dx * 0.08; this.y += dy * 0.08;
+            
+            // 如果正在游走离开（去打工），则游走消失
+            if (this.isLeaving) {
+                // 游走消失：向屏幕外移动
+                const dx = (this.x < canvas.width / 2) ? -5 : 5;
+                const dy = (this.y < canvas.height / 2) ? -5 : 5;
+                this.x += dx;
+                this.y += dy;
+                this.angle = Math.atan2(dy, dx);
+                
+                // 如果离开屏幕，则消失
+                if (this.x < -100 || this.x > canvas.width + 100 || 
+                    this.y < -100 || this.y > canvas.height + 100) {
+                    this.active = false;
+                    this.isLeaving = false;
+                    this.wasActiveBeforeHunter = false;
+                }
+                return;
+            }
+            
+            // 如果开启了hunter模式，让聪仔主动追击并吃掉小鱼
+            // 确保hunter buff存在且大于0
+            if (player.buffs && player.buffs.hunter > 0) {
+                let nearestFish = null;
+                let nearestDist = Infinity;
+                
+                // 寻找最近的小鱼（bad类型，放宽条件：半径小于聪仔的1.5倍，或者小于30）
+                for (let item of items) {
+                    if (item.type === 'bad') {
+                        // 放宽条件：可以吃半径小于聪仔1.5倍的鱼，或者半径小于30的小鱼
+                        const canEat = item.radius < this.radius * 1.5 || item.radius < 30;
+                        if (canEat) {
+                            const dist = Math.hypot(this.x - item.x, this.y - item.y);
+                            if (dist < nearestDist && dist < 400) { // 扩大追击范围到400
+                                nearestDist = dist;
+                                nearestFish = item;
+                            }
+                        }
+                    }
+                }
+                
+                // 如果找到小鱼，追击它
+                if (nearestFish) {
+                    const dx = nearestFish.x - this.x;
+                    const dy = nearestFish.y - this.y;
+                    this.angle = Math.atan2(dy, dx);
+                    // 减慢追击速度，根据距离调整速度
+                    const chaseSpeed = Math.min(0.08, 0.04 + (400 - nearestDist) / 400 * 0.04);
+                    this.x += dx * chaseSpeed;
+                    this.y += dy * chaseSpeed;
+                    return;
+                }
+                // 如果没有找到小鱼，但hunter模式还在，则继续寻找（向玩家方向移动，准备寻找下一个目标）
+                else {
+                    // hunter模式下，即使没找到小鱼，也要保持移动，向玩家方向靠近以便寻找目标
+                    const targetX_delayed = targetX - Math.cos(player.angle) * 25;
+                    const targetY_delayed = targetY - Math.sin(player.angle) * 25;
+                    const dx = targetX_delayed - this.x; const dy = targetY_delayed - this.y;
+                    this.angle = Math.atan2(dy, dx);
+                    this.x += dx * 0.06; // 减慢移动速度
+                    this.y += dy * 0.06;
+                    return;
+                }
+            }
+            
+            // hunter时间结束，如果原本就激活（包括吃到护身符），且守护时间还在，则回到粉鱼身边继续守护
+            if (player.buffs.hunter === 0 && this.wasActiveBeforeHunter && player.buffs.guardian > 0) {
+                // 继续守护模式
+                const targetX_delayed = targetX - Math.cos(player.angle) * 25;
+                const targetY_delayed = targetY - Math.sin(player.angle) * 25;
+                const dx = targetX_delayed - this.x; const dy = targetY_delayed - this.y;
+                this.angle = Math.atan2(dy, dx);
+                this.x += dx * 0.08; this.y += dy * 0.08;
+                return; // 继续守护，不执行后面的游走逻辑
+            }
+            // 守护时间到了，但hunter时间也结束了，聪仔去打工了（通过isLeaving标记处理）
+            if (player.buffs.hunter === 0 && this.wasActiveBeforeHunter && player.buffs.guardian === 0 && !this.isLeaving) {
+                this.isLeaving = true;
+                this.wasActiveBeforeHunter = false;
+                spawnFloatingText("聪仔去打工了~", player.x, player.y - 30, '#00BFFF');
+                // 游走逻辑会在下一次update中执行（通过isLeaving检查）
+                return;
+            }
+            // hunter时间结束，如果原本未激活（只通过hunter激活），则游走消失
+            else if (player.buffs.hunter === 0 && !this.wasActiveBeforeHunter) {
+                // 游走消失：向屏幕外移动
+                const dx = (this.x < canvas.width / 2) ? -5 : 5;
+                const dy = (this.y < canvas.height / 2) ? -5 : 5;
+                this.x += dx;
+                this.y += dy;
+                this.angle = Math.atan2(dy, dx);
+                
+                // 如果离开屏幕，则消失
+                if (this.x < -100 || this.x > canvas.width + 100 || 
+                    this.y < -100 || this.y > canvas.height + 100) {
+                    this.active = false;
+                    this.wasActiveBeforeHunter = false;
+                }
+                return;
+            }
+            // 正常模式：跟随玩家（没有hunter buff时，且守护时间还在）
+            if (player.buffs.guardian > 0 || this.wasActiveBeforeHunter) {
+                const targetX_delayed = targetX - Math.cos(player.angle) * 25;
+                const targetY_delayed = targetY - Math.sin(player.angle) * 25;
+                const dx = targetX_delayed - this.x; const dy = targetY_delayed - this.y;
+                this.angle = Math.atan2(dy, dx);
+                this.x += dx * 0.08; this.y += dy * 0.08;
+            }
         }
         draw() {
             if (!this.active) return;
@@ -1007,7 +1233,83 @@
             let availableItems = GAME_OBJECTS[category].filter(i => score >= i.minScore);
             if (availableItems.length === 0) availableItems = [GAME_OBJECTS[category][0]];
 
-            let c = availableItems[Math.floor(Math.random() * availableItems.length)];
+            // 优化选择逻辑，确保各阶段都有丰富的鱼类品种
+            let c;
+            if (category === 'bad') {
+                // 困难模式：根据分数调整大鱼出现概率，早期更稀疏
+                if (currentDifficultyName === 'hard') {
+                    const bigFish = availableItems.filter(i => i.r >= 20);
+                    if (bigFish.length > 0) {
+                        // 根据分数动态调整大鱼出现概率，早期大幅降低
+                        // 0-100分：5%概率，100-200分：10%概率，200-500分：25%概率，500-1000分：50%概率，1000+分：75%概率
+                        let bigFishProb = 0.05; // 早期只有5%
+                        if (score >= 1000) {
+                            bigFishProb = 0.75;
+                        } else if (score >= 500) {
+                            bigFishProb = 0.5;
+                        } else if (score >= 200) {
+                            bigFishProb = 0.25;
+                        } else if (score >= 100) {
+                            bigFishProb = 0.1;
+                        }
+                        
+                        if (Math.random() < bigFishProb) {
+                            c = bigFish[Math.floor(Math.random() * bigFish.length)];
+                        } else {
+                            c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                        }
+                    } else {
+                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                    }
+                }
+                // 早期阶段（score < 100），优先选择有颜色的鱼类
+                else if (score < 100 && availableItems.length > 2) {
+                    const colorfulFish = availableItems.filter(i => 
+                        i.subtype !== 'tiny' && i.subtype !== 'normal' && i.minScore === 0
+                    );
+                    if (colorfulFish.length > 0 && Math.random() < 0.6) {
+                        c = colorfulFish[Math.floor(Math.random() * colorfulFish.length)];
+                    } else {
+                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                    }
+                }
+                // 中期阶段（100-1000），优先选择有颜色的大鱼
+                else if (score >= 100 && score < 1000) {
+                    const colorfulBigFish = availableItems.filter(i => 
+                        i.subtype !== 'tiny' && i.subtype !== 'normal' && 
+                        i.subtype !== 'lightning' && i.subtype !== 'ice' &&
+                        i.r >= 20
+                    );
+                    if (colorfulBigFish.length > 0 && Math.random() < 0.5) {
+                        c = colorfulBigFish[Math.floor(Math.random() * colorfulBigFish.length)];
+                    } else {
+                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                    }
+                }
+                // 后期阶段（1000+），确保大鱼品种丰富
+                else if (score >= 1000) {
+                    const bigFish = availableItems.filter(i => i.r >= 30);
+                    if (bigFish.length > 0 && Math.random() < 0.4) {
+                        // 优先选择有颜色的大鱼（非whale和shark）
+                        const colorfulBig = bigFish.filter(i => 
+                            i.subtype !== 'whale' && i.subtype !== 'shark'
+                        );
+                        if (colorfulBig.length > 0) {
+                            c = colorfulBig[Math.floor(Math.random() * colorfulBig.length)];
+                        } else {
+                            c = bigFish[Math.floor(Math.random() * bigFish.length)];
+                        }
+                    } else {
+                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                    }
+                }
+                else {
+                    c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                }
+            } else {
+                c = availableItems[Math.floor(Math.random() * availableItems.length)];
+            }
+            
             if (c.rarity && Math.random() > c.rarity) c = availableItems[0];
 
             if (currentEvent) {
@@ -1025,19 +1327,134 @@
             this.radius = c.r; this.color = c.color;
             this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
 
-            this.y = Math.random() * canvas.height;
             const scoreFactor = 1 + Math.floor(score / 500) * 0.15;
             const minSpd = c.speed[0]; const maxSpd = c.speed[1];
             this.speed = (Math.random()*(maxSpd - minSpd) + minSpd) * diffSettings.speedMultiplier * scoreFactor;
+            this.originalVx = 0; // 保存原始横向速度，用于恢复
 
-            const side = Math.random() < 0.5 ? 'left' : 'right';
             const margin = this.radius * 3;
-            if (side === 'left') { this.x = -margin; this.vx = this.speed; }
-            else { this.x = canvas.width + margin; this.vx = -this.speed; }
+            
+            // 困难模式下从四个方向生成，其他模式只从左右生成
+            if (currentDifficultyName === 'hard') {
+                const direction = Math.floor(Math.random() * 4); // 0:左, 1:右, 2:上, 3:下
+                if (direction === 0) {
+                    // 从左侧生成
+                    this.x = -margin;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = this.speed;
+                    this.originalVx = this.speed; // 保存原始速度
+                    this.vy = (Math.random() - 0.5) * this.speed * 0.3; // 添加垂直速度分量
+                } else if (direction === 1) {
+                    // 从右侧生成
+                    this.x = canvas.width + margin;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = -this.speed;
+                    this.originalVx = -this.speed; // 保存原始速度
+                    this.vy = (Math.random() - 0.5) * this.speed * 0.3;
+                } else if (direction === 2) {
+                    // 从上方生成
+                    this.x = Math.random() * canvas.width;
+                    this.y = -margin;
+                    this.vx = (Math.random() - 0.5) * this.speed * 0.3;
+                    this.originalVx = this.vx; // 保存原始速度
+                    this.vy = this.speed;
+                } else {
+                    // 从下方生成
+                    this.x = Math.random() * canvas.width;
+                    this.y = canvas.height + margin;
+                    this.vx = (Math.random() - 0.5) * this.speed * 0.3;
+                    this.originalVx = this.vx; // 保存原始速度
+                    this.vy = -this.speed;
+                }
+            } else {
+                // 普通模式和简单模式：只从左右生成
+                this.y = Math.random() * canvas.height;
+                const side = Math.random() < 0.5 ? 'left' : 'right';
+                if (side === 'left') { 
+                    this.x = -margin; 
+                    this.vx = this.speed; 
+                    this.originalVx = this.speed; // 保存原始速度
+                    this.vy = 0;
+                } else { 
+                    this.x = canvas.width + margin; 
+                    this.vx = -this.speed; 
+                    this.originalVx = -this.speed; // 保存原始速度
+                    this.vy = 0;
+                }
+            }
         }
         update() {
-            this.x += this.vx;
+            // 大鱼主动追击玩家逻辑（在移动之前判断）
+            let isChasing = false;
+            if (this.type === 'bad' && this.radius >= 20 && !isFeverMode) {
+                const distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
+                // 减小追击范围：只在玩家真正靠近时才追击
+                // 大鱼追击范围：根据鱼的大小调整，但范围更小
+                const chaseRange = this.radius * (this.radius >= 50 ? 5 : 4); // 从10-12倍减少到4-5倍
+                
+                // 只在玩家足够靠近时追击，可以追击到碰撞
+                if (distToPlayer < chaseRange && distToPlayer > this.radius + player.radius) {
+                    isChasing = true;
+                    // 计算朝向玩家的方向
+                    const angle = Math.atan2(player.y - this.y, player.x - this.x);
+                    // 大鱼越大，追击速度越快，但降低速度倍数
+                    const speedMultiplier = this.radius >= 50 ? 1.8 : (this.radius >= 30 ? 1.5 : 1.3);
+                    const baseChaseSpeed = Math.min(this.speed * speedMultiplier, this.radius >= 50 ? 4 : 3.5);
+                    
+                    // 根据难度调整追击强度
+                    // 简单模式：更慢更温和，普通模式：中等，困难模式：更快更积极
+                    let chaseIntensity;
+                    if (currentDifficultyName === 'easy') {
+                        chaseIntensity = 0.15; // 简单模式：15%
+                    } else if (currentDifficultyName === 'normal') {
+                        chaseIntensity = 0.2; // 普通模式：20%
+                    } else {
+                        chaseIntensity = 0.3; // 困难模式：30%
+                    }
+                    
+                    const chaseX = Math.cos(angle) * baseChaseSpeed * chaseIntensity;
+                    const chaseY = Math.sin(angle) * baseChaseSpeed * chaseIntensity;
+                    
+                    // 如果正在追击，优先使用追击移动，减少原来的横向移动
+                    this.x += chaseX;
+                    this.y += chaseY;
+                    
+                    // 更新vx方向，让鱼朝向玩家，但追击时减少横向移动
+                    if (this.x < player.x) {
+                        this.vx = Math.abs(this.originalVx) * 0.4; // 追击时减少横向移动
+                    } else {
+                        this.vx = -Math.abs(this.originalVx) * 0.4;
+                    }
+                } else {
+                    // 不在追击范围内，恢复原始速度
+                    if (this.originalVx !== 0) {
+                        this.vx = this.originalVx;
+                    }
+                }
+            } else {
+                // 不是大鱼或无敌模式，恢复原始速度
+                if (this.originalVx !== 0 && this.vx !== this.originalVx) {
+                    this.vx = this.originalVx;
+                }
+            }
+            
+            // 如果没有在追击，才使用原来的移动方式
+            if (!isChasing) {
+                this.x += this.vx;
+                // 支持垂直移动（困难模式下从上下方向生成的鱼）
+                if (this.vy !== undefined) {
+                    this.y += this.vy;
+                }
+            } else {
+                // 追击时仍然保留少量横向移动，但主要靠追击移动
+                this.x += this.vx * 0.3;
+                if (this.vy !== undefined) {
+                    this.y += this.vy * 0.3;
+                }
+            }
+            
             if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
+            
             const magnetActive = player.buffs.magnet > 0 || isFeverMode;
             const canMagnet = (this.type === 'heart' || this.type === 'buff') || isFeverMode;
             if (magnetActive && canMagnet) {
@@ -1082,6 +1499,8 @@
         currentDifficulty = DIFFICULTY_SETTINGS[difficultyKey];
         player = new Player();
         guardian = new Guardian();
+        guardian.wasActiveBeforeHunter = false; // 重置标记
+        guardian.isLeaving = false; // 重置离开标记
         items = [];
         score = 0;
         feverValue = 0; isFeverMode = false;
@@ -1107,7 +1526,32 @@
 
         player.update();
         updateBuffUI(player.buffs, guardian.active);
-        if (guardian.active) { guardian.update(player.x, player.y); guardian.draw(); }
+        if (guardian.active) { 
+            guardian.update(player.x, player.y); 
+            guardian.draw();
+            
+            // 如果开启了hunter模式，检查聪仔是否吃掉了小鱼
+            if (player.buffs && player.buffs.hunter > 0) {
+                for (let j = items.length - 1; j >= 0; j--) {
+                    let fish = items[j];
+                    if (fish.type === 'bad') {
+                        // 放宽条件：可以吃半径小于聪仔1.5倍的鱼，或者半径小于30的小鱼
+                        const canEat = fish.radius < guardian.radius * 1.5 || fish.radius < 30;
+                        if (canEat) {
+                            const dist = Math.hypot(guardian.x - fish.x, guardian.y - fish.y);
+                            if (dist < guardian.radius + fish.radius) {
+                                // 聪仔吃掉了小鱼
+                                items.splice(j, 1);
+                                score += 5;
+                                scoreEl.innerText = score;
+                                spawnFloatingText("聪仔出击!", guardian.x, guardian.y - 30, '#00CED1');
+                                if(navigator.vibrate) navigator.vibrate(30);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         player.draw();
 
         updateEventLogic();
@@ -1122,7 +1566,13 @@
             item.update();
             item.draw();
 
-            if (item.x < -200 || item.x > canvas.width + 200) { items.splice(i, 1); continue; }
+            // 边界检测：从四个方向离开屏幕时移除
+            const margin = 200;
+            if (item.x < -margin || item.x > canvas.width + margin || 
+                item.y < -margin || item.y > canvas.height + margin) { 
+                items.splice(i, 1); 
+                continue; 
+            }
 
             const dist = Math.hypot(player.x - item.x, player.y - item.y);
             if (dist < player.radius + item.radius) {
@@ -1149,12 +1599,53 @@
                 else if (item.type === 'buff') {
                     items.splice(i, 1);
                     if (item.subtype === 'summon') {
-                        if (guardian.active) spawnFloatingText("聪仔在呢!", player.x, player.y - 30, '#00BFFF');
-                        else { guardian.active = true; guardian.x = player.x - 50; guardian.y = player.y; spawnFloatingText("聪仔守护!", player.x, player.y - 30, '#00BFFF'); }
+                        // 根据难度设置不同的守护持续时间
+                        // 简单模式：15秒（900帧），普通模式：12秒（720帧），困难模式：8秒（480帧）
+                        let guardianDuration = 900;
+                        if (currentDifficultyName === 'easy') {
+                            guardianDuration = 900; // 简单模式：15秒
+                        } else if (currentDifficultyName === 'normal') {
+                            guardianDuration = 720; // 普通模式：12秒
+                        } else {
+                            guardianDuration = 480; // 困难模式：8秒
+                        }
+                        player.buffs.guardian = guardianDuration;
+                        
+                        if (guardian.active) {
+                            spawnFloatingText("聪仔在呢!", player.x, player.y - 30, '#00BFFF');
+                            // 吃到护身符后，无论是否有hunter，都应该继续守护
+                            guardian.wasActiveBeforeHunter = true; // 标记为原本激活，hunter结束后继续守护
+                        } else {
+                            guardian.active = true;
+                            guardian.x = player.x - 50;
+                            guardian.y = player.y;
+                            // 吃到护身符后，无论是否有hunter，都应该继续守护
+                            guardian.wasActiveBeforeHunter = true; // 标记为原本激活
+                            spawnFloatingText("聪仔守护!", player.x, player.y - 30, '#00BFFF');
+                        }
                     } else {
                         spawnFloatingText(item.name + "!", player.x, player.y - 30, item.color);
                         if (item.subtype === 'candy') player.buffs.speed = 300;
                         if (item.subtype === 'magnet') player.buffs.magnet = 400;
+                        if (item.subtype === 'hunter') {
+                            // 记录在hunter之前是否已经激活
+                            guardian.wasActiveBeforeHunter = guardian.active;
+                            
+                            // 根据难度设置不同的持续时间
+                            // 简单模式：8秒（480帧），普通模式：6秒（360帧），困难模式：4秒（240帧）
+                            if (currentDifficultyName === 'easy') {
+                                player.buffs.hunter = 480;
+                            } else if (currentDifficultyName === 'normal') {
+                                player.buffs.hunter = 360;
+                            } else {
+                                player.buffs.hunter = 240; // 困难模式：4秒
+                            }
+                            if (!guardian.active) {
+                                guardian.active = true;
+                                guardian.x = player.x - 50;
+                                guardian.y = player.y;
+                            }
+                        }
                     }
                 }
                 else if (item.type === 'bad') {
@@ -1178,8 +1669,15 @@
                         } else {
                             if (guardian.active) {
                                 items.splice(i, 1);
+                                // 如果hunter模式激活，聪仔为了保护粉鱼而消失
+                                if (player.buffs.hunter > 0) {
+                                    spawnFloatingText("聪仔守护!", player.x, player.y - 40, '#ff4444');
+                                    player.buffs.hunter = 0; // 清除hunter buff
+                                } else {
+                                    spawnFloatingText("聪仔挡刀!", player.x, player.y - 40, '#ff4444');
+                                }
                                 guardian.active = false;
-                                spawnFloatingText("聪仔挡刀!", player.x, player.y - 40, '#ff4444');
+                                guardian.wasActiveBeforeHunter = false;
                                 if(navigator.vibrate) navigator.vibrate(200);
                             } else {
                                 deathReasonEl.innerText = `被"${item.name}"绊倒了...`;
@@ -1193,11 +1691,13 @@
 
         if (currentEvent === 'fog') {
             let fogR = currentDifficulty.fogRadius || 100;
-            if (!guardian.active) fogR = fogR * 0.6;
-            fogR = Math.max(25, fogR);
+            if (!guardian.active) fogR = fogR * 0.4; // 没有守护者时能见度进一步缩减到40%
+            fogR = Math.max(10, fogR); // 最小可见范围从15缩减到10
             const grad = ctx.createRadialGradient(player.x, player.y, fogR, player.x, player.y, Math.max(canvas.width, canvas.height)/2);
             grad.addColorStop(0, "rgba(0,0,0,0)");
-            grad.addColorStop(1, "rgba(0,0,0,0.98)");
+            grad.addColorStop(0.2, "rgba(0,0,0,0.5)"); // 更早开始变暗
+            grad.addColorStop(0.5, "rgba(0,0,0,0.85)"); // 中间更暗
+            grad.addColorStop(1, "rgba(0,0,0,0.99)"); // 边缘几乎完全黑暗
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
@@ -1222,7 +1722,16 @@
         uiLayer.style.display = 'block'; pauseBtn.style.display = 'flex';
         init(difficulty); gameRunning = true; gameLoop();
     }
-    function pauseGame() { if (!gameRunning) return; isPaused = true; cancelAnimationFrame(animationId); pauseScreen.style.display = 'flex'; }
+    function pauseGame(e) { 
+        if (e) {
+            e.stopPropagation(); // 阻止事件冒泡
+            e.preventDefault(); // 阻止默认行为
+        }
+        if (!gameRunning) return; 
+        isPaused = true; 
+        cancelAnimationFrame(animationId); 
+        pauseScreen.style.display = 'flex'; 
+    }
     function resumeGame() { isPaused = false; pauseScreen.style.display = 'none'; gameLoop(); }
     function quitGameFromPause() { pauseScreen.style.display = 'none'; deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~"; endGame(); }
     function showStartScreen() {
