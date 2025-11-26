@@ -271,6 +271,11 @@
     // 游戏中的气泡系统
     let gameBubbles = [];
     let lightRays = []; // 光斑效果
+    let particles = []; // 粒子特效
+    let comboCount = 0; // 连击数
+    let comboTimer = 0; // 连击计时器
+    let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
+    let scoreAnimations = []; // 分数动画
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -943,6 +948,96 @@
             ctx.restore();
         }
     }
+    
+    // 粒子特效类
+    class Particle {
+        constructor(x, y, color, type = 'sparkle') {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.type = type;
+            this.vx = (Math.random() - 0.5) * 4;
+            this.vy = (Math.random() - 0.5) * 4;
+            this.life = 1.0;
+            this.decay = Math.random() * 0.02 + 0.01;
+            this.size = Math.random() * 4 + 2;
+            this.angle = Math.random() * Math.PI * 2;
+            this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vx *= 0.98;
+            this.vy *= 0.98;
+            this.life -= this.decay;
+            this.angle += this.rotationSpeed;
+            return this.life > 0;
+        }
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.color;
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+            if (this.type === 'sparkle') {
+                // 星星形状
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * Math.PI * 2) / 5;
+                    const x = Math.cos(angle) * this.size;
+                    const y = Math.sin(angle) * this.size;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                // 圆形粒子
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+    }
+    
+    // 分数动画类
+    class ScoreAnimation {
+        constructor(x, y, points, color) {
+            this.x = x;
+            this.y = y;
+            this.points = points;
+            this.color = color;
+            this.life = 1.0;
+            this.vy = -2;
+        }
+        update() {
+            this.y += this.vy;
+            this.vy *= 0.95;
+            this.life -= 0.02;
+            return this.life > 0;
+        }
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.color;
+            ctx.font = `bold ${20 + (1 - this.life) * 10}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.strokeText(`+${this.points}`, this.x, this.y);
+            ctx.fillText(`+${this.points}`, this.x, this.y);
+            ctx.restore();
+        }
+    }
+    
+    // 创建粒子爆炸效果
+    function createParticleExplosion(x, y, color, count = 15) {
+        for (let i = 0; i < count; i++) {
+            particles.push(new Particle(x, y, color, Math.random() < 0.5 ? 'sparkle' : 'circle'));
+        }
+    }
 
     // --- 系统函数 ---
 
@@ -1545,14 +1640,33 @@
             
             if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
             
-            const magnetActive = player.buffs.magnet > 0 || isFeverMode;
-            const canMagnet = (this.type === 'heart' || this.type === 'buff') || isFeverMode;
+            const magnetActive = player.buffs.magnet > 0 || (isFeverMode && currentDifficultyName !== 'hard');
+            const canMagnet = (this.type === 'heart' || this.type === 'buff') || (isFeverMode && currentDifficultyName !== 'hard');
             if (magnetActive && canMagnet) {
-                const range = isFeverMode ? 300 : 200;
+                let range = 200;
+                let magnetSpeed = 0.05;
+                
+                if (isFeverMode) {
+                    // 容易模式：范围300，速度0.12
+                    // 普通模式：范围150（缩小一半），速度0.06（缩小一半）
+                    // 困难模式：不吸引
+                    if (currentDifficultyName === 'easy') {
+                        range = 300;
+                        magnetSpeed = 0.12;
+                    } else if (currentDifficultyName === 'normal') {
+                        range = 150; // 缩小一半
+                        magnetSpeed = 0.06; // 缩小一半
+                    }
+                } else {
+                    // 普通磁铁道具
+                    range = 200;
+                    magnetSpeed = 0.05;
+                }
+                
                 const dist = Math.hypot(player.x - this.x, player.y - this.y);
                 if (dist < range) {
-                    this.x += (player.x - this.x) * (isFeverMode ? 0.12 : 0.05);
-                    this.y += (player.y - this.y) * (isFeverMode ? 0.12 : 0.05);
+                    this.x += (player.x - this.x) * magnetSpeed;
+                    this.y += (player.y - this.y) * magnetSpeed;
                 }
             }
         }
@@ -1616,12 +1730,42 @@
         for(let i = 0; i < 8; i++) {
             lightRays.push(new LightRay());
         }
+        
+        // 初始化其他效果
+        particles = [];
+        comboCount = 0;
+        comboTimer = 0;
+        screenShake = { x: 0, y: 0, intensity: 0 };
+        scoreAnimations = [];
     }
 
     function gameLoop() {
         if (!gameRunning) return;
         if (isPaused) return;
 
+        // 更新屏幕震动
+        if (screenShake.intensity > 0) {
+            screenShake.x = (Math.random() - 0.5) * screenShake.intensity;
+            screenShake.y = (Math.random() - 0.5) * screenShake.intensity;
+            screenShake.intensity *= 0.9;
+            if (screenShake.intensity < 0.1) {
+                screenShake.intensity = 0;
+                screenShake.x = 0;
+                screenShake.y = 0;
+            }
+        }
+        
+        // 更新连击计时器
+        if (comboTimer > 0) {
+            comboTimer--;
+            if (comboTimer <= 0) {
+                comboCount = 0;
+            }
+        }
+        
+        ctx.save();
+        ctx.translate(screenShake.x, screenShake.y);
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         // 绘制背景美化效果：光斑
@@ -1635,6 +1779,35 @@
             bubble.update();
             bubble.draw();
         });
+        
+        // 更新和绘制粒子
+        particles = particles.filter(p => {
+            p.update();
+            p.draw();
+            return p.life > 0;
+        });
+        
+        // 更新和绘制分数动画
+        scoreAnimations = scoreAnimations.filter(anim => {
+            anim.update();
+            anim.draw();
+            return anim.life > 0;
+        });
+        
+        // 绘制连击提示
+        if (comboCount > 1) {
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, comboTimer / 60);
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 28px Arial';
+            ctx.textAlign = 'center';
+            ctx.strokeStyle = '#FF6347';
+            ctx.lineWidth = 3;
+            const comboText = `${comboCount} 连击!`;
+            ctx.strokeText(comboText, canvas.width / 2, 100);
+            ctx.fillText(comboText, canvas.width / 2, 100);
+            ctx.restore();
+        }
 
         player.update();
         updateBuffUI(player.buffs, guardian.active);
@@ -1695,6 +1868,14 @@
                     addFever(item.fever || 5);
                     scoreEl.innerText = score;
                     checkGameEvolution();
+                    
+                    // 添加粒子特效
+                    createParticleExplosion(item.x, item.y, item.color, 12);
+                    // 添加分数动画
+                    scoreAnimations.push(new ScoreAnimation(item.x, item.y, item.score, item.color));
+                    // 连击系统
+                    comboTimer = 120; // 2秒内再次收集算连击
+                    comboCount++;
 
                     // === 核心修复：随机抽取一句情话 ===
                     const sweetWord = LOVE_WORDS[Math.floor(Math.random() * LOVE_WORDS.length)];
@@ -1710,6 +1891,8 @@
                 }
                 else if (item.type === 'buff') {
                     items.splice(i, 1);
+                    // 添加粒子特效
+                    createParticleExplosion(item.x, item.y, item.color, 15);
                     if (item.subtype === 'summon') {
                         // 根据难度设置不同的守护持续时间
                         // 简单模式：15秒（900帧），普通模式：12秒（720帧），困难模式：8秒（480帧）
@@ -1791,7 +1974,15 @@
                                 guardian.active = false;
                                 guardian.wasActiveBeforeHunter = false;
                                 if(navigator.vibrate) navigator.vibrate(200);
+                                // 添加屏幕震动
+                                screenShake.intensity = 15;
+                                // 添加粒子特效
+                                createParticleExplosion(player.x, player.y, '#ff4444', 20);
                             } else {
+                                // 添加屏幕震动
+                                screenShake.intensity = 20;
+                                // 添加粒子特效
+                                createParticleExplosion(player.x, player.y, '#ff0000', 25);
                                 deathReasonEl.innerText = `被"${item.name}"绊倒了...`;
                                 endGame();
                             }
@@ -1803,8 +1994,14 @@
 
         if (currentEvent === 'fog') {
             let fogR = currentDifficulty.fogRadius || 100;
-            if (!guardian.active) fogR = fogR * 0.4; // 没有守护者时能见度进一步缩减到40%
+            if (!guardian.active) {
+                fogR = fogR * 0.4; // 没有守护者时能见度进一步缩减到40%
+            } else {
+                fogR = fogR * 1.5; // 有守护者时能见度增加到150%
+            }
             fogR = Math.max(10, fogR); // 最小可见范围从15缩减到10
+            
+            // 绘制以玩家为中心的迷雾
             const grad = ctx.createRadialGradient(player.x, player.y, fogR, player.x, player.y, Math.max(canvas.width, canvas.height)/2);
             grad.addColorStop(0, "rgba(0,0,0,0)");
             grad.addColorStop(0.2, "rgba(0,0,0,0.5)"); // 更早开始变暗
@@ -1812,6 +2009,18 @@
             grad.addColorStop(1, "rgba(0,0,0,0.99)"); // 边缘几乎完全黑暗
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 如果聪仔激活，在聪仔周围也创建一个亮区
+            if (guardian.active) {
+                const guardianFogR = fogR * 0.6; // 聪仔周围的可见范围是玩家的60%
+                const guardianGrad = ctx.createRadialGradient(guardian.x, guardian.y, guardianFogR, guardian.x, guardian.y, Math.max(canvas.width, canvas.height)/2);
+                guardianGrad.addColorStop(0, "rgba(0,0,0,0)");
+                guardianGrad.addColorStop(0.3, "rgba(0,0,0,0.3)");
+                guardianGrad.addColorStop(0.6, "rgba(0,0,0,0.7)");
+                guardianGrad.addColorStop(1, "rgba(0,0,0,0.99)");
+                ctx.fillStyle = guardianGrad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
         }
 
         if (currentEvent === 'current') {
@@ -1825,6 +2034,8 @@
             });
             ctx.stroke(); ctx.restore();
         }
+        
+        ctx.restore(); // 结束屏幕震动变换
 
         animationId = requestAnimationFrame(gameLoop);
     }
