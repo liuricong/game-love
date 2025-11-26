@@ -257,6 +257,7 @@
     let isFeverMode = false;
     let feverTimer = 0;
     let unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
+    let discoveredRareFish = new Set(); // 已发现的稀有鱼种
 
     // 首页氛围元素
     let ambientFish = [];
@@ -437,6 +438,18 @@
             { type: 'bad', subtype: 'grouper', r: 62, color: '#4B0082', speed: [1.8, 2.5], name: '终极波折', minScore: 2800 }
         ]
     };
+
+    // 稀有鱼种配置（低概率出现，有特殊外观和奖励）
+    const RARE_FISH = [
+        { baseSubtype: 'goldfish', r: 12, name: '✨ 黄金小鱼', rarity: 0.02, bonusScore: 30, bonusFever: 10, bonusGrowth: 0.3, color: '#FFD700' },
+        { baseSubtype: 'tropical', r: 15, name: '💎 钻石热带鱼', rarity: 0.015, bonusScore: 50, bonusFever: 15, bonusGrowth: 0.4, color: '#00FFFF' },
+        { baseSubtype: 'clownfish', r: 10, name: '🌟 星光小丑鱼', rarity: 0.02, bonusScore: 40, bonusFever: 12, bonusGrowth: 0.35, color: '#FF69B4' },
+        { baseSubtype: 'angelfish', r: 14, name: '💫 天使金鱼', rarity: 0.015, bonusScore: 45, bonusFever: 13, bonusGrowth: 0.38, color: '#FFD700' },
+        { baseSubtype: 'dolphin', r: 20, name: '🌊 蓝宝石海豚', rarity: 0.01, bonusScore: 80, bonusFever: 25, bonusGrowth: 0.5, color: '#4169E1' },
+        { baseSubtype: 'seahorse', r: 12, name: '💖 粉钻海马', rarity: 0.018, bonusScore: 35, bonusFever: 11, bonusGrowth: 0.32, color: '#FF1493' },
+        { baseSubtype: 'jellyfish', r: 13, name: '🔮 紫晶水母', rarity: 0.015, bonusScore: 42, bonusFever: 12, bonusGrowth: 0.36, color: '#9370DB' },
+        { baseSubtype: 'grouper', r: 18, name: '⚡ 雷光石斑', rarity: 0.012, bonusScore: 60, bonusFever: 18, bonusGrowth: 0.45, color: '#FFD700' }
+    ];
 
     // --- 辅助绘图 ---
     if (!CanvasRenderingContext2D.prototype.roundRect) {
@@ -996,6 +1009,43 @@
                  item.subtype === 'jellyfish' || item.subtype === 'flounder' || item.subtype === 'grouper') {
             // 所有鱼类类型，使用鱼类绘制
             let fishType = item.subtype;
+            
+            // 如果是稀有鱼种，添加特殊效果
+            if (item.isRare) {
+                // 绘制闪光效果
+                ctx.save();
+                const glowSize = r * 2.5;
+                const glowAlpha = 0.3 + Math.sin(frameCount * 0.3) * 0.2;
+                ctx.globalAlpha = glowAlpha;
+                const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, glowSize);
+                glowGrad.addColorStop(0, item.color);
+                glowGrad.addColorStop(0.5, item.color + '80');
+                glowGrad.addColorStop(1, 'transparent');
+                ctx.fillStyle = glowGrad;
+                ctx.beginPath();
+                ctx.arc(0, 0, glowSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+                
+                // 绘制星星特效
+                ctx.save();
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = '#FFD700';
+                for (let i = 0; i < 6; i++) {
+                    const angle = (i * Math.PI * 2 / 6) + frameCount * 0.1;
+                    const dist = r * 1.5;
+                    const starX = Math.cos(angle) * dist;
+                    const starY = Math.sin(angle) * dist;
+                    const starSize = 3 + Math.sin(frameCount * 0.2 + i) * 2;
+                    ctx.beginPath();
+                    ctx.arc(starX, starY, starSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+            
             drawFishArt(ctx, 0, 0, r, color, 0, frameCount, fishType);
         }
         else if (item.subtype === 'lightning') {
@@ -1378,7 +1428,14 @@
 
         let title = ""; let desc = ""; let bgColor = "";
         if (type === 'fog') {
-            title = "🌫️ 迷茫之雾"; desc = "看不清未来...但有你在"; bgColor = "#555";
+            title = "🌫️ 迷茫之雾";
+            // 根据聪仔是否激活显示不同描述
+            if (guardian.active) {
+                desc = "看不清未来...但有你在";
+            } else {
+                desc = "未来中，我在寻找你的身影";
+            }
+            bgColor = "#555";
         } else if (type === 'current') {
             title = "🌊 命运激流"; desc = "生活想把我们冲散，坚持住！";
             const angle = Math.random() * Math.PI * 2;
@@ -1756,10 +1813,36 @@
                 if (Math.random() > 0.1) c = GAME_OBJECTS['good'][0];
             }
 
+            // 检查是否生成稀有鱼种（只对坏鱼生效）
+            this.isRare = false;
+            this.rareType = null;
+            if (category === 'bad' && Math.random() < 0.03) { // 3%概率生成稀有鱼种
+                const availableRare = RARE_FISH.filter(rf => score >= 0); // 所有稀有鱼都可以出现
+                if (availableRare.length > 0) {
+                    const rareFish = availableRare[Math.floor(Math.random() * availableRare.length)];
+                    // 检查稀有度
+                    if (Math.random() < rareFish.rarity) {
+                        this.isRare = true;
+                        this.rareType = rareFish;
+                        this.subtype = rareFish.baseSubtype;
+                        this.radius = rareFish.r;
+                        this.color = rareFish.color;
+                        this.name = rareFish.name;
+                        this.rareBonusScore = rareFish.bonusScore;
+                        this.rareBonusFever = rareFish.bonusFever;
+                        this.rareBonusGrowth = rareFish.bonusGrowth;
+                        // 记录发现的稀有鱼种
+                        discoveredRareFish.add(rareFish.name);
+                    }
+                }
+            }
+
             this.config = c;
-            this.type = c.type; this.subtype = c.subtype || 'normal';
-            this.radius = c.r; this.color = c.color;
-            this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
+            if (!this.isRare) {
+                this.type = c.type; this.subtype = c.subtype || 'normal';
+                this.radius = c.r; this.color = c.color;
+                this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
+            }
 
             const scoreFactor = 1 + Math.floor(score / 500) * 0.15;
             const minSpd = c.speed[0]; const maxSpd = c.speed[1];
@@ -1972,6 +2055,7 @@
         isPaused = false;
         unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
         currentEvent = null; nextEventCooldown = 600; eventBanner.style.opacity = 0;
+        discoveredRareFish = new Set(); // 重置稀有鱼种发现记录
         input.x = canvas.width / 2; input.y = canvas.height / 2;
         updateBuffUI(player.buffs, guardian.active);
         startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
@@ -2189,28 +2273,65 @@
                 else if (item.type === 'bad') {
                     if (isFeverMode) {
                         items.splice(i, 1);
-                        spawnFloatingText("粉碎障碍!", player.x, player.y - 30, '#FF1493', 24);
-                        score += 10; scoreEl.innerText = score;
-                        if(navigator.vibrate) navigator.vibrate(50);
                         
-                        // 无敌模式下吃坏鱼也有成长
-                        if (player.radius < 60) {
-                            // 根据坏鱼大小计算成长值
-                            let growth = 0.1;
-                            if (item.radius < 10) {
-                                growth = 0.08 + (item.radius / 10) * 0.04; // 0.08-0.12
-                            } else if (item.radius < 20) {
-                                growth = 0.15 + ((item.radius - 10) / 10) * 0.1; // 0.15-0.25
-                            } else if (item.radius < 30) {
-                                growth = 0.25 + ((item.radius - 20) / 10) * 0.15; // 0.25-0.4
-                            } else {
-                                growth = 0.4 + Math.min((item.radius - 30) / 30, 1) * 0.2; // 0.4-0.6
+                        // 检查是否是稀有鱼种
+                        if (item.isRare) {
+                            const bonusScore = item.rareBonusScore || 30;
+                            const bonusFever = item.rareBonusFever || 10;
+                            const bonusGrowth = item.rareBonusGrowth || 0.3;
+                            
+                            score += 10 + bonusScore; // 基础10分 + 稀有奖励
+                            scoreEl.innerText = score;
+                            addFever(bonusFever);
+                            
+                            spawnFloatingText("✨ " + item.name + " ✨", player.x, player.y - 30, item.color, 24);
+                            spawnFloatingText("+ " + bonusScore + " 分!", player.x, player.y - 50, '#FFD700', 20);
+                            
+                            createParticleExplosion(item.x, item.y, item.color, 30);
+                            createParticleExplosion(item.x, item.y, '#FFD700', 20);
+                            
+                            if (player.radius < 60) {
+                                let growth = 0.1;
+                                if (item.radius < 10) {
+                                    growth = 0.08 + (item.radius / 10) * 0.04;
+                                } else if (item.radius < 20) {
+                                    growth = 0.15 + ((item.radius - 10) / 10) * 0.1;
+                                } else if (item.radius < 30) {
+                                    growth = 0.25 + ((item.radius - 20) / 10) * 0.15;
+                                } else {
+                                    growth = 0.4 + Math.min((item.radius - 30) / 30, 1) * 0.2;
+                                }
+                                
+                                player.radius += growth + bonusGrowth; // 基础成长 + 稀有奖励成长
+                                if (guardian.active) guardian.radius += (growth + bonusGrowth) * 0.8;
+                                sizeEl.innerText = Math.floor(player.radius - 9);
                             }
                             
-                            // 无敌模式下吃坏鱼成长和吃爱心一样
-                            player.radius += growth;
-                            if (guardian.active) guardian.radius += growth * 0.8;
-                            sizeEl.innerText = Math.floor(player.radius - 9);
+                            if(navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
+                        } else {
+                            spawnFloatingText("粉碎障碍!", player.x, player.y - 30, '#FF1493', 24);
+                            score += 10; scoreEl.innerText = score;
+                            if(navigator.vibrate) navigator.vibrate(50);
+                            
+                            // 无敌模式下吃坏鱼也有成长
+                            if (player.radius < 60) {
+                                // 根据坏鱼大小计算成长值
+                                let growth = 0.1;
+                                if (item.radius < 10) {
+                                    growth = 0.08 + (item.radius / 10) * 0.04; // 0.08-0.12
+                                } else if (item.radius < 20) {
+                                    growth = 0.15 + ((item.radius - 10) / 10) * 0.1; // 0.15-0.25
+                                } else if (item.radius < 30) {
+                                    growth = 0.25 + ((item.radius - 20) / 10) * 0.15; // 0.25-0.4
+                                } else {
+                                    growth = 0.4 + Math.min((item.radius - 30) / 30, 1) * 0.2; // 0.4-0.6
+                                }
+                                
+                                // 无敌模式下吃坏鱼成长和吃爱心一样
+                                player.radius += growth;
+                                if (guardian.active) guardian.radius += growth * 0.8;
+                                sizeEl.innerText = Math.floor(player.radius - 9);
+                            }
                         }
                     }
                     else if (item.subtype === 'ice') {
@@ -2222,32 +2343,61 @@
                     else {
                         if (player.radius > item.radius) {
                             items.splice(i, 1);
-                            spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
-                            score += 5; scoreEl.innerText = score;
                             
-                            // 添加粒子特效
-                            createParticleExplosion(item.x, item.y, item.color, 10);
-                            
-                            // 吃坏鱼也有成长，但比吃爱心成长少一些
-                            if (player.radius < 60) {
-                                // 根据坏鱼大小计算成长值（比爱心成长少30%）
-                                let growth = 0.1;
-                                if (item.radius < 10) {
-                                    growth = 0.06 + (item.radius / 10) * 0.03; // 0.06-0.09
-                                } else if (item.radius < 20) {
-                                    growth = 0.10 + ((item.radius - 10) / 10) * 0.07; // 0.10-0.17
-                                } else if (item.radius < 30) {
-                                    growth = 0.17 + ((item.radius - 20) / 10) * 0.10; // 0.17-0.27
-                                } else {
-                                    growth = 0.27 + Math.min((item.radius - 30) / 30, 1) * 0.15; // 0.27-0.42
+                            // 检查是否是稀有鱼种
+                            if (item.isRare) {
+                                // 稀有鱼种额外奖励
+                                const bonusScore = item.rareBonusScore || 30;
+                                const bonusFever = item.rareBonusFever || 10;
+                                const bonusGrowth = item.rareBonusGrowth || 0.3;
+                                
+                                score += 5 + bonusScore; // 基础5分 + 稀有奖励
+                                scoreEl.innerText = score;
+                                addFever(bonusFever);
+                                
+                                spawnFloatingText("✨ " + item.name + " ✨", player.x, player.y - 30, item.color, 24);
+                                spawnFloatingText("+ " + bonusScore + " 分!", player.x, player.y - 50, '#FFD700', 20);
+                                
+                                // 大量粒子特效
+                                createParticleExplosion(item.x, item.y, item.color, 30);
+                                createParticleExplosion(item.x, item.y, '#FFD700', 20);
+                                
+                                // 额外成长
+                                if (player.radius < 60) {
+                                    player.radius += bonusGrowth;
+                                    if (guardian.active) guardian.radius += bonusGrowth * 0.8;
+                                    sizeEl.innerText = Math.floor(player.radius - 9);
                                 }
                                 
-                                // 坏鱼成长比爱心少30%
-                                growth *= 0.7;
+                                if(navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
+                            } else {
+                                spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
+                                score += 5; scoreEl.innerText = score;
                                 
-                                player.radius += growth;
-                                if (guardian.active) guardian.radius += growth * 0.8;
-                                sizeEl.innerText = Math.floor(player.radius - 9);
+                                // 添加粒子特效
+                                createParticleExplosion(item.x, item.y, item.color, 10);
+                                
+                                // 吃坏鱼也有成长，但比吃爱心成长少一些
+                                if (player.radius < 60) {
+                                    // 根据坏鱼大小计算成长值（比爱心成长少30%）
+                                    let growth = 0.1;
+                                    if (item.radius < 10) {
+                                        growth = 0.06 + (item.radius / 10) * 0.03; // 0.06-0.09
+                                    } else if (item.radius < 20) {
+                                        growth = 0.10 + ((item.radius - 10) / 10) * 0.07; // 0.10-0.17
+                                    } else if (item.radius < 30) {
+                                        growth = 0.17 + ((item.radius - 20) / 10) * 0.10; // 0.17-0.27
+                                    } else {
+                                        growth = 0.27 + Math.min((item.radius - 30) / 30, 1) * 0.15; // 0.27-0.42
+                                    }
+                                    
+                                    // 坏鱼成长比爱心少30%
+                                    growth *= 0.7;
+                                    
+                                    player.radius += growth;
+                                    if (guardian.active) guardian.radius += growth * 0.8;
+                                    sizeEl.innerText = Math.floor(player.radius - 9);
+                                }
                             }
                         } else {
                             if (guardian.active) {
