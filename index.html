@@ -8,27 +8,13 @@
     <style>
         body {
             margin: 0; padding: 0;
-            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+            background: #9AFCFF; /* 默认黑底，实际由Canvas绘制 */
             overflow: hidden;
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             user-select: none; touch-action: none;
-            transition: background 3s ease;
         }
 
-        /* === 唯美动态背景 (首页专用) === */
-        #start-screen {
-            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: white;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* 通用遮罩 */
+        /* 遮罩层通用 */
         .overlay-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -36,27 +22,37 @@
             transition: opacity 0.3s;
         }
 
-        /* 游戏中的半透明遮罩 (暂停/结束) */
+        /* === 首页样式修改：变为透明，让Canvas背景透出来 === */
+        #start-screen {
+            background: rgba(255, 255, 255, 0.1); /* 极淡的遮罩，凸显背景鱼 */
+            backdrop-filter: blur(2px); /* 轻微模糊，让文字更清晰 */
+        }
+
+        /* 游戏中的遮罩 (暂停/结束) 保持不透明度高一点 */
         .game-overlay {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             color: #d63384;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
         }
 
         h1 {
-            font-size: 36px; margin-bottom: 15px; text-align: center; font-weight: 900;
+            font-size: 40px; margin-bottom: 10px; text-align: center; font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 10px rgba(255,105,180, 0.5), 2px 2px 0px rgba(0,0,0,0.1);
+            /* 强力文字描边和阴影，确保在动态背景上清晰可见 */
+            text-shadow: 0 0 10px rgba(255,105,180, 0.8), 2px 2px 0px rgba(0,0,0,0.2);
             letter-spacing: 2px;
         }
 
-        /* 首页动态描述文字 */
+        /* 首页描述文字：加个半透明底，防看不清 */
         #start-desc {
             font-size: 16px; color: #fff; text-align: center;
             margin-bottom: 30px; line-height: 1.8; max-width: 90%;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             font-weight: 500;
-            min-height: 60px; /* 防止文字长度跳变导致按钮移位 */
+            min-height: 60px;
             display: flex; align-items: center; justify-content: center;
         }
 
@@ -67,19 +63,16 @@
         button {
             padding: 15px 10px; font-size: 18px; border: none; border-radius: 50px;
             cursor: pointer; font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
             color: white; outline: none; -webkit-tap-highlight-color: transparent;
-            background: rgba(255, 255, 255, 0.2); /* 半透明玻璃质感 */
-            border: 2px solid rgba(255,255,255,0.5);
-            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.4);
         }
         button:active { transform: scale(0.96); }
 
-        /* 不同难度的按钮颜色微调 */
-        .btn-easy { background: linear-gradient(45deg, #a8e063, #56ab2f); box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3); }
-        .btn-normal { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #c71585; box-shadow: 0 4px 15px rgba(255, 154, 158, 0.3); }
-        .btn-hard { background: linear-gradient(45deg, #ff512f, #dd2476); box-shadow: 0 4px 15px rgba(221, 36, 118, 0.3); }
+        .btn-easy { background: linear-gradient(45deg, #a8e063, #56ab2f); }
+        .btn-normal { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #c71585; }
+        .btn-hard { background: linear-gradient(45deg, #ff512f, #dd2476); }
 
         .btn-restart { background: #fff; border: 2px solid #ff758c; color: #ff758c; margin-top: 20px; width: 60%;}
         .btn-resume { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
@@ -170,12 +163,10 @@
 
 <button id="pause-btn" style="display:none;" onclick="pauseGame()">⏸</button>
 
-<!-- 开始界面 (唯美动态) -->
+<!-- 开始界面 (背景透明，显示Canvas) -->
 <div id="start-screen" class="overlay-screen">
     <h1>💖 爱的守护 💖</h1>
-    <!-- 动态描述文字 -->
     <p id="start-desc">正在加载爱的誓言...</p>
-
     <div class="btn-group">
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
@@ -209,7 +200,7 @@
     const buffBar = document.getElementById('buff-bar');
     const pauseBtn = document.getElementById('pause-btn');
     const startScreen = document.getElementById('start-screen');
-    const startDesc = document.getElementById('start-desc'); // 动态文案
+    const startDesc = document.getElementById('start-desc');
     const gameOverScreen = document.getElementById('game-over-screen');
     const pauseScreen = document.getElementById('pause-screen');
     const scoreEl = document.getElementById('score');
@@ -237,6 +228,10 @@
     let feverTimer = 0;
     let unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
 
+    // 首页氛围元素
+    let ambientFish = [];
+    let ambientBubbles = [];
+
     let currentEvent = null;
     let eventTimer = 0;
     let nextEventCooldown = 600;
@@ -245,16 +240,38 @@
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
-    // === 动态文案库 ===
     const START_QUOTES = [
+        // === ❤️ 深情告白篇 ===
+        "迷雾中，聪仔是唯一的灯塔。<br>没有他，世界将一片漆黑。",
+        "这不仅仅是一个游戏。<br>这是我想一直守护你的决心。",
+        "不管世界变得多快，<br>聪仔永远游在你身后半步的距离。",
+        "爱不是不受伤，<br>而是受伤时，有人替你挡在身前。",
+        "虽然我们只是小小的鱼，<br>但我们的爱可以填满整片海洋。",
+        "聪仔变小了也没关系，<br>只要你平安长大，一切都值得。",
+        "你是粉色的梦，<br>我是守护这梦境的蓝色骑士。",
+        "每一次[重来]，<br>都是为了再一次与你相遇。",
+
+        // === 🌊 生存哲学篇 ===
+        "生活就像逆水行舟。<br>遇到[激流]时，要用力逆风前行哦！",
+        "[冷战]虽然不会致命，<br>但那种凝固的空气让人寸步难行。",
+        "那些[坏情绪]就像气泡，<br>等你长大了，轻轻一碰就碎了。",
+        "别被[烂桃花]和[嫉妒]绊倒。<br>你值得拥有最好的爱心和星星！",
+        "真正的守护，不是把你关在温室，<br>而是陪你从浅海游向深渊。",
+        "当巨大的[现实压力]逼近时，<br>躲避并不可耻，是为了更好地生存。",
+        "有些路只能一个人走，<br>但在心里，我们从未分开。",
+        "哪怕要在黑暗的[困难模式]里摸索，<br>也要相信光就在前方。",
+
+        // === 🎮 硬核攻略篇 ===
         "开局就能吃掉绿色的[琐碎🦠]哦！<br>慢慢长大，再去挑战更大的困难。",
         "困难模式下，[护身符🛡️]是 1% 的奇迹。<br>但只要有爱，我们无所畏惧。",
-        "当[迷雾]降临时，别害怕。<br>因为聪仔的光芒会指引你。",
-        "生活就像逆水行舟。<br>遇到[激流]时，要用力逆风前行哦！",
+        "当[迷雾]降临时，别害怕。<br>紧紧跟着聪仔，别走丢了！",
         "想要[无敌爆发]吗？<br>只有收集粉色的爱心才能积攒心动值！",
         "如果不小心被[冰冻]了，<br>记得躲在聪仔身后，等春暖花开。",
-        "这不仅仅是一个游戏。<br>这是我想一直守护你的决心。",
-        "别被[烂桃花]和[坏情绪]绊倒。<br>你值得拥有最好的爱心和星星！"
+        "[幸运星🌟]是可遇不可求的，<br>就像那个对的人，遇到了就别放手。",
+        "别忘了吃[甜蜜糖果🍬]，<br>那是生活偶尔给你的小确幸。",
+        "遇到[磁铁🧲]时，<br>也是我们双向奔赴最快的时候！",
+        "小心那只黑色的[焦虑]，<br>它游得很快，别让它追上你。",
+        "[争吵]总是来得快去得快，<br>但在那之前，请先避其锋芒。"
     ];
 
     const DIFFICULTY_SETTINGS = {
@@ -310,23 +327,101 @@
         };
     }
 
-    function drawCuteFish(ctx, x, y, r, angle, color, hasEyelashes, text) {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
-        ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); const tailX = -r * 1.2; ctx.moveTo(tailX, 0); ctx.quadraticCurveTo(tailX - r, -r, tailX - r, 0); ctx.quadraticCurveTo(tailX - r, r, tailX, 0); ctx.fill();
-        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.3, r * 0.35, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(r * 0.7, -r * 0.3, r * 0.15, 0, Math.PI * 2); ctx.fill();
-        if (hasEyelashes) {
-            ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.beginPath();
-            ctx.moveTo(r*0.6, -r*0.6); ctx.lineTo(r*0.5, -r*0.8);
-            ctx.moveTo(r*0.7, -r*0.65); ctx.lineTo(r*0.7, -r*0.9);
-            ctx.moveTo(r*0.8, -r*0.6); ctx.lineTo(r*0.9, -r*0.8); ctx.stroke();
+    function drawFishArt(ctx, x, y, r, color, angle, frameCount, type) {
+        ctx.save();
+        ctx.translate(x, y);
+        if (type === 'player' || type === 'guardian') { ctx.rotate(angle); }
+        const tailWag = Math.sin(frameCount * 0.2) * 0.2;
+        const finWag = Math.cos(frameCount * 0.15) * 5;
+        const grad = ctx.createRadialGradient(0, -r*0.2, 0, 0, 0, r * 1.5);
+        grad.addColorStop(0, 'white'); grad.addColorStop(0.4, color); grad.addColorStop(1, 'black');
+        ctx.fillStyle = color;
+        ctx.save(); ctx.translate(-r, 0); ctx.rotate(tailWag); ctx.beginPath(); ctx.moveTo(0, 0);
+        if (type === 'shark') { ctx.lineTo(-r * 1.5, -r * 0.8); ctx.quadraticCurveTo(-r * 1.2, 0, -r * 1.5, r * 0.8); }
+        else if (type === 'whale') { ctx.lineTo(-r * 1.2, -r * 0.6); ctx.quadraticCurveTo(-r * 1.8, 0, -r * 1.2, r * 0.6); }
+        else { ctx.lineTo(-r * 1.2, -r * 0.6); ctx.lineTo(-r * 1.2, r * 0.6); }
+        ctx.lineTo(0, 0); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+        ctx.beginPath();
+        if (type === 'shark') ctx.ellipse(0, 0, r * 1.8, r * 0.7, 0, 0, Math.PI * 2);
+        else if (type === 'whale') ctx.ellipse(0, 0, r * 1.5, r * 0.9, 0, 0, Math.PI * 2);
+        else ctx.ellipse(0, 0, r * 1.3, r * 0.9, 0, 0, Math.PI * 2);
+        const bodyGrad = ctx.createRadialGradient(-r*0.3, -r*0.3, r*0.2, 0, 0, r*1.5);
+        bodyGrad.addColorStop(0, '#ffffff'); bodyGrad.addColorStop(0.3, color); bodyGrad.addColorStop(1, color);
+        ctx.fillStyle = bodyGrad; ctx.fill();
+        ctx.beginPath();
+        if (type === 'shark') { ctx.moveTo(0, -r * 0.5); ctx.lineTo(r * 0.5, -r * 1.3); ctx.lineTo(r * 0.8, -r * 0.5); ctx.fillStyle=color; ctx.fill(); }
+        ctx.beginPath(); ctx.ellipse(0, r*0.4, r*0.4, r*0.2 + Math.abs(finWag)/20, Math.PI/4, 0, Math.PI*2); ctx.fillStyle = color; ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath();
+        let eyeX = r * 0.5; let eyeY = -r * 0.3; let eyeSize = r * 0.35;
+        if (type === 'shark') { eyeX = r * 1.0; eyeY = -r * 0.2; eyeSize = r * 0.2; }
+        if (type === 'whale') { eyeX = r * 0.8; eyeY = -r * 0.1; eyeSize = r * 0.15; }
+        ctx.arc(eyeX, eyeY, eyeSize, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(eyeX + 2, eyeY, eyeSize * 0.4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(eyeX + 4, eyeY - 3, eyeSize * 0.2, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath();
+        if (type === 'guardian') { ctx.moveTo(eyeX - 5, eyeY - 8); ctx.lineTo(eyeX + 5, eyeY - 5); }
+        else if (type === 'player') { ctx.moveTo(eyeX + 5, eyeY - 5); ctx.lineTo(eyeX + 8, eyeY - 8); }
+        else if (type === 'bad' || type === 'shark') { ctx.moveTo(eyeX - 5, eyeY - 8); ctx.lineTo(eyeX + 5, eyeY - 3); }
+        ctx.stroke();
+        if (type === 'guardian') { ctx.fillStyle = 'white'; ctx.font = `bold ${r*0.8}px Arial`; ctx.textAlign = 'center'; ctx.fillText("聪仔", 0, 0); }
+        ctx.restore();
+    }
+
+    function drawItemArt(ctx, item) {
+        ctx.save(); ctx.translate(item.x, item.y);
+        if (item.vx < 0) ctx.scale(-1, 1);
+        const r = item.radius; const color = item.color;
+        if (item.type === 'heart') {
+            if (item.subtype === 'star') drawStar(ctx, 0, 0, 5, r, r/2, color);
+            else if (item.subtype === 'diamond') drawDiamond(ctx, r, color);
+            else drawHeart(ctx, 0, 0, r, color);
         }
-        if (text) {
-            ctx.fillStyle = 'white'; const fontSize = text.length > 1 ? r * 0.6 : r * 0.8;
-            ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, -r * 0.1, 0);
+        else if (item.type === 'buff') {
+            ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+            const grad = ctx.createRadialGradient(-5, -5, 0, 0, 0, r);
+            grad.addColorStop(0, 'white'); grad.addColorStop(1, 'rgba(255,255,255,0.8)');
+            ctx.fillStyle = grad; ctx.fill();
+            ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.stroke();
+            ctx.scale(item.vx < 0 ? -1 : 1, 1);
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '14px Arial';
+            const icons = { 'candy': '🍬', 'summon': '🛡️', 'magnet': '🧲' };
+            ctx.fillText(icons[item.subtype], 0, 0);
         }
-        ctx.fillStyle = 'rgba(255,0,0,0.2)'; ctx.beginPath(); ctx.arc(r * 0.6, r * 0.1, r * 0.2, 0, Math.PI * 2); ctx.fill();
+        else if (item.subtype === 'tiny') {
+            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
+            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(-2, -2, 2, 0, Math.PI*2); ctx.arc(2, -2, 2, 0, Math.PI*2); ctx.fill();
+        }
+        else if (item.subtype === 'lightning') {
+            ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r/1.5, -r*0.2); ctx.lineTo(0, r*0.2); ctx.lineTo(0, r); ctx.lineTo(-r/1.5, 0.2*r); ctx.lineTo(0, -0.2*r); ctx.fill();
+            ctx.strokeStyle = 'orange'; ctx.lineWidth = 2; ctx.stroke();
+        }
+        else if (item.subtype === 'ice') {
+            ctx.fillStyle = 'rgba(200, 240, 255, 0.6)'; ctx.fillRect(-r, -r, r*2, r*2);
+            ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.strokeRect(-r, -r, r*2, r*2);
+            ctx.scale(item.vx < 0 ? -1 : 1, 1); ctx.fillStyle = 'white'; ctx.font = '16px Arial'; ctx.textAlign='center'; ctx.fillText('❄️', 0, 5);
+        }
+        else if (item.subtype === 'puffer') {
+            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+            for(let i=0; i<8; i++) { const ang = i * Math.PI/4 + frameCount*0.05; ctx.beginPath(); ctx.moveTo(Math.cos(ang)*r*0.8, Math.sin(ang)*r*0.8); ctx.lineTo(Math.cos(ang)*(r+5), Math.sin(ang)*(r+5)); ctx.strokeStyle = '#E65100'; ctx.lineWidth=2; ctx.stroke(); }
+            ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 4, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(5, -5, 1, 0, Math.PI*2); ctx.fill();
+        }
+        else if (item.subtype === 'octopus') {
+            ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, -5, r, Math.PI, 0);
+            const wave = Math.sin(frameCount * 0.2) * 5;
+            ctx.lineTo(r, 10 + wave); ctx.lineTo(r/2, 5 - wave); ctx.lineTo(0, 10 + wave); ctx.lineTo(-r/2, 5 - wave); ctx.lineTo(-r, 10 + wave); ctx.fill();
+            ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(6, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(6, -5, 2, 0, Math.PI*2); ctx.fill();
+        }
+        else if (item.subtype === 'shadow') {
+            ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(-r, -10); ctx.lineTo(-r, 10); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0;
+        }
+        else {
+            let fishType = 'bad';
+            if (item.subtype === 'shark') fishType = 'shark';
+            if (item.subtype === 'whale') fishType = 'whale';
+            drawFishArt(ctx, 0, 0, r, color, 0, frameCount, fishType);
+        }
         ctx.restore();
     }
 
@@ -351,6 +446,53 @@
         ctx.fillStyle = color; ctx.beginPath();
         ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0);
         ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    // --- 首页氛围鱼类 ---
+    class AmbientFish {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.r = Math.random() * 15 + 8;
+            this.speed = Math.random() * 0.5 + 0.2;
+            this.color = `hsl(${Math.random()*360}, 70%, 80%)`;
+            this.vx = this.speed * (Math.random() < 0.5 ? 1 : -1);
+            this.type = Math.random() < 0.3 ? 'whale' : 'normal';
+        }
+        update() {
+            this.x += this.vx;
+            if (this.x > canvas.width + 50) this.x = -50;
+            if (this.x < -50) this.x = canvas.width + 50;
+        }
+        draw() {
+            ctx.save(); ctx.translate(this.x, this.y);
+            if (this.vx < 0) ctx.scale(-1, 1);
+            drawFishArt(ctx, 0, 0, this.r, this.color, 0, frameCount, this.type);
+            ctx.restore();
+        }
+    }
+
+    class AmbientBubble {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = canvas.height + Math.random() * 100;
+            this.r = Math.random() * 5 + 2;
+            this.speed = Math.random() * 1 + 0.5;
+        }
+        update() {
+            this.y -= this.speed;
+            if (this.y < -20) this.reset();
+        }
+        draw() {
+            ctx.beginPath(); ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); ctx.fill();
+        }
     }
 
     // --- 系统函数 ---
@@ -407,7 +549,6 @@
     function triggerEvent(type) {
         currentEvent = type;
         eventTimer = 600;
-
         items = items.filter(i => i.subtype !== 'lightning' && i.subtype !== 'ice');
 
         let title = ""; let desc = ""; let bgColor = "";
@@ -532,7 +673,7 @@
             ctx.beginPath(); ctx.fillStyle = 'rgba(255, 182, 193, 0.3)';
             ctx.arc(0, 0, this.radius * 2.0 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
-            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#FF69B4', true, null);
+            drawFishArt(ctx, this.x, this.y, this.radius, '#FF69B4', this.angle, frameCount, 'player');
         }
     }
 
@@ -555,123 +696,32 @@
             ctx.beginPath(); ctx.fillStyle = 'rgba(0, 191, 255, 0.2)';
             ctx.arc(0, 0, this.radius * 2.5, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
-            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#00BFFF', false, '聪仔');
+            drawFishArt(ctx, this.x, this.y, this.radius, '#00BFFF', this.angle, frameCount, 'guardian');
         }
     }
 
-    class Item {
-        constructor(diffSettings) {
-            const rand = Math.random(); const w = diffSettings.weights;
-            let category = 'bad';
-            let sum = 0;
-            for(let i=0; i<w.length; i++) { sum += w[i]; if(rand < sum) {
-                if (i === 0) category = 'good';
-                else if (i === 1) category = 'buff';
-                else category = 'bad';
-                break;
-            }}
+    // 首页动画循环
+    function drawStartBackground() {
+        if (gameRunning) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            let availableItems = GAME_OBJECTS[category].filter(i => score >= i.minScore);
-            if (availableItems.length === 0) availableItems = [GAME_OBJECTS[category][0]];
+        // 绘制首页背景鱼
+        ambientFish.forEach(f => { f.update(); f.draw(); });
+        ambientBubbles.forEach(b => { b.update(); b.draw(); });
 
-            let c = availableItems[Math.floor(Math.random() * availableItems.length)];
-            if (c.rarity && Math.random() > c.rarity) c = availableItems[0];
-
-            if (currentEvent) {
-                if (c.subtype === 'lightning' || c.subtype === 'ice') {
-                    c = GAME_OBJECTS['bad'][1];
-                }
-            }
-
-            if (currentDifficultyName === 'hard' && c.subtype === 'summon') {
-                if (Math.random() > 0.1) c = GAME_OBJECTS['good'][0];
-            }
-
-            this.config = c;
-            this.type = c.type; this.subtype = c.subtype || 'normal';
-            this.radius = c.r; this.color = c.color;
-            this.score = c.score || 0; this.fever = c.fever || 0; this.name = c.name;
-
-            this.y = Math.random() * canvas.height;
-            const scoreFactor = 1 + Math.floor(score / 500) * 0.15;
-            const minSpd = c.speed[0]; const maxSpd = c.speed[1];
-            this.speed = (Math.random()*(maxSpd - minSpd) + minSpd) * diffSettings.speedMultiplier * scoreFactor;
-
-            const side = Math.random() < 0.5 ? 'left' : 'right';
-            const margin = this.radius * 3;
-            if (side === 'left') { this.x = -margin; this.vx = this.speed; }
-            else { this.x = canvas.width + margin; this.vx = -this.speed; }
-        }
-        update() {
-            this.x += this.vx;
-            if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
-
-            const magnetActive = player.buffs.magnet > 0 || isFeverMode;
-            const canMagnet = (this.type === 'heart' || this.type === 'buff') || isFeverMode;
-
-            if (magnetActive && canMagnet) {
-                const range = isFeverMode ? 300 : 200;
-                const dist = Math.hypot(player.x - this.x, player.y - this.y);
-                if (dist < range) {
-                    this.x += (player.x - this.x) * (isFeverMode ? 0.12 : 0.05);
-                    this.y += (player.y - this.y) * (isFeverMode ? 0.12 : 0.05);
-                }
-            }
-        }
-        draw() {
-            ctx.save(); ctx.translate(this.x, this.y);
-            if (this.type === 'heart') {
-                if (this.subtype === 'star') drawStar(ctx, 0, 0, 5, this.radius, this.radius/2, this.color);
-                else if (this.subtype === 'diamond') drawDiamond(ctx, this.radius, this.color);
-                else drawHeart(ctx, 0, 0, this.radius, this.color);
-            }
-            else if (this.type === 'buff') {
-                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.fillStyle = 'white'; ctx.fill();
-                ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '14px Arial';
-                if (this.subtype === 'candy') ctx.fillText('🍬', 0, 0);
-                else if (this.subtype === 'summon') ctx.fillText('🛡️', 0, 0);
-                else if (this.subtype === 'magnet') ctx.fillText('🧲', 0, 0);
-            }
-            else {
-                if (this.vx < 0) ctx.scale(-1, 1);
-                ctx.fillStyle = this.color;
-                if (this.subtype === 'tiny') {
-                    ctx.beginPath(); ctx.arc(0,0,this.radius,0,Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-this.radius*1.5, 0); ctx.strokeStyle = this.color; ctx.stroke();
-                }
-                else if (this.subtype === 'lightning') {
-                    ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius/2, 0); ctx.lineTo(-this.radius/2, 0); ctx.lineTo(0, this.radius); ctx.fill();
-                } else if (this.subtype === 'ice') {
-                    ctx.globalAlpha = 0.7; ctx.roundRect(-this.radius, -this.radius, this.radius*2, this.radius*2, 5); ctx.fill();
-                    ctx.globalAlpha = 1.0; ctx.strokeStyle = 'white'; ctx.stroke();
-                    ctx.fillStyle = 'white'; ctx.fillText('-_-', -10, 5);
-                } else if (this.subtype === 'puffer') {
-                    ctx.beginPath(); ctx.arc(0,0,this.radius, 0, Math.PI*2); ctx.fill();
-                    for(let i=0; i<8; i++) { const ang = i * Math.PI/4; ctx.beginPath(); ctx.moveTo(Math.cos(ang)*this.radius, Math.sin(ang)*this.radius); ctx.lineTo(Math.cos(ang)*(this.radius+5), Math.sin(ang)*(this.radius+5)); ctx.strokeStyle = this.color; ctx.lineWidth=2; ctx.stroke(); }
-                    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(6, -5, 2, 0, Math.PI*2); ctx.fill();
-                } else if (this.subtype === 'whale') {
-                    ctx.beginPath(); ctx.ellipse(0, 0, this.radius*1.5, this.radius*0.8, 0, 0, Math.PI*2); ctx.fill();
-                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.radius*0.8, -this.radius*0.2, this.radius*0.1, 0, Math.PI*2); ctx.fill();
-                } else if (this.subtype === 'shark') {
-                    ctx.beginPath(); ctx.ellipse(0, 0, this.radius*1.8, this.radius*0.6, 0, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.moveTo(0, -this.radius*0.5); ctx.lineTo(this.radius*0.5, -this.radius*1.2); ctx.lineTo(this.radius*0.8, -this.radius*0.5); ctx.fill();
-                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.radius, -this.radius*0.1, 5, 0, Math.PI*2); ctx.fill();
-                } else if (this.subtype === 'octopus') {
-                    ctx.beginPath(); ctx.arc(0, -5, this.radius*0.8, Math.PI, 0); ctx.lineTo(this.radius*0.8, 5); ctx.quadraticCurveTo(5, 15, 0, 5); ctx.quadraticCurveTo(-5, 15, -this.radius*0.8, 5); ctx.fill();
-                    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(5, -5, 2, 0, Math.PI*2); ctx.fill();
-                } else if (this.subtype === 'shadow') {
-                    ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.moveTo(this.radius, 0); ctx.lineTo(-this.radius, -10); ctx.lineTo(-this.radius, 10); ctx.fill();
-                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0;
-                } else {
-                    drawCuteFish(ctx, 0, 0, this.radius, 0, this.color, false, null);
-                    ctx.save(); ctx.translate(this.radius*0.4, -this.radius*0.2); ctx.rotate(0.2); ctx.fillStyle = 'white'; ctx.fillRect(0,0,5,2); ctx.restore();
-                }
-            }
-            ctx.restore();
-        }
+        frameCount++;
+        requestAnimationFrame(drawStartBackground);
     }
 
+    function initAmbient() {
+        ambientFish = [];
+        for(let i=0; i<20; i++) ambientFish.push(new AmbientFish());
+        ambientBubbles = [];
+        for(let i=0; i<30; i++) ambientBubbles.push(new AmbientBubble());
+        drawStartBackground();
+    }
+
+    // 核心逻辑
     function init(difficultyKey) {
         currentDifficultyName = difficultyKey;
         currentDifficulty = DIFFICULTY_SETTINGS[difficultyKey];
@@ -691,9 +741,7 @@
         currentEvent = null; nextEventCooldown = 600; eventBanner.style.opacity = 0;
         input.x = canvas.width / 2; input.y = canvas.height / 2;
         updateBuffUI(player.buffs, guardian.active);
-
-        // 初始化随机描述
-        startDesc.innerText = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)].replace(/<br>/g, ' ');
+        startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
     }
 
     function gameLoop() {
@@ -730,7 +778,10 @@
                     addFever(item.fever || 5);
                     scoreEl.innerText = score;
                     checkGameEvolution();
-                    spawnFloatingText(item.name + "!", player.x, player.y - 30, item.color);
+
+                    // === 核心修复：随机抽取一句情话 ===
+                    const sweetWord = LOVE_WORDS[Math.floor(Math.random() * LOVE_WORDS.length)];
+                    spawnFloatingText(sweetWord, player.x, player.y - 30, item.color);
 
                     if (item.subtype === 'diamond') { feverValue = 100; activateFever(); }
 
@@ -760,7 +811,7 @@
                     }
                     else if (item.subtype === 'ice') {
                         items.splice(i, 1);
-                        spawnFloatingText("好冷...", player.x, player.y - 30, '#00BCD4');
+                        spawnFloatingText("冻结! 减速!", player.x, player.y - 30, '#00BCD4');
                         player.buffs.slowed = 180;
                         player.buffs.speed = 0;
                     }
@@ -785,6 +836,17 @@
             }
         }
 
+        if (currentEvent === 'fog') {
+            let fogR = currentDifficulty.fogRadius || 100;
+            if (!guardian.active) fogR = fogR * 0.6;
+            fogR = Math.max(25, fogR);
+            const grad = ctx.createRadialGradient(player.x, player.y, fogR, player.x, player.y, Math.max(canvas.width, canvas.height)/2);
+            grad.addColorStop(0, "rgba(0,0,0,0)");
+            grad.addColorStop(1, "rgba(0,0,0,0.98)");
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
         if (currentEvent === 'current') {
             ctx.save();
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.lineWidth = 2; ctx.beginPath();
@@ -797,21 +859,7 @@
             ctx.stroke(); ctx.restore();
         }
 
-        if (currentEvent === 'fog') {
-            const fogR = currentDifficulty.fogRadius || 100;
-            const grad = ctx.createRadialGradient(player.x, player.y, fogR, player.x, player.y, Math.max(canvas.width, canvas.height)/2);
-            grad.addColorStop(0, "rgba(0,0,0,0)");
-            grad.addColorStop(1, "rgba(0,0,0,0.98)");
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
         animationId = requestAnimationFrame(gameLoop);
-    }
-
-    function randomizeDesc() {
-        const quote = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
-        startDesc.innerHTML = quote;
     }
 
     function startGame(difficulty) {
@@ -825,7 +873,8 @@
     function showStartScreen() {
         startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
         pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height);
-        randomizeDesc(); // 随机切换文案
+        startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
+        initAmbient(); // 启动首页背景动画
     }
     function endGame() {
         gameRunning = false; isPaused = false; cancelAnimationFrame(animationId);
