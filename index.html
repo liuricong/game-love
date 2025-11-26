@@ -1005,68 +1005,98 @@
             ctx.lineWidth = 3; 
             ctx.stroke();
             
-            // 绘制图标 - iOS兼容性处理
-            // 注意：此时已经在translate(item.x, item.y)和可能的scale(-1, 1)变换中
-            // 所以直接绘制在(0, 0)位置即可
-            ctx.textAlign = 'center'; 
-            ctx.textBaseline = 'middle'; 
-            // 使用更大的字体，确保在iOS上能显示
-            ctx.font = 'bold ' + Math.max(16, r * 1.5) + 'px Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+            // 直接使用图形绘制图标，不依赖emoji（iOS兼容性）
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
             
-            const icons = { 
-                'candy': '🍬', 
-                'summon': '🛡️', 
-                'magnet': '🧲', 
-                'hunter': '🎯' 
-            };
-            
-            const icon = icons[item.subtype] || '?';
-            
-            // 尝试绘制emoji
-            if (icon && icon !== '?') {
-                ctx.fillStyle = '#000';
-                ctx.fillText(icon, 0, 0);
-            } else {
-                // 备用：绘制简单的形状
-                ctx.fillStyle = color;
+            if (item.subtype === 'candy') {
+                // 绘制糖果：圆形带条纹
                 ctx.beginPath();
-                if (item.subtype === 'candy') {
-                    // 绘制圆形
-                    ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2);
-                    ctx.fill();
-                } else if (item.subtype === 'summon') {
-                    // 绘制盾牌形状
-                    ctx.moveTo(0, -r * 0.5);
-                    ctx.lineTo(-r * 0.3, -r * 0.2);
-                    ctx.lineTo(-r * 0.3, r * 0.2);
-                    ctx.lineTo(0, r * 0.5);
-                    ctx.lineTo(r * 0.3, r * 0.2);
-                    ctx.lineTo(r * 0.3, -r * 0.2);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if (item.subtype === 'magnet') {
-                    // 绘制U形磁铁
-                    ctx.arc(0, 0, r * 0.3, 0, Math.PI);
-                    ctx.lineTo(-r * 0.5, 0);
-                    ctx.lineTo(-r * 0.5, -r * 0.3);
-                    ctx.lineTo(r * 0.5, -r * 0.3);
-                    ctx.lineTo(r * 0.5, 0);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if (item.subtype === 'hunter') {
-                    // 绘制靶心
-                    ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
+                ctx.arc(0, 0, r * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                // 添加条纹
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1.5;
+                for (let i = 0; i < 3; i++) {
                     ctx.beginPath();
-                    ctx.moveTo(0, -r * 0.4);
-                    ctx.lineTo(0, r * 0.4);
-                    ctx.moveTo(-r * 0.4, 0);
-                    ctx.lineTo(r * 0.4, 0);
+                    ctx.arc(0, 0, r * 0.5, (i * Math.PI * 2 / 3) - Math.PI/6, (i * Math.PI * 2 / 3) + Math.PI/6);
                     ctx.stroke();
                 }
+            } else if (item.subtype === 'summon') {
+                // 绘制盾牌
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.6);
+                ctx.quadraticCurveTo(-r * 0.4, -r * 0.3, -r * 0.4, 0);
+                ctx.quadraticCurveTo(-r * 0.4, r * 0.3, 0, r * 0.5);
+                ctx.quadraticCurveTo(r * 0.4, r * 0.3, r * 0.4, 0);
+                ctx.quadraticCurveTo(r * 0.4, -r * 0.3, 0, -r * 0.6);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // 内部十字
+                ctx.strokeStyle = '#fff';
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.2);
+                ctx.lineTo(0, r * 0.2);
+                ctx.moveTo(-r * 0.2, 0);
+                ctx.lineTo(r * 0.2, 0);
+                ctx.stroke();
+            } else if (item.subtype === 'magnet') {
+                // 绘制磁铁：U形
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.35, 0, Math.PI);
+                ctx.lineTo(-r * 0.5, 0);
+                ctx.lineTo(-r * 0.5, -r * 0.35);
+                ctx.lineTo(r * 0.5, -r * 0.35);
+                ctx.lineTo(r * 0.5, 0);
+                ctx.closePath();
+                ctx.fill();
+                // 添加N和S标记
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold ' + (r * 0.4) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('N', -r * 0.25, -r * 0.15);
+                ctx.fillText('S', r * 0.25, -r * 0.15);
+            } else if (item.subtype === 'hunter') {
+                // 绘制靶心：同心圆
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // 内圆
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.3, 0, Math.PI * 2);
+                ctx.stroke();
+                // 中心点
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.15, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                // 十字线
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.5);
+                ctx.lineTo(0, r * 0.5);
+                ctx.moveTo(-r * 0.5, 0);
+                ctx.lineTo(r * 0.5, 0);
+                ctx.stroke();
+            } else {
+                // 未知类型：绘制问号
+                ctx.fillStyle = color;
+                ctx.font = 'bold ' + (r * 0.8) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('?', 0, 0);
             }
+            ctx.restore();
         }
         else if (item.subtype === 'tiny') {
             // 保持tiny为简单圆形，但其他早期鱼类使用鱼类绘制
