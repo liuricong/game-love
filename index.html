@@ -1401,6 +1401,27 @@
     canvas.addEventListener('touchstart', handleTouch, {passive:false});
     canvas.addEventListener('touchmove', handleTouch, {passive:false});
     resizeCanvas();
+    
+    // iOS Safari特殊处理：页面加载后立即绘制初始背景
+    function drawInitialBackground() {
+        if (canvas.width > 0 && canvas.height > 0) {
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+    
+    // 确保在页面加载完成后绘制初始背景
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', drawInitialBackground);
+    } else {
+        drawInitialBackground();
+    }
+    
+    // iOS Safari特殊处理：延迟绘制，确保canvas尺寸已设置
+    setTimeout(drawInitialBackground, 100);
 
     function spawnFloatingText(text, x, y, color='#ff4081', size=18) {
         const el = document.createElement('div');
@@ -2033,7 +2054,13 @@
     // 首页动画循环
     function drawStartBackground() {
         if (gameRunning) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 先绘制背景渐变，确保在iOS上正确显示
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+        bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // 绘制首页背景鱼
         ambientFish.forEach(f => { f.update(); f.draw(); });
@@ -2524,7 +2551,15 @@
     function quitGameFromPause() { pauseScreen.style.display = 'none'; deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~"; endGame(); }
     function showStartScreen() {
         startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
-        pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none'; ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none';
+        
+        // 先绘制背景，再清除（iOS需要立即显示背景）
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+        bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
         initAmbient(); // 启动首页背景动画
     }
