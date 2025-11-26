@@ -2,442 +2,602 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>爱心大作战 ❤️</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>爱的守护 - 聪仔萌趣版</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #ffeff5;
+            background: linear-gradient(to bottom, #ff9a9e, #fad0c4, #fecfef);
             overflow: hidden;
-            font-family: "Microsoft YaHei", sans-serif;
-            touch-action: none; /* 禁止页面回弹 */
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
-        canvas {
-            display: block;
-        }
-
-        /* UI层 */
-        #ui-layer {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            right: 20px;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        #score-bar-bg {
-            width: 100%;
-            height: 15px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #ff69b4;
-        }
-
-        #score-bar-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ff9a9e 0%, #ff69b4 100%);
-            transition: width 0.1s linear; /* 更流畅的过渡 */
-        }
-
-        #score-text {
-            text-align: center;
-            color: #ff69b4;
-            font-weight: bold;
-            font-size: 14px;
-            margin-top: 5px;
-            text-shadow: 1px 1px 0 #fff;
-        }
-
-        /* 遮罩层通用样式 */
-        .mask {
+        /* 遮罩层 */
+        .overlay-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 999;
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
+            z-index: 100;
+            color: #d63384;
+            padding: 20px;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
             transition: opacity 0.3s;
         }
 
-        .btn {
-            background: #ff69b4;
-            padding: 12px 35px;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border: 3px solid #fff;
-            margin-top: 20px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* 胜利弹窗 */
-        #win-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            max-width: 350px;
-            background: #fff;
-            padding: 25px;
-            border-radius: 20px;
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-align: center;
-            box-shadow: 0 0 30px rgba(255, 105, 180, 0.6);
-            z-index: 1000;
-            border: 4px solid #ff69b4;
+            font-weight: 800;
         }
 
-        #win-modal h2 {
-            color: #ff69b4;
-            margin: 0 0 15px 0;
+        h2 { font-size: 28px; margin-bottom: 20px; color: #ff758c; }
+
+        p { font-size: 16px; color: #666; text-align: center; margin-bottom: 30px; line-height: 1.6; }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 80%;
+            max-width: 300px;
         }
 
-        #win-modal p {
-            color: #555;
-            line-height: 1.6;
-            font-size: 1rem;
-            margin-bottom: 20px;
+        button {
+            padding: 15px 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
+            transition: transform 0.1s;
+            color: white;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:active { transform: scale(0.96); }
+
+        .btn-easy { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #c71585; }
+        .btn-normal { background: linear-gradient(45deg, #a18cd1, #fbc2eb); color: white; }
+        .btn-hard { background: linear-gradient(45deg, #ff5858, #f09819); color: white; }
+
+        .btn-restart { background: #fff; border: 2px solid #ff758c; color: #ff758c; margin-top: 20px; width: 60%;}
+
+        #pause-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid #fff;
+            color: #ff758c;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 60;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-resume { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
+        .btn-quit { background: #fff; border: 2px solid #999; color: #999; }
+
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #d63384;
+            font-weight: bold;
+            font-size: 18px;
+            pointer-events: none;
+            z-index: 50;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+        }
+
+        .floating-text {
+            position: absolute;
+            color: #ff4081;
+            font-weight: bold;
+            font-size: 18px; /* 字体稍微调小配合小鱼 */
+            pointer-events: none;
+            animation: floatUp 1.5s ease-out forwards;
+            text-shadow: 1px 1px 2px white;
+            white-space: nowrap;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.1); }
         }
     </style>
 </head>
 <body>
 
-<!-- 音乐资源 (建议使用较小的文件或稳定外链) -->
-<audio id="bgm" loop>
-    <source src="https://music.163.com/song/media/outer/url?id=5264842.mp3" type="audio/mpeg">
-</audio>
+<div id="particles-container"></div>
 
-<div id="ui-layer">
-    <div id="score-bar-bg">
-        <div id="score-bar-fill"></div>
-    </div>
-    <div id="score-text">爱意收集: 0%</div>
+<div id="ui-layer" style="display:none;">
+    <div>恋爱指数: <span id="score">0</span> ❤️</div>
+    <div style="font-size: 12px; opacity: 0.8; margin-top:5px; color:#666">我们在一起: <span id="size-display">1</span> 天</div>
 </div>
+
+<button id="pause-btn" style="display:none;" onclick="pauseGame()">⏸</button>
 
 <!-- 开始界面 -->
-<div id="start-screen" class="mask">
-    <h1 style="font-size: 2rem; margin-bottom: 10px;">❤️ 爱心大作战</h1>
-    <p style="color: #ddd; font-size: 0.9rem;">左右滑动角色，接住爱心，躲避炸弹</p>
-    <div class="btn" id="start-btn">开始挑战</div>
+<div id="start-screen" class="overlay-screen">
+    <h1>💖 爱的守护 💖</h1>
+    <p>我们变成了迷你小鱼<br>虽然世界很大，困难很多<br>但聪仔会一直陪着你长大~</p>
+
+    <div class="btn-group">
+        <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
+        <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
+        <button class="btn-hard" onclick="startGame('hard')">🛡️ 守护一生 (困难)</button>
+    </div>
 </div>
 
-<!-- 胜利弹窗 -->
-<div id="win-modal">
-    <h2>🎉 挑战成功！</h2>
-    <p>亲爱的：<br>恭喜你攒满了我对你的爱意！<br>以后的日子里，<br>所有的快乐都给你，<br>所有的风雨我来挡。<br>爱你哟！❤️</p>
-    <div class="btn" style="font-size: 1rem; padding: 8px 20px;" onclick="location.reload()">再玩一次</div>
+<!-- 暂停界面 -->
+<div id="pause-screen" class="overlay-screen" style="display: none;">
+    <h2>游戏暂停</h2>
+    <div class="btn-group">
+        <button class="btn-resume" onclick="resumeGame()">▶ 继续爱</button>
+        <button class="btn-quit" onclick="quitGameFromPause()">✖ 休息一下 (结束)</button>
+    </div>
+</div>
+
+<!-- 结束界面 -->
+<div id="game-over-screen" class="overlay-screen" style="display: none;">
+    <h2 style="font-size: 28px; color: #ff5858;">别怕，聪仔在呢</h2>
+    <p id="death-reason" style="font-size: 16px;">如果不开心了，我来哄你~</p>
+    <p style="font-size: 20px;">收获爱心: <span id="final-score" style="color: #ff4081; font-weight:bold;">0</span></p>
+    <button class="btn-restart" onclick="showStartScreen()">再爱一次</button>
 </div>
 
 <canvas id="gameCanvas"></canvas>
 
 <script>
-    // === 性能优化配置 ===
-    const CONFIG = {
-        spawnInterval: 600, // 生成物品间隔(毫秒)
-        gravity: 4,         // 物品下落基础速度
-        maxItems: 20,       // 屏幕上最多同时存在的物品数 (防止卡死)
-        winScore: 100       // 胜利分数
-    };
-
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreFill = document.getElementById('score-bar-fill');
-    const scoreText = document.getElementById('score-text');
 
-    let width, height;
-    let lastTime = 0;
-    let spawnTimer = 0;
-    let gameRunning = false;
-    let score = 0;
-
-    // 对象池
-    let items = [];
-    let particles = [];
-    let fireworksInterval = null;
-
-    // 玩家图片
-    const playerImage = new Image();
-    // 尝试多种路径格式，确保在GitHub Pages上能加载
-    const imagePaths = [
-        'img/1.jpg',
-        './img/1.jpg',
-        '/game-love/img/1.jpg',
-        window.location.pathname.replace(/\/$/, '') + '/img/1.jpg'
-    ];
-    let currentPathIndex = 0;
-    let playerImageLoaded = false;
-    
-    function tryLoadImage() {
-        if (currentPathIndex >= imagePaths.length) {
-            console.error('所有图片路径都加载失败');
-            return;
-        }
-        playerImage.src = imagePaths[currentPathIndex];
-    }
-    
-    playerImage.onload = () => {
-        playerImageLoaded = true;
-        // 根据图片实际尺寸调整玩家大小
-        const aspectRatio = playerImage.width / playerImage.height;
-        player.w = 50;  // 减小尺寸
-        player.h = 50 / aspectRatio;
-        console.log('玩家图片加载成功:', playerImage.src, playerImage.width, playerImage.height);
-    };
-    
-    playerImage.onerror = (e) => {
-        console.warn('图片路径失败，尝试下一个:', imagePaths[currentPathIndex]);
-        currentPathIndex++;
-        tryLoadImage();
-    };
-    
-    // 开始加载图片
-    tryLoadImage();
-
-    const player = { x: 0, y: 0, w: 50, h: 50 };
-
-    // 物品定义
-    const itemTypes = [
-        { emoji: "❤️", val: 10, speedFix: 0 },
-        { emoji: "🍬", val: 5, speedFix: 1 },
-        { emoji: "🌹", val: 8, speedFix: 0.5 },
-        { emoji: "💣", val: -20, speedFix: 2 }, // 炸弹快一点
-        { emoji: "🥦", val: -5, speedFix: 1 }
-    ];
-
-    function initWindow() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        player.y = height - 80;
-        player.x = width / 2;
-    }
-    initWindow();
-    window.addEventListener('resize', initWindow);
-
-    // 玩家移动
-    function setPlayerX(x) {
-        player.x = x;
-        if (player.x < player.w / 2) player.x = player.w / 2;
-        if (player.x > width - player.w / 2) player.x = width - player.w / 2;
-    }
-
-    canvas.addEventListener('touchmove', e => {
-        e.preventDefault();
-        setPlayerX(e.touches[0].clientX);
-    }, { passive: false });
-
-    canvas.addEventListener('mousemove', e => {
-        setPlayerX(e.clientX);
-    });
-
-    // 核心游戏循环 (带时间戳，防止后台加速)
-    function loop(timestamp) {
-        if (!lastTime) lastTime = timestamp;
-        const deltaTime = timestamp - lastTime;
-        lastTime = timestamp;
-
-        // 清空画布
-        ctx.clearRect(0, 0, width, height);
-
-        // 1. 绘制玩家（圆形裁剪）
-        if (playerImageLoaded) {
-            ctx.save();
-            // 创建圆形裁剪路径
-            ctx.beginPath();
-            const radius = Math.min(player.w, player.h) / 2;
-            ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
-            ctx.clip();
-            // 绘制图片
-            ctx.drawImage(playerImage, player.x - player.w / 2, player.y - player.h / 2, player.w, player.h);
-            ctx.restore();
-        } else {
-            // 如果图片还没加载，显示占位符
-            ctx.font = "50px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText("🐻", player.x, player.y);
-        }
-
-        // 2. 游戏逻辑
-        if (gameRunning) {
-            // 生成物品 (基于时间差，而不是setTimeout)
-            spawnTimer += deltaTime;
-            if (spawnTimer > CONFIG.spawnInterval) {
-                spawnItem();
-                spawnTimer = 0;
-            }
-
-            // 更新物品位置
-            for (let i = items.length - 1; i >= 0; i--) {
-                let item = items[i];
-                item.y += item.speed;
-
-                // 绘制
-                ctx.font = "30px Arial";
-                ctx.fillText(item.emoji, item.x, item.y);
-
-                // 碰撞检测
-                let dist = Math.abs(player.x - item.x) + Math.abs(player.y - item.y);
-                let collisionRadius = Math.max(player.w, player.h) / 2 + 15;
-                if (dist < collisionRadius) { // 根据玩家大小调整碰撞范围
-                    handleScore(item.val, item.x, item.y);
-                    items.splice(i, 1);
-                    continue;
-                }
-
-                // 越界移除
-                if (item.y > height + 50) {
-                    items.splice(i, 1);
-                }
-            }
-        }
-
-        // 3. 粒子特效 (飘字 + 烟花)
-        updateParticles();
-
-        requestAnimationFrame(loop);
-    }
-
-    function spawnItem() {
-        // 限制最大数量，防止卡顿
-        if (items.length >= CONFIG.maxItems) return;
-
-        const type = itemTypes[Math.floor(Math.random() * itemTypes.length)];
-        items.push({
-            x: Math.random() * (width - 60) + 30,
-            y: -40,
-            emoji: type.emoji,
-            val: type.val,
-            speed: CONFIG.gravity + type.speedFix + Math.random()
-        });
-    }
-
-    function handleScore(val, x, y) {
-        score += val;
-        if (score < 0) score = 0;
-        if (score > CONFIG.winScore) score = CONFIG.winScore;
-
-        // 更新UI
-        let pct = (score / CONFIG.winScore) * 100;
-        scoreFill.style.width = pct + "%";
-        scoreText.innerText = `爱意收集: ${Math.floor(pct)}%`;
-
-        // 飘字
-        createFloatText(val > 0 ? "+" + val : val, x, y, val > 0 ? "#ff69b4" : "#888");
-
-        // 胜利
-        if (score >= CONFIG.winScore && gameRunning) {
-            winGame();
-        }
-    }
-
-    // === 简易粒子系统 (优化性能) ===
-    function createFloatText(txt, x, y, color) {
-        particles.push({ type: 'text', txt, x, y, color, life: 1.0 });
-    }
-
-    function createFirework() {
-        // 限制屏幕上总粒子数
-        if (particles.length > 300) return;
-
-        const cx = Math.random() * width;
-        const cy = Math.random() * (height / 2);
-        const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
-
-        for (let i = 0; i < 40; i++) { // 减少每个烟花的粒子数，提高流畅度
-            const angle = (Math.PI * 2 * i) / 40;
-            const speed = Math.random() * 3 + 2;
-            particles.push({
-                type: 'spark',
-                x: cx, y: cy,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                color: color,
-                life: 1.0,
-                decay: 0.01 + Math.random() * 0.02
-            });
-        }
-    }
-
-    function updateParticles() {
-        for (let i = particles.length - 1; i >= 0; i--) {
-            let p = particles[i];
-
-            if (p.type === 'text') {
-                p.y -= 1.5;
-                p.life -= 0.02;
-                ctx.globalAlpha = Math.max(0, p.life);
-                ctx.fillStyle = p.color;
-                ctx.font = "bold 24px Arial";
-                ctx.fillText(p.txt, p.x, p.y);
-            } else if (p.type === 'spark') {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.05; // 重力
-                p.life -= p.decay;
-                ctx.globalAlpha = Math.max(0, p.life);
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 3, 3); // 用fillRect代替arc，性能更好
-            }
-
-            if (p.life <= 0) particles.splice(i, 1);
-        }
-        ctx.globalAlpha = 1.0;
-    }
-
-    function winGame() {
-        gameRunning = false;
-        document.getElementById('bgm').pause();
-
-        // 显示胜利UI
-        setTimeout(() => {
-            document.getElementById('win-modal').style.display = 'block';
-        }, 500);
-
-        // 放烟花
-        fireworksInterval = setInterval(createFirework, 500);
-
-        // 5秒后停止放烟花，防止手机发烫
-        setTimeout(() => {
-            if(fireworksInterval) clearInterval(fireworksInterval);
-        }, 8000);
-    }
-
-    // 启动逻辑
-    const startBtn = document.getElementById('start-btn');
+    const uiLayer = document.getElementById('ui-layer');
+    const pauseBtn = document.getElementById('pause-btn');
     const startScreen = document.getElementById('start-screen');
-    const bgm = document.getElementById('bgm');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const pauseScreen = document.getElementById('pause-screen');
 
-    startBtn.addEventListener('click', () => {
-        startScreen.style.opacity = 0;
-        setTimeout(() => startScreen.style.display = 'none', 300);
+    const scoreEl = document.getElementById('score');
+    const sizeEl = document.getElementById('size-display');
+    const finalScoreEl = document.getElementById('final-score');
+    const deathReasonEl = document.getElementById('death-reason');
+    const particlesContainer = document.getElementById('particles-container');
 
+    const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
+
+    let animationId;
+    let score = 0;
+    let gameRunning = false;
+    let isPaused = false;
+    let frameCount = 0;
+    let currentDifficulty = {};
+
+    // 难度配置
+    const DIFFICULTY_SETTINGS = {
+        'easy': { spawnRate: 50, speedMultiplier: 0.6, weights: [0.6, 0.2, 0.2, 0, 0, 0, 0] },
+        'normal': { spawnRate: 45, speedMultiplier: 0.9, weights: [0.4, 0.2, 0.2, 0.1, 0.05, 0.05, 0] },
+        'hard': { spawnRate: 30, speedMultiplier: 1.2, weights: [0.25, 0.2, 0.2, 0.15, 0.1, 0.05, 0.05] }
+    };
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const input = { x: canvas.width / 2, y: canvas.height / 2 };
+    function handleInput(x, y) {
+        if(!isPaused && gameRunning) {
+            input.x = x;
+            input.y = y;
+        }
+    }
+    window.addEventListener('mousemove', e => handleInput(e.clientX, e.clientY));
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+
+    // ================= 游戏类定义 =================
+
+    // 1. 女朋友 (粉色小鱼) - 初始变得更小
+    class Player {
+        constructor() {
+            this.x = canvas.width / 2;
+            this.y = canvas.height / 2;
+            this.radius = 12;  // 从20改为12，更加小巧
+            this.angle = 0;
+        }
+        update() {
+            const dx = input.x - this.x;
+            const dy = input.y - this.y;
+            if (Math.hypot(dx, dy) > 5) {
+                this.angle = Math.atan2(dy, dx);
+                this.x += dx * 0.08;
+                this.y += dy * 0.08;
+            }
+        }
+        draw() {
+            // 粉色光环
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(255, 182, 193, 0.3)';
+            ctx.arc(0, 0, this.radius * 1.6 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#FF69B4', true, null);
+        }
+    }
+
+    // 2. 聪仔 (蓝色小鱼) - 也变小
+    class Guardian {
+        constructor() {
+            this.x = canvas.width / 2 - 40;
+            this.y = canvas.height / 2;
+            this.radius = 10; // 从18改为10
+            this.angle = 0;
+        }
+        update(targetX, targetY) {
+            const targetX_delayed = targetX - Math.cos(player.angle) * 30; // 距离缩短
+            const targetY_delayed = targetY - Math.sin(player.angle) * 30;
+            const dx = targetX_delayed - this.x;
+            const dy = targetY_delayed - this.y;
+            this.angle = Math.atan2(dy, dx);
+            this.x += dx * 0.06;
+            this.y += dy * 0.06;
+        }
+        draw() {
+            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#00BFFF', false, '聪仔');
+        }
+    }
+
+    // 3. 物品与敌人 (新增多种类型)
+    class Item {
+        constructor(diffSettings) {
+            const rand = Math.random();
+            const w = diffSettings.weights; // 7个权重位
+            let typeIdx = 0;
+            let sum = 0;
+            for(let i=0; i<w.length; i++) {
+                sum += w[i];
+                if(rand < sum) { typeIdx = i; break; }
+            }
+
+            // === 丰富的生物配置 ===
+            const configs = [
+                // --- 爱心类 ---
+                { type: 'heart', r: 8,  color: '#ff4081', score: 10, speed: [1, 2], name: '小惊喜' },
+                { type: 'heart', r: 15, color: '#ff0055', score: 20, speed: [1.5, 2.5], name: '大礼物' },
+
+                // --- 障碍类 (生活中的挑战) ---
+                // 1. 小摩擦 (绿色，小而快)
+                { type: 'bad', subtype: 'normal', r: 14, color: '#8BC34A', score: 0, speed: [2, 3.5], name: '小摩擦' },
+                // 2. 坏情绪 (灰色，中等)
+                { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', score: 0, speed: [1.5, 2.5], name: '坏情绪' },
+                // 3. 烂桃花 (紫色，尖锐，速度快)
+                { type: 'bad', subtype: 'sharp',  r: 30, color: '#9C27B0', score: 0, speed: [3, 4],   name: '烂桃花' },
+                // 4. 加班 (深色方块，大而慢，BOSS级)
+                { type: 'bad', subtype: 'block',  r: 45, color: '#546E7A', score: 0, speed: [1, 2],   name: '加班' },
+                // 5. 冷战 (冰蓝色，大，难躲)
+                { type: 'bad', subtype: 'ice',    r: 65, color: '#00BCD4', score: 0, speed: [3, 5],   name: '冷战' }
+            ];
+
+            const c = configs[typeIdx];
+            this.type = c.type;
+            this.subtype = c.subtype || 'normal';
+            this.radius = c.r;
+            this.color = c.color;
+            this.score = c.score;
+            this.name = c.name;
+
+            this.y = Math.random() * canvas.height;
+            this.speed = (Math.random()*(c.speed[1]-c.speed[0]) + c.speed[0]) * diffSettings.speedMultiplier;
+
+            const side = Math.random() < 0.5 ? 'left' : 'right';
+            if (side === 'left') {
+                this.x = -this.radius * 2;
+                this.vx = this.speed;
+            } else {
+                this.x = canvas.width + this.radius * 2;
+                this.vx = -this.speed;
+            }
+        }
+        update() { this.x += this.vx; }
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+
+            if (this.type === 'heart') {
+                drawHeart(ctx, 0, 0, this.radius, this.color);
+            } else {
+                // 根据 subtype 绘制不同形状的敌人
+                if (this.vx < 0) ctx.scale(-1, 1);
+                ctx.fillStyle = this.color;
+
+                if (this.subtype === 'sharp') {
+                    // 烂桃花：三角形/尖刺状
+                    ctx.beginPath();
+                    ctx.moveTo(this.radius, 0);
+                    ctx.lineTo(-this.radius, -this.radius * 0.8);
+                    ctx.lineTo(-this.radius * 0.5, 0);
+                    ctx.lineTo(-this.radius, this.radius * 0.8);
+                    ctx.fill();
+                    // 邪恶的眼睛
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(0, -this.radius*0.2, this.radius*0.2, 0, Math.PI*2); ctx.fill();
+                }
+                else if (this.subtype === 'block') {
+                    // 加班：圆角矩形/方头鱼
+                    ctx.beginPath();
+                    ctx.roundRect(-this.radius*1.2, -this.radius*0.8, this.radius*2.4, this.radius*1.6, 5);
+                    ctx.fill();
+                    // 疲惫的眼睛
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(this.radius*0.5, -this.radius*0.2, this.radius*0.2, 0, Math.PI*2); ctx.fill();
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(this.radius*0.2, -this.radius*0.4); ctx.lineTo(this.radius*0.8, -this.radius*0.4); ctx.stroke();
+                }
+                else {
+                    // 普通圆形鱼 (摩擦、坏情绪、冷战)
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, this.radius * 1.2, this.radius, 0, 0, Math.PI*2);
+                    ctx.fill();
+                    // 尾巴
+                    ctx.beginPath();
+                    ctx.moveTo(-this.radius, 0);
+                    ctx.lineTo(-this.radius*1.8, -this.radius*0.8);
+                    ctx.lineTo(-this.radius*1.8, this.radius*0.8);
+                    ctx.fill();
+
+                    // 表情
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.arc(this.radius*0.4, -this.radius*0.3, this.radius*0.25, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = 'black';
+                    ctx.beginPath(); ctx.arc(this.radius*0.45, -this.radius*0.3, this.radius*0.08, 0, Math.PI*2); ctx.fill();
+
+                    // 眉毛
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    if(this.subtype === 'ice') { // 冷战：平眉毛
+                        ctx.moveTo(this.radius*0.1, -this.radius*0.5);
+                        ctx.lineTo(this.radius*0.7, -this.radius*0.5);
+                    } else { // 愤怒眉毛
+                        ctx.moveTo(this.radius*0.1, -this.radius*0.6);
+                        ctx.lineTo(this.radius*0.7, -this.radius*0.4);
+                    }
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+        }
+    }
+
+    // 核心绘图函数
+    function drawCuteFish(ctx, x, y, r, angle, color, hasEyelashes, text) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        const tailX = -r * 1.2;
+        ctx.moveTo(tailX, 0);
+        ctx.quadraticCurveTo(tailX - r, -r, tailX - r, 0);
+        ctx.quadraticCurveTo(tailX - r, r, tailX, 0);
+        ctx.fill();
+
+        ctx.fillStyle = 'white';
+        ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.3, r * 0.35, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#333';
+        ctx.beginPath(); ctx.arc(r * 0.7, -r * 0.3, r * 0.15, 0, Math.PI * 2); ctx.fill();
+
+        if (hasEyelashes) {
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath();
+            ctx.moveTo(r*0.6, -r*0.6); ctx.lineTo(r*0.5, -r*0.8);
+            ctx.moveTo(r*0.7, -r*0.65); ctx.lineTo(r*0.7, -r*0.9);
+            ctx.moveTo(r*0.8, -r*0.6); ctx.lineTo(r*0.9, -r*0.8);
+            ctx.stroke();
+        }
+
+        if (text) {
+            ctx.fillStyle = 'white';
+            const fontSize = text.length > 1 ? r * 0.6 : r * 0.7;
+            ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, -r * 0.1, 0);
+        }
+
+        ctx.fillStyle = 'rgba(255,0,0,0.2)';
+        ctx.beginPath(); ctx.arc(r * 0.6, r * 0.1, r * 0.2, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawHeart(ctx, x, y, r, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        const topCurveHeight = r * 0.8;
+        ctx.moveTo(0, r * 0.6);
+        ctx.bezierCurveTo(0, 0, -r, 0, -r, -topCurveHeight);
+        ctx.bezierCurveTo(-r, -r * 1.6, 0, -r * 1.6, 0, -topCurveHeight);
+        ctx.bezierCurveTo(0, -r * 1.6, r, -r * 1.6, r, -topCurveHeight);
+        ctx.bezierCurveTo(r, 0, 0, 0, 0, r * 0.6);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.beginPath(); ctx.arc(-r*0.3, -r*0.8, r*0.15, 0, Math.PI*2); ctx.fill();
+    }
+
+    function spawnFloatingText(text, x, y) {
+        const el = document.createElement('div');
+        el.className = 'floating-text';
+        el.innerText = text;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        particlesContainer.appendChild(el);
+        setTimeout(() => el.remove(), 1500);
+    }
+
+    // ================= 游戏控制 =================
+
+    let player, guardian;
+    let items = [];
+
+    function init(difficultyKey) {
+        currentDifficulty = DIFFICULTY_SETTINGS[difficultyKey];
+        player = new Player();
+        guardian = new Guardian();
+        items = [];
+        score = 0;
+        scoreEl.innerText = score;
+        sizeEl.innerText = 1;
+        frameCount = 0;
+        isPaused = false;
+        input.x = canvas.width / 2;
+        input.y = canvas.height / 2;
+    }
+
+    function gameLoop() {
+        if (!gameRunning) return;
+        if (isPaused) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        player.update();
+        guardian.update(player.x, player.y);
+
+        guardian.draw();
+        player.draw();
+
+        frameCount++;
+        if (frameCount % currentDifficulty.spawnRate === 0) {
+            items.push(new Item(currentDifficulty));
+        }
+
+        for (let i = items.length - 1; i >= 0; i--) {
+            let item = items[i];
+            item.update();
+            item.draw();
+
+            if (item.x < -100 || item.x > canvas.width + 100) {
+                items.splice(i, 1);
+                continue;
+            }
+
+            const dist = Math.hypot(player.x - item.x, player.y - item.y);
+            if (dist < player.radius + item.radius) {
+                if (item.type === 'heart') {
+                    items.splice(i, 1);
+                    score += item.score;
+                    scoreEl.innerText = score;
+                    const word = LOVE_WORDS[Math.floor(Math.random() * LOVE_WORDS.length)];
+                    spawnFloatingText(word, player.x, player.y - 30);
+                    if (player.radius < 60) {
+                        player.radius += 0.5;
+                        guardian.radius += 0.4;
+                        // 修正天数显示逻辑，因为初始半径变小了
+                        sizeEl.innerText = Math.floor(player.radius - 11);
+                    }
+                } else {
+                    if (player.radius > item.radius) {
+                        items.splice(i, 1);
+                        spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
+                        score += 5;
+                        scoreEl.innerText = score;
+                    } else {
+                        deathReasonEl.innerText = `被"${item.name}"绊倒了...`;
+                        endGame();
+                    }
+                }
+            }
+        }
+
+        animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function startGame(difficulty) {
+        startScreen.style.display = 'none';
+        gameOverScreen.style.display = 'none';
+        pauseScreen.style.display = 'none';
+        uiLayer.style.display = 'block';
+        pauseBtn.style.display = 'flex';
+        init(difficulty);
         gameRunning = true;
-        bgm.play().catch(e => console.log('BGM需交互'));
+        gameLoop();
+    }
 
-        lastTime = performance.now();
-        requestAnimationFrame(loop);
-    });
+    function pauseGame() {
+        if (!gameRunning) return;
+        isPaused = true;
+        cancelAnimationFrame(animationId);
+        pauseScreen.style.display = 'flex';
+    }
+
+    function resumeGame() {
+        isPaused = false;
+        pauseScreen.style.display = 'none';
+        gameLoop();
+    }
+
+    function quitGameFromPause() {
+        pauseScreen.style.display = 'none';
+        deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~";
+        endGame();
+    }
+
+    function showStartScreen() {
+        startScreen.style.display = 'flex';
+        gameOverScreen.style.display = 'none';
+        uiLayer.style.display = 'none';
+        pauseBtn.style.display = 'none';
+        pauseScreen.style.display = 'none';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function endGame() {
+        gameRunning = false;
+        isPaused = false;
+        cancelAnimationFrame(animationId);
+        finalScoreEl.innerText = score;
+        pauseBtn.style.display = 'none';
+        gameOverScreen.style.display = 'flex';
+    }
+
+    showStartScreen();
 
 </script>
 </body>
