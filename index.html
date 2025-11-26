@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>爱的守护 - 概率平衡版</title>
+    <title>爱的守护 - 极限压迫版</title>
     <style>
         body {
             margin: 0; padding: 0;
@@ -130,8 +130,8 @@
 <!-- 开始界面 -->
 <div id="start-screen" class="overlay-screen">
     <h1>💖 爱的守护 💖</h1>
-    <p><b>成长很慢，需要耐心积累</b><br><b>爆发很难，需要珍惜机会</b><br>无论发生什么，记得抓紧聪仔！</p>
-    <div class="hint">提示：只有爱心能增加心动值！</div>
+    <p><b>成长很慢，需要耐心积累</b><br><b>困难模式迷雾极重，请小心！</b><br>无论发生什么，记得抓紧聪仔！</p>
+    <div class="hint">提示：被冰冻后速度会变得极慢！</div>
     <div class="btn-group">
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
@@ -195,28 +195,25 @@
     let eventTimer = 0;
     let nextEventCooldown = 600;
     let currentForce = { x: 0, y: 0 };
+    let flowParticles = [];
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
-    // === 核心配置：难度控制 ===
     const DIFFICULTY_SETTINGS = {
         'easy':   {
-            spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0, fogRadius: 180,
-            // 物品权重：爱心多
-            weights: [0.6, 0.3, 0.1],
-            // 事件概率：雾30%, 激流30%, 星星40% (容易出星星)
+            spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
+            fogRadius: 180, weights: [0.6, 0.3, 0.1],
             eventProb: { fog: 0.3, current: 0.3, starfall: 0.4 }
         },
         'normal': {
-            spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0, fogRadius: 120,
-            weights: [0.4, 0.2, 0.4],
-            // 事件概率：雾40%, 激流40%, 星星20%
+            spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0,
+            fogRadius: 120, weights: [0.4, 0.2, 0.4],
             eventProb: { fog: 0.4, current: 0.4, starfall: 0.2 }
         },
         'hard':   {
-            spawnRate: 30, speedMultiplier: 1.3, feverFactor: 0.4, fogRadius: 70,
+            spawnRate: 30, speedMultiplier: 1.3, feverFactor: 0.4,
+            fogRadius: 35, // 核心修改：能见度极低，半径仅35
             weights: [0.25, 0.1, 0.65],
-            // 事件概率：雾50%, 激流45%, 星星5% (极难出星星)
             eventProb: { fog: 0.5, current: 0.45, starfall: 0.05 }
         }
     };
@@ -331,6 +328,8 @@
     function updateBuffUI(buffs, guardianActive) {
         buffBar.innerHTML = '';
         if (isFeverMode) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF1493; animation: pulse 0.5s infinite;">🔥</div>`;
+        // 冰冻状态显示蓝色雪花
+        if (buffs.slowed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#00BCD4">❄️</div>`;
         if (guardianActive) buffBar.innerHTML += `<div class="buff-icon" style="background:#00BFFF">🛡️</div>`;
         if (buffs.speed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FFD700">🍬</div>`;
         if (buffs.magnet > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF6347">🧲</div>`;
@@ -351,7 +350,7 @@
     // === 事件系统逻辑 ===
     function triggerEvent(type) {
         currentEvent = type;
-        eventTimer = 600;
+        eventTimer = 600; // 10秒持续时间
 
         items = items.filter(i => i.subtype !== 'lightning' && i.subtype !== 'ice');
 
@@ -366,9 +365,23 @@
         } else if (type === 'current') {
             title = "🌊 命运激流";
             desc = "生活想把我们冲散，坚持住！";
-            currentForce.x = (Math.random() - 0.5) * 4;
-            currentForce.y = (Math.random() - 0.5) * 4;
+            // 激流力度增强
+            const angle = Math.random() * Math.PI * 2;
+            const strength = 6 + Math.random() * 4;
+            currentForce.x = Math.cos(angle) * strength;
+            currentForce.y = Math.sin(angle) * strength;
             bgColor = "#0077be";
+
+            flowParticles = [];
+            for(let i=0; i<60; i++) {
+                flowParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    len: Math.random() * 30 + 10,
+                    speed: Math.random() * 0.5 + 0.5
+                });
+            }
+
         } else if (type === 'starfall') {
             title = "🌠 幸运流星";
             desc = "属于我们的高光时刻，快许愿！";
@@ -411,7 +424,6 @@
         } else {
             nextEventCooldown--;
             if (nextEventCooldown <= 0) {
-                // 根据难度概率触发事件
                 const probs = currentDifficulty.eventProb;
                 const rand = Math.random();
                 if (rand < probs.fog) triggerEvent('fog');
@@ -443,12 +455,16 @@
         constructor() {
             this.x = canvas.width / 2; this.y = canvas.height / 2;
             this.radius = 10; this.angle = 0;
-            this.buffs = { speed: 0, magnet: 0 };
+            this.buffs = { speed: 0, magnet: 0, slowed: 0 }; // 新增 slowed
         }
         update() {
             const dx = input.x - this.x; const dy = input.y - this.y;
+
             let speed = 0.08;
             if (this.buffs.speed > 0) speed = 0.12;
+            // 核心修改：冰冻状态速度极慢
+            if (this.buffs.slowed > 0) speed = 0.025;
+            // Fever 优先级最高，免疫减速
             if (isFeverMode) speed = 0.15;
 
             if (Math.hypot(dx, dy) > 5) {
@@ -460,6 +476,7 @@
 
             if (this.buffs.speed > 0) this.buffs.speed--;
             if (this.buffs.magnet > 0) this.buffs.magnet--;
+            if (this.buffs.slowed > 0) this.buffs.slowed--; // 减速倒计时
 
             if (isFeverMode) {
                 feverTimer--; feverBar.style.width = (feverTimer / 300 * 100) + "%";
@@ -476,6 +493,11 @@
                 ctx.beginPath(); const hue = (frameCount * 5) % 360;
                 ctx.strokeStyle = `hsla(${hue}, 100%, 50%, 0.8)`; ctx.lineWidth = 4;
                 ctx.arc(0, 0, this.radius * 2.5, 0, Math.PI * 2); ctx.stroke();
+            }
+            // 冰冻状态光环
+            if (this.buffs.slowed > 0 && !isFeverMode) {
+                ctx.beginPath(); ctx.strokeStyle = '#00BCD4'; ctx.lineWidth = 3;
+                ctx.arc(0, 0, this.radius * 2.2, 0, Math.PI * 2); ctx.stroke();
             }
             if (this.buffs.magnet > 0 || isFeverMode) {
                 ctx.beginPath(); ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)'; ctx.lineWidth = 2;
@@ -548,8 +570,10 @@
         update() {
             this.x += this.vx;
             if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
+
             const magnetActive = player.buffs.magnet > 0 || isFeverMode;
             const canMagnet = (this.type === 'heart' || this.type === 'buff') || isFeverMode;
+
             if (magnetActive && canMagnet) {
                 const range = isFeverMode ? 300 : 200;
                 const dist = Math.hypot(player.x - this.x, player.y - this.y);
@@ -693,8 +717,9 @@
                     }
                     else if (item.subtype === 'ice') {
                         items.splice(i, 1);
-                        spawnFloatingText("好冷...", player.x, player.y - 30, '#00BCD4');
-                        player.buffs.speed = 0;
+                        spawnFloatingText("冻结! 减速!", player.x, player.y - 30, '#00BCD4');
+                        player.buffs.slowed = 180; // 3秒减速
+                        player.buffs.speed = 0;    // 移除加速
                     }
                     else {
                         if (player.radius > item.radius) {
@@ -715,6 +740,18 @@
                     }
                 }
             }
+        }
+
+        if (currentEvent === 'current') {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.lineWidth = 2; ctx.beginPath();
+            flowParticles.forEach(p => {
+                p.x += currentForce.x * 2; p.y += currentForce.y * 2;
+                if(p.x > canvas.width) p.x = 0; else if(p.x < 0) p.x = canvas.width;
+                if(p.y > canvas.height) p.y = 0; else if(p.y < 0) p.y = canvas.height;
+                ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - currentForce.x * 2, p.y - currentForce.y * 2);
+            });
+            ctx.stroke(); ctx.restore();
         }
 
         if (currentEvent === 'fog') {
