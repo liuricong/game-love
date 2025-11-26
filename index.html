@@ -15,6 +15,7 @@
             position: fixed;
             top: 0;
             left: 0;
+            background: linear-gradient(rgb(255, 154, 158), rgb(250, 208, 196));
         }
         
         body {
@@ -28,10 +29,13 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             display: block;
             z-index: 1;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* 遮罩层通用 */
@@ -1343,15 +1347,28 @@
     // --- 系统函数 ---
 
     function resizeCanvas() {
-        // 使用实际视口尺寸，确保全屏
-        const width = window.innerWidth || document.documentElement.clientWidth;
-        const height = window.innerHeight || document.documentElement.clientHeight;
+        // iOS Safari兼容性处理
+        const width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+        const height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+        
+        // iOS Safari特殊处理：使用实际像素尺寸，不缩放
+        // 直接使用逻辑像素，避免高DPI设备上的缩放问题
         canvas.width = width;
         canvas.height = height;
-        input.x = canvas.width / 2; 
-        input.y = canvas.height / 2;
+        
+        // 确保canvas样式正确
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        
+        input.x = width / 2; 
+        input.y = height / 2;
     }
+    
+    // iOS Safari特殊处理：监听orientationchange和resize
     window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', function() {
+        setTimeout(resizeCanvas, 100); // 延迟执行，等待orientationchange完成
+    });
     function handleInput(x, y) { if(!isPaused && gameRunning) { input.x = x; input.y = y; } }
     window.addEventListener('mousemove', e => {
         // 如果鼠标在暂停按钮上，不更新input位置
@@ -2094,7 +2111,28 @@
         ctx.save();
         ctx.translate(screenShake.x, screenShake.y);
         
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // 绘制背景渐变，确保在移动端H5正确显示
+        let bgGradient;
+        if (score > 2000) {
+            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, '#000000');
+            bgGradient.addColorStop(1, '#434343');
+        } else if (score > 1000) {
+            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, '#0f2027');
+            bgGradient.addColorStop(0.5, '#203a43');
+            bgGradient.addColorStop(1, '#2c5364');
+        } else if (score > 500) {
+            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, '#6a11cb');
+            bgGradient.addColorStop(1, '#2575fc');
+        } else {
+            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+        }
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // 绘制背景美化效果：光斑
         lightRays.forEach(ray => {
