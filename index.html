@@ -310,21 +310,63 @@
         "[争吵]总是来得快去得快，<br>但在那之前，请先避其锋芒。"
     ];
 
+    // ========== 游戏权重配置（可调整） ==========
+    const GAME_WEIGHTS = {
+        // 物品生成权重 [爱心, Buff, 坏鱼] - 总和应为1.0
+        easy: {
+            good: 0.3,    // 爱心 30%
+            buff: 0.1,    // Buff 10%
+            bad: 0.6      // 坏鱼 60%
+        },
+        normal: {
+            good: 0.2,    // 爱心 20%
+            buff: 0.05,   // Buff 5%
+            bad: 0.75     // 坏鱼 75%
+        },
+        hard: {
+            good: 0.08,   // 爱心 8%
+            buff: 0.02,    // Buff 2%
+            bad: 0.90      // 坏鱼 90%
+        }
+    };
+
+    // 事件触发权重 [迷雾, 激流, 星落] - 总和应为1.0
+    const EVENT_WEIGHTS = {
+        easy: {
+            fog: 0.3,      // 迷雾 30%
+            current: 0.3,  // 激流 30%
+            starfall: 0.4  // 星落 40%
+        },
+        normal: {
+            fog: 0.4,      // 迷雾 40%
+            current: 0.4,  // 激流 40%
+            starfall: 0.2  // 星落 20%
+        },
+        hard: {
+            fog: 0.5,      // 迷雾 50%
+            current: 0.45, // 激流 45%
+            starfall: 0.05 // 星落 5%
+        }
+    };
+
     const DIFFICULTY_SETTINGS = {
         'easy':   {
             spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
-            fogRadius: 80, weights: [0.6, 0.3, 0.1],
-            eventProb: { fog: 0.3, current: 0.3, starfall: 0.4 }
+            fogRadius: 80,
+            weights: [GAME_WEIGHTS.easy.good, GAME_WEIGHTS.easy.buff, GAME_WEIGHTS.easy.bad],
+            eventProb: EVENT_WEIGHTS.easy
         },
         'normal': {
             spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0,
-            fogRadius: 50, weights: [0.4, 0.2, 0.4],
-            eventProb: { fog: 0.4, current: 0.4, starfall: 0.2 }
+            fogRadius: 50,
+            weights: [GAME_WEIGHTS.normal.good, GAME_WEIGHTS.normal.buff, GAME_WEIGHTS.normal.bad],
+            eventProb: EVENT_WEIGHTS.normal
         },
         'hard':   {
             spawnRate: 25, speedMultiplier: 1.4, feverFactor: 0.3,
-            fogRadius: 18, weights: [0.08, 0.02, 0.90], // 坏鱼权重高，但通过分数控制大鱼出现频率
-            eventProb: { fog: 0.5, current: 0.45, starfall: 0.05 }
+            fogRadius: 18,
+            weights: [GAME_WEIGHTS.hard.good, GAME_WEIGHTS.hard.buff, GAME_WEIGHTS.hard.bad],
+            eventProb: EVENT_WEIGHTS.hard
         }
     };
 
