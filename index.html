@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>爱的守护 - 聪仔萌趣版</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>爱的守护 - 丰富生态版</title>
     <style>
         body {
             margin: 0;
@@ -16,63 +17,33 @@
             touch-action: none;
         }
 
-        /* 遮罩层 */
         .overlay-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            color: #d63384;
-            padding: 20px;
-            box-sizing: border-box;
-            backdrop-filter: blur(5px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; color: #d63384; padding: 20px; box-sizing: border-box;
             transition: opacity 0.3s;
         }
 
         h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 32px; margin-bottom: 10px;
             background: linear-gradient(to right, #ff758c, #ff7eb3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            font-weight: 800;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-align: center; font-weight: 800;
         }
 
-        h2 { font-size: 28px; margin-bottom: 20px; color: #ff758c; }
+        p { font-size: 16px; color: #666; text-align: center; margin-bottom: 20px; line-height: 1.6; max-width: 90%; }
+        .hint { font-size: 14px; color: #ff758c; background: #fff0f5; padding: 5px 10px; border-radius: 10px; margin-bottom: 20px;}
 
-        p { font-size: 16px; color: #666; text-align: center; margin-bottom: 30px; line-height: 1.6; }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 80%;
-            max-width: 300px;
-        }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; width: 80%; max-width: 300px; padding-bottom: 20px;}
 
         button {
-            padding: 15px 10px;
-            font-size: 18px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
-            transition: transform 0.1s;
-            color: white;
-            outline: none;
-            position: relative;
-            overflow: hidden;
+            padding: 15px 10px; font-size: 18px; border: none; border-radius: 25px;
+            cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(255, 105, 180, 0.2);
+            transition: transform 0.1s; color: white; outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
-
         button:active { transform: scale(0.96); }
 
         .btn-easy { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #c71585; }
@@ -80,56 +51,45 @@
         .btn-hard { background: linear-gradient(45deg, #ff5858, #f09819); color: white; }
 
         .btn-restart { background: #fff; border: 2px solid #ff758c; color: #ff758c; margin-top: 20px; width: 60%;}
-
-        #pause-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            border: 2px solid #fff;
-            color: #ff758c;
-            font-size: 18px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            pointer-events: auto;
-            z-index: 60;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
         .btn-resume { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
         .btn-quit { background: #fff; border: 2px solid #999; color: #999; }
 
         #ui-layer {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #d63384;
-            font-weight: bold;
-            font-size: 18px;
-            pointer-events: none;
-            z-index: 50;
+            top: 15px; left: 15px;
+            top: max(15px, env(safe-area-inset-top)); left: max(15px, env(safe-area-inset-left));
+            color: #d63384; font-weight: bold; font-size: 18px;
+            pointer-events: none; z-index: 50;
             text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
         }
 
-        .floating-text {
+        #pause-btn {
             position: absolute;
-            color: #ff4081;
-            font-weight: bold;
-            font-size: 18px; /* 字体稍微调小配合小鱼 */
-            pointer-events: none;
-            animation: floatUp 1.5s ease-out forwards;
-            text-shadow: 1px 1px 2px white;
-            white-space: nowrap;
+            top: 15px; right: 15px;
+            top: max(15px, env(safe-area-inset-top)); right: max(15px, env(safe-area-inset-right));
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6); border: 2px solid #fff;
+            color: #ff758c; font-size: 20px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; pointer-events: auto; z-index: 60;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        .floating-text {
+            position: absolute; color: #ff4081; font-weight: bold; font-size: 18px;
+            pointer-events: none; animation: floatUp 1.5s ease-out forwards;
+            text-shadow: 1px 1px 2px white; white-space: nowrap;
+        }
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-40px) scale(1.1); }
+        }
+
+        #buff-bar { margin-top: 8px; display: flex; gap: 8px; }
+        .buff-icon {
+            width: 24px; height: 24px; border-radius: 50%; font-size: 14px;
+            display: flex; justify-content: center; align-items: center;
+            color: white; box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -140,15 +100,15 @@
 <div id="ui-layer" style="display:none;">
     <div>恋爱指数: <span id="score">0</span> ❤️</div>
     <div style="font-size: 12px; opacity: 0.8; margin-top:5px; color:#666">我们在一起: <span id="size-display">1</span> 天</div>
+    <div id="buff-bar"></div>
 </div>
 
 <button id="pause-btn" style="display:none;" onclick="pauseGame()">⏸</button>
 
-<!-- 开始界面 -->
 <div id="start-screen" class="overlay-screen">
     <h1>💖 爱的守护 💖</h1>
-    <p>我们变成了迷你小鱼<br>虽然世界很大，困难很多<br>但聪仔会一直陪着你长大~</p>
-
+    <p>这是一个大大的世界，我们是很小很小的鱼。<br>收集<b>[护身符🛡️]</b>召唤聪仔。<br>躲避河豚🐡和章鱼🐙哦！</p>
+    <div class="hint">提示：困难模式下护身符非常稀有！</div>
     <div class="btn-group">
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
@@ -156,7 +116,6 @@
     </div>
 </div>
 
-<!-- 暂停界面 -->
 <div id="pause-screen" class="overlay-screen" style="display: none;">
     <h2>游戏暂停</h2>
     <div class="btn-group">
@@ -165,7 +124,6 @@
     </div>
 </div>
 
-<!-- 结束界面 -->
 <div id="game-over-screen" class="overlay-screen" style="display: none;">
     <h2 style="font-size: 28px; color: #ff5858;">别怕，聪仔在呢</h2>
     <p id="death-reason" style="font-size: 16px;">如果不开心了，我来哄你~</p>
@@ -176,23 +134,23 @@
 <canvas id="gameCanvas"></canvas>
 
 <script>
+    // 1. 初始化 DOM
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-
     const uiLayer = document.getElementById('ui-layer');
+    const buffBar = document.getElementById('buff-bar');
     const pauseBtn = document.getElementById('pause-btn');
     const startScreen = document.getElementById('start-screen');
     const gameOverScreen = document.getElementById('game-over-screen');
     const pauseScreen = document.getElementById('pause-screen');
-
     const scoreEl = document.getElementById('score');
     const sizeEl = document.getElementById('size-display');
     const finalScoreEl = document.getElementById('final-score');
     const deathReasonEl = document.getElementById('death-reason');
     const particlesContainer = document.getElementById('particles-container');
 
-    const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
-
+    // 2. 初始化全局变量
+    const input = { x: 0, y: 0 };
     let animationId;
     let score = 0;
     let gameRunning = false;
@@ -200,287 +158,319 @@
     let frameCount = 0;
     let currentDifficulty = {};
 
-    // 难度配置
+    const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
+
+    // 权重数组扩充 (共13种)
+    // [0:小爱心, 1:大爱心, 2:星星(New), 3:糖果, 4:护身符, 5:磁铁,
+    //  6:小摩擦, 7:坏情绪, 8:争吵(闪电), 9:冷战(冰), 10:河豚(New), 11:章鱼(New), 12:黑影(New)]
     const DIFFICULTY_SETTINGS = {
-        'easy': { spawnRate: 50, speedMultiplier: 0.6, weights: [0.6, 0.2, 0.2, 0, 0, 0, 0] },
-        'normal': { spawnRate: 45, speedMultiplier: 0.9, weights: [0.4, 0.2, 0.2, 0.1, 0.05, 0.05, 0] },
-        'hard': { spawnRate: 30, speedMultiplier: 1.2, weights: [0.25, 0.2, 0.2, 0.15, 0.1, 0.05, 0.05] }
+        'easy':   {
+            spawnRate: 40,
+            speedMultiplier: 0.6,
+            // 多好东西，少坏东西
+            weights: [0.3, 0.1, 0.1, 0.1, 0.15, 0.1, 0.05, 0.05, 0.03, 0, 0.02, 0, 0]
+        },
+        'normal': {
+            spawnRate: 45,
+            speedMultiplier: 0.9,
+            // 平衡
+            weights: [0.25, 0.1, 0.05, 0.05, 0.05, 0.05, 0.1, 0.1, 0.05, 0.05, 0.1, 0.05, 0.05]
+        },
+        'hard':   {
+            spawnRate: 30,
+            speedMultiplier: 1.3,
+            // 极少护身符(Index 4)，大量危险生物
+            weights: [0.15, 0.05, 0.02, 0.03, 0.01, 0.04, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+        }
     };
 
-    function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    const input = { x: canvas.width / 2, y: canvas.height / 2 };
+    // 3. 输入处理
     function handleInput(x, y) {
         if(!isPaused && gameRunning) {
             input.x = x;
             input.y = y;
         }
     }
+    const handleTouch = (e) => {
+        if(e.cancelable) e.preventDefault();
+        if(e.touches.length > 0) handleInput(e.touches[0].clientX, e.touches[0].clientY);
+    };
+
+    // 4. 辅助函数
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        input.x = canvas.width / 2;
+        input.y = canvas.height / 2;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
     window.addEventListener('mousemove', e => handleInput(e.clientX, e.clientY));
-    canvas.addEventListener('touchstart', e => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
-    canvas.addEventListener('touchmove', e => { e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+    canvas.addEventListener('touchstart', handleTouch, {passive:false});
+    canvas.addEventListener('touchmove', handleTouch, {passive:false});
+    resizeCanvas();
 
-    // ================= 游戏类定义 =================
-
-    // 1. 女朋友 (粉色小鱼) - 初始变得更小
-    class Player {
-        constructor() {
-            this.x = canvas.width / 2;
-            this.y = canvas.height / 2;
-            this.radius = 12;  // 从20改为12，更加小巧
-            this.angle = 0;
-        }
-        update() {
-            const dx = input.x - this.x;
-            const dy = input.y - this.y;
-            if (Math.hypot(dx, dy) > 5) {
-                this.angle = Math.atan2(dy, dx);
-                this.x += dx * 0.08;
-                this.y += dy * 0.08;
-            }
-        }
-        draw() {
-            // 粉色光环
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.beginPath();
-            ctx.fillStyle = 'rgba(255, 182, 193, 0.3)';
-            ctx.arc(0, 0, this.radius * 1.6 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
-
-            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#FF69B4', true, null);
-        }
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            if (w < 2 * r) r = w / 2;
+            if (h < 2 * r) r = h / 2;
+            this.beginPath();
+            this.moveTo(x + r, y);
+            this.arcTo(x + w, y, x + w, y + h, r);
+            this.arcTo(x + w, y + h, x, y + h, r);
+            this.arcTo(x, y + h, x, y, r);
+            this.arcTo(x, y, x + w, y, r);
+            this.closePath();
+            return this;
+        };
     }
 
-    // 2. 聪仔 (蓝色小鱼) - 也变小
-    class Guardian {
-        constructor() {
-            this.x = canvas.width / 2 - 40;
-            this.y = canvas.height / 2;
-            this.radius = 10; // 从18改为10
-            this.angle = 0;
-        }
-        update(targetX, targetY) {
-            const targetX_delayed = targetX - Math.cos(player.angle) * 30; // 距离缩短
-            const targetY_delayed = targetY - Math.sin(player.angle) * 30;
-            const dx = targetX_delayed - this.x;
-            const dy = targetY_delayed - this.y;
-            this.angle = Math.atan2(dy, dx);
-            this.x += dx * 0.06;
-            this.y += dy * 0.06;
-        }
-        draw() {
-            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#00BFFF', false, '聪仔');
-        }
-    }
-
-    // 3. 物品与敌人 (新增多种类型)
-    class Item {
-        constructor(diffSettings) {
-            const rand = Math.random();
-            const w = diffSettings.weights; // 7个权重位
-            let typeIdx = 0;
-            let sum = 0;
-            for(let i=0; i<w.length; i++) {
-                sum += w[i];
-                if(rand < sum) { typeIdx = i; break; }
-            }
-
-            // === 丰富的生物配置 ===
-            const configs = [
-                // --- 爱心类 ---
-                { type: 'heart', r: 8,  color: '#ff4081', score: 10, speed: [1, 2], name: '小惊喜' },
-                { type: 'heart', r: 15, color: '#ff0055', score: 20, speed: [1.5, 2.5], name: '大礼物' },
-
-                // --- 障碍类 (生活中的挑战) ---
-                // 1. 小摩擦 (绿色，小而快)
-                { type: 'bad', subtype: 'normal', r: 14, color: '#8BC34A', score: 0, speed: [2, 3.5], name: '小摩擦' },
-                // 2. 坏情绪 (灰色，中等)
-                { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', score: 0, speed: [1.5, 2.5], name: '坏情绪' },
-                // 3. 烂桃花 (紫色，尖锐，速度快)
-                { type: 'bad', subtype: 'sharp',  r: 30, color: '#9C27B0', score: 0, speed: [3, 4],   name: '烂桃花' },
-                // 4. 加班 (深色方块，大而慢，BOSS级)
-                { type: 'bad', subtype: 'block',  r: 45, color: '#546E7A', score: 0, speed: [1, 2],   name: '加班' },
-                // 5. 冷战 (冰蓝色，大，难躲)
-                { type: 'bad', subtype: 'ice',    r: 65, color: '#00BCD4', score: 0, speed: [3, 5],   name: '冷战' }
-            ];
-
-            const c = configs[typeIdx];
-            this.type = c.type;
-            this.subtype = c.subtype || 'normal';
-            this.radius = c.r;
-            this.color = c.color;
-            this.score = c.score;
-            this.name = c.name;
-
-            this.y = Math.random() * canvas.height;
-            this.speed = (Math.random()*(c.speed[1]-c.speed[0]) + c.speed[0]) * diffSettings.speedMultiplier;
-
-            const side = Math.random() < 0.5 ? 'left' : 'right';
-            if (side === 'left') {
-                this.x = -this.radius * 2;
-                this.vx = this.speed;
-            } else {
-                this.x = canvas.width + this.radius * 2;
-                this.vx = -this.speed;
-            }
-        }
-        update() { this.x += this.vx; }
-        draw() {
-            ctx.save();
-            ctx.translate(this.x, this.y);
-
-            if (this.type === 'heart') {
-                drawHeart(ctx, 0, 0, this.radius, this.color);
-            } else {
-                // 根据 subtype 绘制不同形状的敌人
-                if (this.vx < 0) ctx.scale(-1, 1);
-                ctx.fillStyle = this.color;
-
-                if (this.subtype === 'sharp') {
-                    // 烂桃花：三角形/尖刺状
-                    ctx.beginPath();
-                    ctx.moveTo(this.radius, 0);
-                    ctx.lineTo(-this.radius, -this.radius * 0.8);
-                    ctx.lineTo(-this.radius * 0.5, 0);
-                    ctx.lineTo(-this.radius, this.radius * 0.8);
-                    ctx.fill();
-                    // 邪恶的眼睛
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath(); ctx.arc(0, -this.radius*0.2, this.radius*0.2, 0, Math.PI*2); ctx.fill();
-                }
-                else if (this.subtype === 'block') {
-                    // 加班：圆角矩形/方头鱼
-                    ctx.beginPath();
-                    ctx.roundRect(-this.radius*1.2, -this.radius*0.8, this.radius*2.4, this.radius*1.6, 5);
-                    ctx.fill();
-                    // 疲惫的眼睛
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath(); ctx.arc(this.radius*0.5, -this.radius*0.2, this.radius*0.2, 0, Math.PI*2); ctx.fill();
-                    ctx.strokeStyle = '#333';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath(); ctx.moveTo(this.radius*0.2, -this.radius*0.4); ctx.lineTo(this.radius*0.8, -this.radius*0.4); ctx.stroke();
-                }
-                else {
-                    // 普通圆形鱼 (摩擦、坏情绪、冷战)
-                    ctx.beginPath();
-                    ctx.ellipse(0, 0, this.radius * 1.2, this.radius, 0, 0, Math.PI*2);
-                    ctx.fill();
-                    // 尾巴
-                    ctx.beginPath();
-                    ctx.moveTo(-this.radius, 0);
-                    ctx.lineTo(-this.radius*1.8, -this.radius*0.8);
-                    ctx.lineTo(-this.radius*1.8, this.radius*0.8);
-                    ctx.fill();
-
-                    // 表情
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath(); ctx.arc(this.radius*0.4, -this.radius*0.3, this.radius*0.25, 0, Math.PI*2); ctx.fill();
-                    ctx.fillStyle = 'black';
-                    ctx.beginPath(); ctx.arc(this.radius*0.45, -this.radius*0.3, this.radius*0.08, 0, Math.PI*2); ctx.fill();
-
-                    // 眉毛
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    if(this.subtype === 'ice') { // 冷战：平眉毛
-                        ctx.moveTo(this.radius*0.1, -this.radius*0.5);
-                        ctx.lineTo(this.radius*0.7, -this.radius*0.5);
-                    } else { // 愤怒眉毛
-                        ctx.moveTo(this.radius*0.1, -this.radius*0.6);
-                        ctx.lineTo(this.radius*0.7, -this.radius*0.4);
-                    }
-                    ctx.stroke();
-                }
-            }
-            ctx.restore();
-        }
-    }
-
-    // 核心绘图函数
-    function drawCuteFish(ctx, x, y, r, angle, color, hasEyelashes, text) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.beginPath();
-        const tailX = -r * 1.2;
-        ctx.moveTo(tailX, 0);
-        ctx.quadraticCurveTo(tailX - r, -r, tailX - r, 0);
-        ctx.quadraticCurveTo(tailX - r, r, tailX, 0);
-        ctx.fill();
-
-        ctx.fillStyle = 'white';
-        ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.3, r * 0.35, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#333';
-        ctx.beginPath(); ctx.arc(r * 0.7, -r * 0.3, r * 0.15, 0, Math.PI * 2); ctx.fill();
-
-        if (hasEyelashes) {
-            ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.beginPath();
-            ctx.moveTo(r*0.6, -r*0.6); ctx.lineTo(r*0.5, -r*0.8);
-            ctx.moveTo(r*0.7, -r*0.65); ctx.lineTo(r*0.7, -r*0.9);
-            ctx.moveTo(r*0.8, -r*0.6); ctx.lineTo(r*0.9, -r*0.8);
-            ctx.stroke();
-        }
-
-        if (text) {
-            ctx.fillStyle = 'white';
-            const fontSize = text.length > 1 ? r * 0.6 : r * 0.7;
-            ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(text, -r * 0.1, 0);
-        }
-
-        ctx.fillStyle = 'rgba(255,0,0,0.2)';
-        ctx.beginPath(); ctx.arc(r * 0.6, r * 0.1, r * 0.2, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-    }
-
-    function drawHeart(ctx, x, y, r, color) {
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        const topCurveHeight = r * 0.8;
-        ctx.moveTo(0, r * 0.6);
-        ctx.bezierCurveTo(0, 0, -r, 0, -r, -topCurveHeight);
-        ctx.bezierCurveTo(-r, -r * 1.6, 0, -r * 1.6, 0, -topCurveHeight);
-        ctx.bezierCurveTo(0, -r * 1.6, r, -r * 1.6, r, -topCurveHeight);
-        ctx.bezierCurveTo(r, 0, 0, 0, 0, r * 0.6);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        ctx.beginPath(); ctx.arc(-r*0.3, -r*0.8, r*0.15, 0, Math.PI*2); ctx.fill();
-    }
-
-    function spawnFloatingText(text, x, y) {
+    function spawnFloatingText(text, x, y, color='#ff4081') {
         const el = document.createElement('div');
         el.className = 'floating-text';
         el.innerText = text;
         el.style.left = x + 'px';
         el.style.top = y + 'px';
+        el.style.color = color;
         particlesContainer.appendChild(el);
         setTimeout(() => el.remove(), 1500);
     }
 
-    // ================= 游戏控制 =================
+    function updateBuffUI(buffs, guardianActive) {
+        buffBar.innerHTML = '';
+        if (guardianActive) buffBar.innerHTML += `<div class="buff-icon" style="background:#00BFFF">🛡️</div>`;
+        if (buffs.speed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FFD700">🍬</div>`;
+        if (buffs.magnet > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF6347">🧲</div>`;
+    }
 
+    // 5. 游戏类
+    class Player {
+        constructor() {
+            this.x = canvas.width / 2;
+            this.y = canvas.height / 2;
+            this.radius = 10; // 缩小体型
+            this.angle = 0;
+            this.buffs = { speed: 0, magnet: 0 };
+        }
+        update() {
+            const dx = input.x - this.x;
+            const dy = input.y - this.y;
+            const speedFactor = this.buffs.speed > 0 ? 0.12 : 0.08;
+
+            if (Math.hypot(dx, dy) > 5) {
+                this.angle = Math.atan2(dy, dx);
+                this.x += dx * speedFactor;
+                this.y += dy * speedFactor;
+            }
+            this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x));
+            this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y));
+
+            if (this.buffs.speed > 0) this.buffs.speed--;
+            if (this.buffs.magnet > 0) this.buffs.magnet--;
+        }
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            // 磁铁圈
+            if (this.buffs.magnet > 0) {
+                ctx.beginPath(); ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)'; ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]); ctx.arc(0, 0, 150, 0, Math.PI * 2); ctx.stroke();
+            }
+            // 光环
+            ctx.beginPath(); ctx.fillStyle = 'rgba(255, 182, 193, 0.3)';
+            ctx.arc(0, 0, this.radius * 2.0 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#FF69B4', true, null);
+        }
+    }
+
+    class Guardian {
+        constructor() {
+            this.active = false;
+            this.x = -100;
+            this.y = -100;
+            this.radius = 10; // 缩小体型
+            this.angle = 0;
+        }
+        update(targetX, targetY) {
+            if (!this.active) return;
+            const targetX_delayed = targetX - Math.cos(player.angle) * 25;
+            const targetY_delayed = targetY - Math.sin(player.angle) * 25;
+            const dx = targetX_delayed - this.x;
+            const dy = targetY_delayed - this.y;
+            this.angle = Math.atan2(dy, dx);
+            this.x += dx * 0.08; this.y += dy * 0.08;
+        }
+        draw() {
+            if (!this.active) return;
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(0, 191, 255, 0.2)';
+            ctx.arc(0, 0, this.radius * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            drawCuteFish(ctx, this.x, this.y, this.radius, this.angle, '#00BFFF', false, '聪仔');
+        }
+    }
+
+    class Item {
+        constructor(diffSettings) {
+            const rand = Math.random();
+            const w = diffSettings.weights;
+            let typeIdx = 0; let sum = 0;
+            for(let i=0; i<w.length; i++) { sum += w[i]; if(rand < sum) { typeIdx = i; break; } }
+
+            const configs = [
+                // 良性
+                { type: 'heart', r: 8, color: '#ff4081', score: 10, speed: [1, 2], name: '小惊喜' },
+                { type: 'heart', r: 15, color: '#ff0055', score: 20, speed: [1.5, 2.5], name: '大礼物' },
+                { type: 'heart', subtype: 'star', r: 12, color: '#FFD700', score: 50, speed: [3, 5], name: '幸运星' }, // New
+                // Buff
+                { type: 'buff', subtype: 'candy', r: 12, color: '#FFD700', speed: [1, 1.5], name: '甜蜜糖果' },
+                { type: 'buff', subtype: 'summon', r: 14, color: '#00BFFF', speed: [1, 1.5], name: '护身符' },
+                { type: 'buff', subtype: 'magnet', r: 12, color: '#FF6347', speed: [1, 1.5], name: '双向奔赴' },
+                // 恶性
+                { type: 'bad', subtype: 'normal', r: 12, color: '#8BC34A', speed: [2, 3], name: '小摩擦' },
+                { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪' },
+                { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵' },
+                { type: 'bad', subtype: 'ice', r: 40, color: '#00BCD4', speed: [2, 4], name: '冷战' },
+                { type: 'bad', subtype: 'puffer', r: 20, color: '#FF9800', speed: [1.5, 2.5], name: '气鼓鼓' }, // New 河豚
+                { type: 'bad', subtype: 'octopus', r: 22, color: '#9C27B0', speed: [2, 3], name: '纠缠' }, // New 章鱼
+                { type: 'bad', subtype: 'shadow', r: 18, color: '#333', speed: [4, 6], name: '焦虑' } // New 黑影
+            ];
+
+            const c = configs[typeIdx];
+            this.type = c.type; this.subtype = c.subtype || 'normal';
+            this.radius = c.r; this.color = c.color; this.score = c.score || 0; this.name = c.name;
+            this.y = Math.random() * canvas.height;
+            this.speed = (Math.random()*(c.speed[1]-c.speed[0]) + c.speed[0]) * diffSettings.speedMultiplier;
+
+            const side = Math.random() < 0.5 ? 'left' : 'right';
+            if (side === 'left') { this.x = -this.radius * 2; this.vx = this.speed; }
+            else { this.x = canvas.width + this.radius * 2; this.vx = -this.speed; }
+        }
+        update() {
+            this.x += this.vx;
+            if (this.subtype === 'lightning') this.y += Math.sin(this.x * 0.05) * 5;
+            if (this.type === 'heart' && player.buffs.magnet > 0) {
+                const dist = Math.hypot(player.x - this.x, player.y - this.y);
+                if (dist < 200) { this.x += (player.x - this.x) * 0.05; this.y += (player.y - this.y) * 0.05; }
+            }
+        }
+        draw() {
+            ctx.save(); ctx.translate(this.x, this.y);
+
+            if (this.type === 'heart') {
+                if (this.subtype === 'star') drawStar(ctx, 0, 0, this.radius, 5, this.radius/2, this.color);
+                else drawHeart(ctx, 0, 0, this.radius, this.color);
+            }
+            else if (this.type === 'buff') {
+                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2); ctx.fillStyle = 'white'; ctx.fill();
+                ctx.strokeStyle = this.color; ctx.lineWidth = 3; ctx.stroke();
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '14px Arial';
+                if (this.subtype === 'candy') ctx.fillText('🍬', 0, 0);
+                else if (this.subtype === 'summon') ctx.fillText('🛡️', 0, 0);
+                else if (this.subtype === 'magnet') ctx.fillText('🧲', 0, 0);
+            }
+            else {
+                if (this.vx < 0) ctx.scale(-1, 1);
+                ctx.fillStyle = this.color;
+
+                if (this.subtype === 'lightning') {
+                    ctx.beginPath(); ctx.moveTo(0, -this.radius); ctx.lineTo(this.radius/2, 0); ctx.lineTo(-this.radius/2, 0); ctx.lineTo(0, this.radius); ctx.fill();
+                } else if (this.subtype === 'ice') {
+                    ctx.globalAlpha = 0.7; ctx.roundRect(-this.radius, -this.radius, this.radius*2, this.radius*2, 5); ctx.fill();
+                    ctx.globalAlpha = 1.0; ctx.strokeStyle = 'white'; ctx.stroke();
+                    ctx.fillStyle = 'white'; ctx.fillText('-_-', -10, 5);
+                } else if (this.subtype === 'puffer') { // 河豚
+                    ctx.beginPath(); ctx.arc(0,0,this.radius, 0, Math.PI*2); ctx.fill();
+                    // 刺
+                    for(let i=0; i<8; i++) {
+                        const ang = i * Math.PI/4;
+                        ctx.beginPath(); ctx.moveTo(Math.cos(ang)*this.radius, Math.sin(ang)*this.radius);
+                        ctx.lineTo(Math.cos(ang)*(this.radius+5), Math.sin(ang)*(this.radius+5));
+                        ctx.strokeStyle = this.color; ctx.lineWidth=2; ctx.stroke();
+                    }
+                    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(6, -5, 2, 0, Math.PI*2); ctx.fill();
+                } else if (this.subtype === 'octopus') { // 章鱼
+                    ctx.beginPath(); ctx.arc(0, -5, this.radius*0.8, Math.PI, 0); ctx.lineTo(this.radius*0.8, 5);
+                    ctx.quadraticCurveTo(5, 15, 0, 5); ctx.quadraticCurveTo(-5, 15, -this.radius*0.8, 5); ctx.fill();
+                    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(5, -5, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle='black'; ctx.beginPath(); ctx.arc(5, -5, 2, 0, Math.PI*2); ctx.fill();
+                } else if (this.subtype === 'shadow') { // 黑影
+                    ctx.globalAlpha = 0.8;
+                    ctx.beginPath(); ctx.moveTo(this.radius, 0); ctx.lineTo(-this.radius, -10); ctx.lineTo(-this.radius, 10); ctx.fill();
+                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(0, -5, 3, 0, Math.PI*2); ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                } else {
+                    drawCuteFish(ctx, 0, 0, this.radius, 0, this.color, false, null);
+                    ctx.save(); ctx.translate(this.radius*0.4, -this.radius*0.2); ctx.rotate(0.2); ctx.fillStyle = 'white'; ctx.fillRect(0,0,5,2); ctx.restore();
+                }
+            }
+            ctx.restore();
+        }
+    }
+
+    // 6. 绘图函数
+    function drawCuteFish(ctx, x, y, r, angle, color, hasEyelashes, text) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillStyle = color;
+        ctx.beginPath(); ctx.ellipse(0, 0, r * 1.5, r, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); const tailX = -r * 1.2; ctx.moveTo(tailX, 0); ctx.quadraticCurveTo(tailX - r, -r, tailX - r, 0); ctx.quadraticCurveTo(tailX - r, r, tailX, 0); ctx.fill();
+        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(r * 0.6, -r * 0.3, r * 0.35, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(r * 0.7, -r * 0.3, r * 0.15, 0, Math.PI * 2); ctx.fill();
+        if (hasEyelashes) {
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 1; ctx.beginPath();
+            ctx.moveTo(r*0.6, -r*0.6); ctx.lineTo(r*0.5, -r*0.8);
+            ctx.moveTo(r*0.7, -r*0.65); ctx.lineTo(r*0.7, -r*0.9);
+            ctx.moveTo(r*0.8, -r*0.6); ctx.lineTo(r*0.9, -r*0.8);
+            ctx.stroke();
+        }
+        if (text) {
+            ctx.fillStyle = 'white';
+            // 字体自动缩小适应鱼身
+            const fontSize = text.length > 1 ? r * 0.6 : r * 0.8;
+            ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, -r * 0.1, 0);
+        }
+        ctx.fillStyle = 'rgba(255,0,0,0.2)'; ctx.beginPath(); ctx.arc(r * 0.6, r * 0.1, r * 0.2, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
+    function drawHeart(ctx, x, y, r, color) {
+        ctx.fillStyle = color; ctx.beginPath(); const topCurveHeight = r * 0.8; ctx.moveTo(0, r * 0.6);
+        ctx.bezierCurveTo(0, 0, -r, 0, -r, -topCurveHeight); ctx.bezierCurveTo(-r, -r * 1.6, 0, -r * 1.6, 0, -topCurveHeight);
+        ctx.bezierCurveTo(0, -r * 1.6, r, -r * 1.6, r, -topCurveHeight); ctx.bezierCurveTo(r, 0, 0, 0, 0, r * 0.6); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(-r*0.3, -r*0.8, r*0.15, 0, Math.PI*2); ctx.fill();
+    }
+
+    function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
+        var rot = Math.PI / 2 * 3;
+        var x = cx; var y = cy;
+        var step = Math.PI / spikes;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - outerRadius);
+        for (i = 0; i < spikes; i++) {
+            x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius;
+            ctx.lineTo(x, y); rot += step;
+            x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius;
+            ctx.lineTo(x, y); rot += step;
+        }
+        ctx.lineTo(cx, cy - outerRadius);
+        ctx.closePath();
+        ctx.fillStyle = color; ctx.fill();
+    }
+
+    // 7. 核心逻辑
     let player, guardian;
-    let items = [];
 
     function init(difficultyKey) {
         currentDifficulty = DIFFICULTY_SETTINGS[difficultyKey];
         player = new Player();
-        guardian = new Guardian();
+        guardian = new Guardian(); // 默认不出现
         items = [];
         score = 0;
         scoreEl.innerText = score;
@@ -489,6 +479,7 @@
         isPaused = false;
         input.x = canvas.width / 2;
         input.y = canvas.height / 2;
+        updateBuffUI(player.buffs, guardian.active);
     }
 
     function gameLoop() {
@@ -498,9 +489,13 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         player.update();
-        guardian.update(player.x, player.y);
+        updateBuffUI(player.buffs, guardian.active);
 
-        guardian.draw();
+        if (guardian.active) {
+            guardian.update(player.x, player.y);
+            guardian.draw();
+        }
+
         player.draw();
 
         frameCount++;
@@ -521,34 +516,63 @@
             const dist = Math.hypot(player.x - item.x, player.y - item.y);
             if (dist < player.radius + item.radius) {
                 if (item.type === 'heart') {
-                    items.splice(i, 1);
-                    score += item.score;
-                    scoreEl.innerText = score;
+                    items.splice(i, 1); score += item.score; scoreEl.innerText = score;
                     const word = LOVE_WORDS[Math.floor(Math.random() * LOVE_WORDS.length)];
                     spawnFloatingText(word, player.x, player.y - 30);
                     if (player.radius < 60) {
                         player.radius += 0.5;
-                        guardian.radius += 0.4;
-                        // 修正天数显示逻辑，因为初始半径变小了
-                        sizeEl.innerText = Math.floor(player.radius - 11);
+                        if (guardian.active) guardian.radius += 0.4;
+                        sizeEl.innerText = Math.floor(player.radius - 9);
                     }
-                } else {
-                    if (player.radius > item.radius) {
-                        items.splice(i, 1);
-                        spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
-                        score += 5;
-                        scoreEl.innerText = score;
+                }
+                else if (item.type === 'buff') {
+                    items.splice(i, 1);
+                    if (item.subtype === 'summon') {
+                        if (guardian.active) {
+                            spawnFloatingText("聪仔在呢!", player.x, player.y - 30, '#00BFFF');
+                        } else {
+                            guardian.active = true;
+                            guardian.x = player.x - 50;
+                            guardian.y = player.y;
+                            spawnFloatingText("聪仔守护!", player.x, player.y - 30, '#00BFFF');
+                        }
                     } else {
-                        deathReasonEl.innerText = `被"${item.name}"绊倒了...`;
-                        endGame();
+                        spawnFloatingText(item.name + "!", player.x, player.y - 30, item.color);
+                        if (item.subtype === 'candy') player.buffs.speed = 300;
+                        if (item.subtype === 'magnet') player.buffs.magnet = 400;
+                    }
+                }
+                else if (item.type === 'bad') {
+                    if (item.subtype === 'ice') {
+                        items.splice(i, 1);
+                        spawnFloatingText("好冷...", player.x, player.y - 30, '#00BCD4');
+                        player.buffs.speed = 0;
+                    } else {
+                        // 碰到致命敌人
+                        if (player.radius > item.radius) {
+                            items.splice(i, 1);
+                            spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
+                            score += 5; scoreEl.innerText = score;
+                        } else {
+                            // 聪仔挡刀机制
+                            if (guardian.active) {
+                                items.splice(i, 1);
+                                guardian.active = false;
+                                spawnFloatingText("聪仔挡刀!", player.x, player.y - 40, '#ff4444');
+                                if(navigator.vibrate) navigator.vibrate(200);
+                            } else {
+                                deathReasonEl.innerText = `被"${item.name}"绊倒了...`;
+                                endGame();
+                            }
+                        }
                     }
                 }
             }
         }
-
         animationId = requestAnimationFrame(gameLoop);
     }
 
+    // 8. 流程控制
     function startGame(difficulty) {
         startScreen.style.display = 'none';
         gameOverScreen.style.display = 'none';
