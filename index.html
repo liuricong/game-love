@@ -307,17 +307,8 @@
     let particles = []; // 粒子特效
     let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
     
-    // 背景图片
+    // 背景图片 - 直接加载，写死显示
     const bgImage = new Image();
-    let bgImageLoaded = false;
-    bgImage.onload = function() {
-        bgImageLoaded = true;
-        console.log('背景图片加载成功');
-    };
-    bgImage.onerror = function() {
-        console.log('背景图片加载失败，将使用渐变背景');
-    };
-    // 使用相对路径
     bgImage.src = 'bag.jpg';
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
@@ -2019,8 +2010,8 @@
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 绘制背景图片（如果已加载）
-            if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+            // 绘制背景图片（直接绘制，不检查加载状态）
+            if (bgImage.complete && bgImage.naturalWidth > 0) {
                 const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
                 const scaledWidth = bgImage.width * scale;
                 const scaledHeight = bgImage.height * scale;
@@ -2688,8 +2679,8 @@
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // 绘制背景图片（如果已加载）
-        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+        // 绘制背景图片（直接绘制，不检查加载状态）
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
             const scaledHeight = bgImage.height * scale;
@@ -2797,8 +2788,8 @@
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // 绘制背景图片（如果已加载）
-        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+        // 绘制背景图片（直接绘制，不检查加载状态）
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
             // 计算缩放比例，使图片覆盖整个canvas
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
@@ -3216,8 +3207,8 @@
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // 绘制背景图片（如果已加载）
-        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+        // 绘制背景图片（直接绘制，不检查加载状态）
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
             const scaledHeight = bgImage.height * scale;
