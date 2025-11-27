@@ -309,10 +309,16 @@
     
     // 背景图片
     const bgImage = new Image();
-    bgImage.src = 'bag.jpg';
+    let bgImageLoaded = false;
+    bgImage.onload = function() {
+        bgImageLoaded = true;
+        console.log('背景图片加载成功');
+    };
     bgImage.onerror = function() {
         console.log('背景图片加载失败，将使用渐变背景');
     };
+    // 使用相对路径
+    bgImage.src = 'bag.jpg';
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -2014,7 +2020,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             // 绘制背景图片（如果已加载）
-            if (bgImage.complete && bgImage.naturalWidth > 0) {
+            if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
                 const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
                 const scaledWidth = bgImage.width * scale;
                 const scaledHeight = bgImage.height * scale;
@@ -2377,116 +2383,82 @@
             let availableItems = GAME_OBJECTS[category].filter(i => score >= i.minScore);
             if (availableItems.length === 0) availableItems = [GAME_OBJECTS[category][0]];
 
-            // 优化选择逻辑，确保各阶段都有丰富的鱼类品种
+            // 基于鱼种大小类别的权重选择系统（按分数段设计）
             let c;
             if (category === 'bad') {
-                // 困难模式：根据分数调整大鱼出现概率，早期更稀疏
-                if (currentDifficultyName === 'hard') {
-                    const bigFish = availableItems.filter(i => i.r >= 20);
-                    if (bigFish.length > 0) {
-                        // 根据分数动态调整大鱼出现概率，早期大幅降低
-                        // 0-100分：5%概率，100-200分：10%概率，200-500分：25%概率，500-1000分：50%概率，1000+分：75%概率
-                        let bigFishProb = 0.05; // 早期只有5%
-                        if (score >= 1000) {
-                            bigFishProb = 0.75;
-                        } else if (score >= 500) {
-                            bigFishProb = 0.5;
-                        } else if (score >= 200) {
-                            bigFishProb = 0.25;
-                        } else if (score >= 100) {
-                            bigFishProb = 0.1;
+                // 将可用鱼种按大小分类
+                const earlyFish = availableItems.filter(i => i.r < 15);      // 早期鱼种（小鱼）
+                const mediumFish = availableItems.filter(i => i.r >= 15 && i.r < 30);  // 中等鱼种
+                const largeFish = availableItems.filter(i => i.r >= 30 && i.r < 50);   // 较大鱼种
+                const hugeFish = availableItems.filter(i => i.r >= 50);     // 超大型鱼种
+                
+                // 根据分数段设置权重
+                let earlyWeight, mediumWeight, largeWeight, hugeWeight;
+                
+                if (score < 1000) {
+                    // 0-1000分：早期鱼种为主，中等鱼种次之，少量大鱼
+                    earlyWeight = 0.5;    // 50%
+                    mediumWeight = 0.3;   // 30%
+                    largeWeight = 0.15;   // 15%
+                    hugeWeight = 0.05;    // 5%
+                } else if (score < 2000) {
+                    // 1000-2000分：中等和较大鱼种为主，早期鱼种减少
+                    earlyWeight = 0.25;   // 25%
+                    mediumWeight = 0.35;  // 35%
+                    largeWeight = 0.3;     // 30%
+                    hugeWeight = 0.1;     // 10%
+                } else if (score < 3000) {
+                    // 2000-3000分：较大和超大型鱼种为主
+                    earlyWeight = 0.15;   // 15%
+                    mediumWeight = 0.25;  // 25%
+                    largeWeight = 0.35;    // 35%
+                    hugeWeight = 0.25;    // 25%
+                } else {
+                    // 3000+分：超大型和较大鱼种为主，早期鱼种保持最低
+                    earlyWeight = 0.1;    // 10%
+                    mediumWeight = 0.2;   // 20%
+                    largeWeight = 0.35;    // 35%
+                    hugeWeight = 0.35;    // 35%
+                }
+                
+                // 如果某个类别没有可用鱼种，将其权重设为0
+                const weights = [
+                    earlyFish.length > 0 ? earlyWeight : 0,
+                    mediumFish.length > 0 ? mediumWeight : 0,
+                    largeFish.length > 0 ? largeWeight : 0,
+                    hugeFish.length > 0 ? hugeWeight : 0
+                ];
+                
+                // 归一化权重（确保总和为1）
+                const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+                if (totalWeight > 0) {
+                    const normalizedWeights = weights.map(w => w / totalWeight);
+                    
+                    // 根据权重随机选择类别
+                    const rand = Math.random();
+                    let selectedCategory = 0;
+                    let cumulativeWeight = 0;
+                    
+                    for (let i = 0; i < normalizedWeights.length; i++) {
+                        cumulativeWeight += normalizedWeights[i];
+                        if (rand < cumulativeWeight) {
+                            selectedCategory = i;
+                            break;
                         }
-                        
-                        if (Math.random() < bigFishProb) {
-                            c = bigFish[Math.floor(Math.random() * bigFish.length)];
-                        } else {
-                            c = availableItems[Math.floor(Math.random() * availableItems.length)];
-                        }
+                    }
+                    
+                    // 从选中的类别中随机选择一条鱼
+                    const categoryPools = [earlyFish, mediumFish, largeFish, hugeFish];
+                    const selectedPool = categoryPools[selectedCategory];
+                    
+                    if (selectedPool && selectedPool.length > 0) {
+                        c = selectedPool[Math.floor(Math.random() * selectedPool.length)];
                     } else {
+                        // 如果选中的类别为空，从所有可用鱼种中随机选择
                         c = availableItems[Math.floor(Math.random() * availableItems.length)];
                     }
-                }
-                // 早期阶段（score < 100），优先选择有颜色的鱼类
-                else if (score < 100 && availableItems.length > 2) {
-                    const colorfulFish = availableItems.filter(i => 
-                        i.subtype !== 'tiny' && i.subtype !== 'normal' && i.minScore === 0
-                    );
-                    if (colorfulFish.length > 0 && Math.random() < 0.6) {
-                        c = colorfulFish[Math.floor(Math.random() * colorfulFish.length)];
-                    } else {
-                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
-                    }
-                }
-                // 中期阶段（100-1000），优先选择有颜色的大鱼
-                else if (score >= 100 && score < 1000) {
-                    const colorfulBigFish = availableItems.filter(i => 
-                        i.subtype !== 'tiny' && i.subtype !== 'normal' && 
-                        i.subtype !== 'lightning' && i.subtype !== 'ice' &&
-                        i.r >= 20
-                    );
-                    if (colorfulBigFish.length > 0 && Math.random() < 0.5) {
-                        c = colorfulBigFish[Math.floor(Math.random() * colorfulBigFish.length)];
-                    } else {
-                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
-                    }
-                }
-                // 后期阶段（1000-2000），确保大鱼品种丰富
-                else if (score >= 1000 && score < 2000) {
-                    const bigFish = availableItems.filter(i => i.r >= 30);
-                    if (bigFish.length > 0 && Math.random() < 0.4) {
-                        // 优先选择有颜色的大鱼（非whale和shark）
-                        const colorfulBig = bigFish.filter(i => 
-                            i.subtype !== 'whale' && i.subtype !== 'shark'
-                        );
-                        if (colorfulBig.length > 0) {
-                            c = colorfulBig[Math.floor(Math.random() * colorfulBig.length)];
-                        } else {
-                            c = bigFish[Math.floor(Math.random() * bigFish.length)];
-                        }
-                    } else {
-                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
-                    }
-                }
-                // 2000分以上，增加whale出现概率
-                else if (score >= 2000 && score < 3000) {
-                    const bigFish = availableItems.filter(i => i.r >= 30);
-                    if (bigFish.length > 0 && Math.random() < 0.5) {
-                        // 30%概率选择whale，70%选择其他大鱼
-                        const whales = bigFish.filter(i => i.subtype === 'whale');
-                        if (whales.length > 0 && Math.random() < 0.3) {
-                            c = whales[Math.floor(Math.random() * whales.length)];
-                        } else {
-                            const colorfulBig = bigFish.filter(i => i.subtype !== 'shark');
-                            if (colorfulBig.length > 0) {
-                                c = colorfulBig[Math.floor(Math.random() * colorfulBig.length)];
-                            } else {
-                                c = bigFish[Math.floor(Math.random() * bigFish.length)];
-                            }
-                        }
-                    } else {
-                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
-                    }
-                }
-                // 3000分以上，增加shark出现概率
-                else if (score >= 3000) {
-                    const bigFish = availableItems.filter(i => i.r >= 30);
-                    if (bigFish.length > 0 && Math.random() < 0.5) {
-                        // 30%概率选择shark，30%概率选择whale，40%选择其他大鱼
-                        const sharks = bigFish.filter(i => i.subtype === 'shark');
-                        const whales = bigFish.filter(i => i.subtype === 'whale');
-                        const rand = Math.random();
-                        if (sharks.length > 0 && rand < 0.3) {
-                            c = sharks[Math.floor(Math.random() * sharks.length)];
-                        } else if (whales.length > 0 && rand < 0.6) {
-                            c = whales[Math.floor(Math.random() * whales.length)];
-                        } else {
-                            c = bigFish[Math.floor(Math.random() * bigFish.length)];
-                        }
-                    } else {
-                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
-                    }
-                }
-                else {
+                } else {
+                    // 如果所有权重都为0，从所有可用鱼种中随机选择
                     c = availableItems[Math.floor(Math.random() * availableItems.length)];
                 }
             } else {
@@ -2717,7 +2689,7 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // 绘制背景图片（如果已加载）
-        if (bgImage.complete && bgImage.naturalWidth > 0) {
+        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
             const scaledHeight = bgImage.height * scale;
@@ -2826,7 +2798,7 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // 绘制背景图片（如果已加载）
-        if (bgImage.complete && bgImage.naturalWidth > 0) {
+        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
             // 计算缩放比例，使图片覆盖整个canvas
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
@@ -3245,7 +3217,7 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // 绘制背景图片（如果已加载）
-        if (bgImage.complete && bgImage.naturalWidth > 0) {
+        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
             const scaledHeight = bgImage.height * scale;
