@@ -19,7 +19,12 @@
         }
         
         body {
-            background: linear-gradient(rgb(255, 154, 158), rgb(250, 208, 196)); /* 默认黑底，实际由Canvas绘制 */
+            background: linear-gradient(rgb(255, 154, 158), rgb(250, 208, 196)); /* 默认渐变背景 */
+            background-image: url('bag.jpg'); /* 背景图片 */
+            background-size: cover; /* 覆盖整个屏幕 */
+            background-position: center; /* 居中显示 */
+            background-repeat: no-repeat; /* 不重复 */
+            background-attachment: fixed; /* 固定背景 */
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             user-select: none; 
             touch-action: none;
@@ -309,7 +314,36 @@
     
     // 背景图片 - 直接加载，写死显示
     const bgImage = new Image();
-    bgImage.src = 'bag.jpg';
+    let bgImageError = false;
+    bgImage.onerror = function() {
+        bgImageError = true;
+        console.log('背景图片加载失败，将使用CSS背景');
+        // 如果图片加载失败，让canvas半透明，显示CSS背景
+        canvas.style.opacity = '0.95';
+    };
+    bgImage.onload = function() {
+        bgImageError = false;
+        canvas.style.opacity = '1';
+        console.log('背景图片加载成功');
+    };
+    // 尝试多种路径
+    const imagePaths = ['bag.jpg', './bag.jpg', '/bag.jpg'];
+    let currentPathIndex = 0;
+    const tryLoadImage = () => {
+        if (currentPathIndex < imagePaths.length) {
+            bgImage.src = imagePaths[currentPathIndex++];
+        }
+    };
+    bgImage.onerror = function() {
+        if (currentPathIndex < imagePaths.length) {
+            tryLoadImage();
+        } else {
+            bgImageError = true;
+            canvas.style.opacity = '0.95';
+            console.log('所有路径都失败，使用CSS背景');
+        }
+    };
+    tryLoadImage();
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
