@@ -424,19 +424,19 @@
 
     const DIFFICULTY_SETTINGS = {
         'easy':   {
-            spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
+            spawnRate: 20, speedMultiplier: 0.6, feverFactor: 2.0, // 生成频率
             fogRadius: 80,
             weights: [GAME_WEIGHTS.easy.good, GAME_WEIGHTS.easy.buff, GAME_WEIGHTS.easy.bad],
             eventProb: EVENT_WEIGHTS.easy
         },
         'normal': {
-            spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0,
+            spawnRate: 15, speedMultiplier: 0.9, feverFactor: 1.0, // 生成频率
             fogRadius: 50,
             weights: [GAME_WEIGHTS.normal.good, GAME_WEIGHTS.normal.buff, GAME_WEIGHTS.normal.bad],
             eventProb: EVENT_WEIGHTS.normal
         },
         'hard':   {
-            spawnRate: 25, speedMultiplier: 1.4, feverFactor: 0.3,
+            spawnRate: 25, speedMultiplier: 1.4, feverFactor: 0.3, // 生成频率
             fogRadius: 18,
             weights: [GAME_WEIGHTS.hard.good, GAME_WEIGHTS.hard.buff, GAME_WEIGHTS.hard.bad],
             eventProb: EVENT_WEIGHTS.hard
@@ -2961,8 +2961,8 @@
             if (this.type === 'bad' && this.radius >= 20 && !isFeverMode) {
                 const distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
                 // 减小追击范围：只在玩家真正靠近时才追击
-                // 大鱼追击范围：根据鱼的大小调整，但范围更小
-                const chaseRange = this.radius * (this.radius >= 50 ? 5 : 4); // 从10-12倍减少到4-5倍
+                // 大鱼追击范围：根据鱼的大小调整，范围较小
+                const chaseRange = this.radius * (this.radius >= 50 ? 3 : 2.5); // 进一步减小到2.5-3倍
                 
                 // 只在玩家足够靠近时追击，可以追击到碰撞
                 if (distToPlayer < chaseRange && distToPlayer > this.radius + player.radius) {
