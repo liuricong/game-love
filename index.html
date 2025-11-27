@@ -259,9 +259,6 @@
     <button class="btn-restart" onclick="showStartScreen()">再爱一次</button>
 </div>
 
-<!-- 背景图片，预加载 -->
-<img id="bg-image" src="static/images/bag.jpg" style="display: none;" alt="背景图" />
-
 <canvas id="gameCanvas"></canvas>
 
 <script>
@@ -316,36 +313,17 @@
     let particles = []; // 粒子特效
     let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
     
-    // 背景图片 - 直接从HTML中的img标签获取
-    const bgImageEl = document.getElementById('bg-image');
-    const bgImage = bgImageEl || new Image();
+    // 背景图片 - 直接加载，写死显示
+    const bgImage = new Image();
     let bgImageLoaded = false;
-    
-    // 如果使用HTML中的img标签，检查加载状态
-    if (bgImageEl) {
-        if (bgImageEl.complete && bgImageEl.naturalWidth > 0) {
-            bgImageLoaded = true;
-            console.log('背景图片已加载（从HTML）');
-        } else {
-            bgImageEl.onload = function() {
-                bgImageLoaded = true;
-                console.log('背景图片加载成功（从HTML）');
-            };
-            bgImageEl.onerror = function() {
-                console.log('背景图片加载失败，将使用CSS背景');
-            };
-        }
-    } else {
-        // 如果没有找到img标签，创建新的Image对象（备用方案）
-        bgImage.onload = function() {
-            bgImageLoaded = true;
-            console.log('背景图片加载成功');
-        };
-        bgImage.onerror = function() {
-            console.log('背景图片加载失败，将使用CSS背景');
-        };
-        bgImage.src = 'static/images/bag.jpg';
-    }
+    bgImage.onload = function() {
+        bgImageLoaded = true;
+        console.log('背景图片加载成功');
+    };
+    bgImage.onerror = function() {
+        console.log('背景图片加载失败，将使用CSS背景');
+    };
+    bgImage.src = 'static/images/bag.jpg';
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
