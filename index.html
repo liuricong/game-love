@@ -289,6 +289,7 @@
     let gameRunning = false;
     let isPaused = false;
     let frameCount = 0;
+    let gameTime = 0; // 游戏时间（秒），用于计算天数（1分钟=1天）
     let currentDifficulty = {};
     let currentDifficultyName = '';
     let feverValue = 0;
@@ -296,6 +297,11 @@
     let feverTimer = 0;
     let unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
     let discoveredRareFish = new Set(); // 已发现的稀有鱼种
+
+    // 鱼群系统
+    let fishSchools = []; // 鱼群数组
+    let fishSchoolCooldown = 0; // 鱼群生成冷却时间
+    let fishSchoolCooldownMax = 600; // 鱼群生成冷却时间上限（10秒）
 
     // 首页氛围元素
     let ambientFish = [];
@@ -378,6 +384,22 @@
             good: 0.08,   // 爱心 8%
             buff: 0.02,    // Buff 2%
             bad: 0.90      // 坏鱼 90%
+        }
+    };
+
+    // 鱼群生成权重配置（基于分数段）
+    const FISH_SCHOOL_WEIGHTS = {
+        easy: {
+            baseProb: 0.05,    // 基础生成概率（5%）
+            scoreMultiplier: 0.00003  // 每1000分增加3%概率
+        },
+        normal: {
+            baseProb: 0.04,    // 基础生成概率（4%）
+            scoreMultiplier: 0.00002  // 每1000分增加2%概率
+        },
+        hard: {
+            baseProb: 0.03,    // 基础生成概率（3%）
+            scoreMultiplier: 0.00001  // 每1000分增加1%概率
         }
     };
 
@@ -2072,11 +2094,6 @@
     }
 
     function checkGameEvolution() {
-        if (score > 2000) body.style.background = "linear-gradient(to bottom, #000000, #434343)";
-        else if (score > 1000) body.style.background = "linear-gradient(to bottom, #0f2027, #203a43, #2c5364)";
-        else if (score > 500) body.style.background = "linear-gradient(to bottom, #6a11cb, #2575fc)";
-        else body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
-
         const scoreOffset = currentDifficultyName === 'hard' ? -200 : 0;
         if (!unlockedStages[2000] && score >= 2000 + scoreOffset) { unlockedStages[2000] = true; showUnlockMsg("🐳 巨大的现实压力 逼近!"); }
         if (!unlockedStages[3000] && score >= 3000 + scoreOffset) { unlockedStages[3000] = true; showUnlockMsg("🦈 情感危机 袭来! 快跑!"); }
@@ -2146,6 +2163,56 @@
                 else if (rand < probs.fog + probs.current) triggerEvent('current');
                 else triggerEvent('starfall');
                 nextEventCooldown = Math.random() * 1000 + 1000;
+            }
+        }
+    }
+
+    // 鱼群系统更新函数
+    function updateFishSchools() {
+        // 困难模式不生成鱼群
+        if (currentDifficultyName === 'hard') {
+            return;
+        }
+        
+        // 更新冷却时间
+        if (fishSchoolCooldown > 0) {
+            fishSchoolCooldown--;
+        }
+        
+        // 尝试生成新鱼群
+        if (fishSchoolCooldown <= 0) {
+            const weights = FISH_SCHOOL_WEIGHTS[currentDifficultyName];
+            // 计算生成概率：基础概率 + 分数加成
+            const prob = Math.min(0.5, weights.baseProb + score * weights.scoreMultiplier);
+            
+            if (Math.random() < prob) {
+                fishSchools.push(new FishSchool());
+                // 重置冷却时间（600-1200帧，即10-20秒）
+                fishSchoolCooldown = 600 + Math.random() * 600;
+            } else {
+                // 即使不生成，也设置一个较长的冷却时间
+                fishSchoolCooldown = 180; // 3秒
+            }
+        }
+        
+        // 更新所有鱼群
+        for (let i = fishSchools.length - 1; i >= 0; i--) {
+            const school = fishSchools[i];
+            school.update();
+            
+            // 检查玩家与鱼群的碰撞
+            const collectedCount = school.checkCollision(player.x, player.y, player.radius);
+            if (collectedCount > 0) {
+                // 每条小鱼给予2分
+                const bonusScore = collectedCount * 2;
+                score += bonusScore;
+                scoreEl.innerText = score;
+                checkGameEvolution();
+            }
+            
+            // 移除离开屏幕的鱼群
+            if (school.isOffScreen()) {
+                fishSchools.splice(i, 1);
             }
         }
     }
@@ -2242,6 +2309,325 @@
             ctx.arc(0, 0, this.radius * 2.0 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
             drawFishArt(ctx, this.x, this.y, this.radius, '#FF69B4', this.angle, frameCount, 'player', this);
+        }
+    }
+
+    // 鱼群类
+    class FishSchool {
+        constructor() {
+            // 随机选择生成位置（从屏幕一侧进入）
+            const side = Math.floor(Math.random() * 4); // 0:左, 1:右, 2:上, 3:下
+            const margin = 50;
+            
+            // 鱼群中的鱼数量（10-20条）
+            this.fishCount = 10 + Math.floor(Math.random() * 11);
+            this.fishes = [];
+            
+            // 鱼群的移动方向
+            let angle, startX, startY;
+            if (side === 0) { // 从左侧进入
+                startX = -margin;
+                startY = Math.random() * canvas.height;
+                angle = 0; // 向右移动
+            } else if (side === 1) { // 从右侧进入
+                startX = canvas.width + margin;
+                startY = Math.random() * canvas.height;
+                angle = Math.PI; // 向左移动
+            } else if (side === 2) { // 从上方进入
+                startX = Math.random() * canvas.width;
+                startY = -margin;
+                angle = Math.PI / 2; // 向下移动
+            } else { // 从下方进入
+                startX = Math.random() * canvas.width;
+                startY = canvas.height + margin;
+                angle = -Math.PI / 2; // 向上移动
+            }
+            
+            // 鱼群的速度
+            this.speed = 1.5 + Math.random() * 1.0; // 1.5-2.5
+            this.vx = Math.cos(angle) * this.speed;
+            this.vy = Math.sin(angle) * this.speed;
+            
+            // 创建鱼群中的小鱼（集中分布，而不是竖排）
+            const clusterRadius = 70; // 鱼群聚集半径（增大以分散鱼群）
+            
+            for (let i = 0; i < this.fishCount; i++) {
+                // 在中心点周围随机分布，形成集中的鱼群
+                const angleOffset = Math.random() * Math.PI * 2; // 随机角度
+                const distance = Math.random() * clusterRadius; // 随机距离（0到clusterRadius）
+                const offsetX = Math.cos(angleOffset) * distance;
+                const offsetY = Math.sin(angleOffset) * distance;
+                
+                this.fishes.push({
+                    x: startX + offsetX,
+                    y: startY + offsetY,
+                    radius: 6 + Math.random() * 4, // 6-10
+                    color: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB'][Math.floor(Math.random() * 5)],
+                    collected: false // 是否已被收集
+                });
+            }
+            
+            this.angle = angle;
+        }
+        
+        update() {
+            // 更新所有鱼的位置
+            for (let fish of this.fishes) {
+                if (!fish.collected) {
+                    fish.x += this.vx;
+                    fish.y += this.vy;
+                }
+            }
+        }
+        
+        draw() {
+            ctx.save();
+            for (let fish of this.fishes) {
+                if (!fish.collected) {
+                    const r = fish.radius;
+                    const fishPhase = fish.x * 0.1 + fish.y * 0.1; // 每条鱼独特的相位
+                    const tailWag = Math.sin(frameCount * 0.15 + fishPhase) * 0.2; // 尾巴摆动
+                    const finWag = Math.cos(frameCount * 0.2 + fishPhase) * 0.3; // 鱼鳍摆动
+                    const bodyWave = Math.sin(frameCount * 0.1 + fishPhase) * 0.05; // 身体波动
+                    
+                    // 发光效果（外圈光晕）
+                    ctx.save();
+                    ctx.translate(fish.x, fish.y);
+                    ctx.globalAlpha = 0.2;
+                    const glowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 2);
+                    glowGradient.addColorStop(0, fish.color);
+                    glowGradient.addColorStop(1, fish.color + '00');
+                    ctx.fillStyle = glowGradient;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                    ctx.restore();
+                    
+                    // 绘制尾巴（更流畅的曲线，带动态效果）
+                    ctx.save();
+                    ctx.translate(fish.x, fish.y);
+                    ctx.rotate(this.angle + tailWag);
+                    
+                    // 尾巴渐变（更丰富）
+                    const tailGradient = ctx.createLinearGradient(-r * 1.8, 0, -r * 0.5, 0);
+                    tailGradient.addColorStop(0, fish.color);
+                    tailGradient.addColorStop(0.5, fish.color + 'CC');
+                    tailGradient.addColorStop(1, fish.color + '60');
+                    
+                    // 尾巴纹理线条
+                    ctx.beginPath();
+                    ctx.moveTo(-r * 0.3, 0);
+                    ctx.quadraticCurveTo(-r * 1.2, -r * 0.6, -r * 1.6, -r * 0.3);
+                    ctx.quadraticCurveTo(-r * 1.8, 0, -r * 1.6, r * 0.3);
+                    ctx.quadraticCurveTo(-r * 1.2, r * 0.6, -r * 0.3, 0);
+                    ctx.closePath();
+                    ctx.fillStyle = tailGradient;
+                    ctx.fill();
+                    
+                    // 尾巴纹理线条
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                    
+                    // 尾巴内部纹理
+                    for (let i = 0; i < 3; i++) {
+                        const t = (i + 1) / 4;
+                        ctx.beginPath();
+                        ctx.moveTo(-r * 0.3 - r * 1.2 * t, -r * 0.3 * (1 - t));
+                        ctx.quadraticCurveTo(-r * 1.2 * t, 0, -r * 0.3 - r * 1.2 * t, r * 0.3 * (1 - t));
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                    
+                    ctx.restore();
+                    
+                    // 绘制身体（椭圆形，带波动效果）
+                    ctx.save();
+                    ctx.translate(fish.x, fish.y);
+                    ctx.rotate(this.angle + bodyWave);
+                    
+                    // 身体渐变（更丰富的层次）
+                    const bodyGradient = ctx.createRadialGradient(0, -r * 0.3, 0, 0, 0, r * 1.2);
+                    bodyGradient.addColorStop(0, fish.color + 'FF');
+                    bodyGradient.addColorStop(0.3, fish.color);
+                    bodyGradient.addColorStop(0.7, fish.color + 'DD');
+                    bodyGradient.addColorStop(1, fish.color + 'AA');
+                    
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, r * 1.1, r * 0.8, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = bodyGradient;
+                    ctx.fill();
+                    
+                    // 身体轮廓（更明显）
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+                    
+                    // 鳞片纹理（增加细节）
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                    ctx.lineWidth = 0.5;
+                    for (let i = -2; i <= 2; i++) {
+                        for (let j = -1; j <= 1; j++) {
+                            const scaleX = r * 0.3;
+                            const scaleY = r * 0.2;
+                            ctx.beginPath();
+                            ctx.ellipse(i * scaleX * 0.6, j * scaleY * 0.8, scaleX * 0.3, scaleY * 0.3, 0, 0, Math.PI * 2);
+                            ctx.stroke();
+                        }
+                    }
+                    
+                    // 高光效果（更立体）
+                    const highlightGradient = ctx.createRadialGradient(-r * 0.3, -r * 0.4, 0, -r * 0.3, -r * 0.4, r * 0.5);
+                    highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+                    highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                    ctx.beginPath();
+                    ctx.ellipse(-r * 0.3, -r * 0.4, r * 0.4, r * 0.3, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = highlightGradient;
+                    ctx.fill();
+                    
+                    // 侧边高光
+                    ctx.beginPath();
+                    ctx.ellipse(r * 0.4, 0, r * 0.3, r * 0.5, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                    ctx.fill();
+                    
+                    // 绘制眼睛（更生动）
+                    ctx.save();
+                    ctx.translate(r * 0.3, -r * 0.2);
+                    
+                    // 眼睛外圈（带高光）
+                    const eyeGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 0.2);
+                    eyeGradient.addColorStop(0, '#FFF');
+                    eyeGradient.addColorStop(0.3, '#AAA');
+                    eyeGradient.addColorStop(1, '#000');
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r * 0.18, 0, Math.PI * 2);
+                    ctx.fillStyle = eyeGradient;
+                    ctx.fill();
+                    
+                    // 眼珠
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r * 0.12, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 眼睛高光（更明显）
+                    ctx.fillStyle = '#FFF';
+                    ctx.beginPath();
+                    ctx.arc(r * 0.04, -r * 0.04, r * 0.05, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 眼睛反光
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.beginPath();
+                    ctx.arc(-r * 0.03, r * 0.03, r * 0.03, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.restore();
+                    
+                    // 鱼鳍（动态摆动，更生动）
+                    ctx.save();
+                    ctx.translate(r * 0.2, 0);
+                    ctx.rotate(finWag);
+                    
+                    // 上鱼鳍（带渐变和纹理）
+                    const finGradient1 = ctx.createLinearGradient(0, -r * 0.5, 0, -r * 0.8);
+                    finGradient1.addColorStop(0, fish.color + 'FF');
+                    finGradient1.addColorStop(1, fish.color + '80');
+                    ctx.beginPath();
+                    ctx.moveTo(0, -r * 0.5);
+                    ctx.quadraticCurveTo(r * 0.4, -r * 0.7, r * 0.6, -r * 0.4);
+                    ctx.lineTo(r * 0.4, -r * 0.5);
+                    ctx.closePath();
+                    ctx.fillStyle = finGradient1;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // 上鱼鳍纹理
+                    ctx.beginPath();
+                    ctx.moveTo(r * 0.2, -r * 0.6);
+                    ctx.lineTo(r * 0.35, -r * 0.55);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                    
+                    ctx.restore();
+                    
+                    ctx.save();
+                    ctx.translate(r * 0.2, 0);
+                    ctx.rotate(-finWag);
+                    
+                    // 下鱼鳍
+                    const finGradient2 = ctx.createLinearGradient(0, r * 0.5, 0, r * 0.8);
+                    finGradient2.addColorStop(0, fish.color + 'FF');
+                    finGradient2.addColorStop(1, fish.color + '80');
+                    ctx.beginPath();
+                    ctx.moveTo(0, r * 0.5);
+                    ctx.quadraticCurveTo(r * 0.4, r * 0.7, r * 0.6, r * 0.4);
+                    ctx.lineTo(r * 0.4, r * 0.5);
+                    ctx.closePath();
+                    ctx.fillStyle = finGradient2;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // 下鱼鳍纹理
+                    ctx.beginPath();
+                    ctx.moveTo(r * 0.2, r * 0.6);
+                    ctx.lineTo(r * 0.35, r * 0.55);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                    
+                    ctx.restore();
+                    
+                    // 胸鳍（小细节）
+                    ctx.save();
+                    ctx.translate(r * 0.1, 0);
+                    ctx.rotate(Math.sin(frameCount * 0.25 + fishPhase) * 0.2);
+                    ctx.beginPath();
+                    ctx.ellipse(0, -r * 0.3, r * 0.15, r * 0.08, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = fish.color + 'CC';
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.ellipse(0, r * 0.3, r * 0.15, r * 0.08, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    
+                    ctx.restore();
+                }
+            }
+            ctx.restore();
+        }
+        
+        // 检查是否离开屏幕
+        isOffScreen() {
+            const margin = 100;
+            return this.fishes.every(fish => 
+                fish.collected || 
+                (fish.x < -margin || fish.x > canvas.width + margin || 
+                 fish.y < -margin || fish.y > canvas.height + margin)
+            );
+        }
+        
+        // 检查玩家是否穿过鱼群中的某条鱼
+        checkCollision(playerX, playerY, playerRadius) {
+            let collectedCount = 0;
+            for (let fish of this.fishes) {
+                if (!fish.collected) {
+                    const dist = Math.hypot(playerX - fish.x, playerY - fish.y);
+                    if (dist < playerRadius + fish.radius) {
+                        fish.collected = true;
+                        collectedCount++;
+                    }
+                }
+            }
+            return collectedCount;
         }
     }
 
@@ -2740,15 +3126,17 @@
         score = 0;
         feverValue = 0; isFeverMode = false;
         feverBar.style.width = "0%";
-        body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
         body.classList.remove('fever-mode-bg');
         scoreEl.innerText = score;
-        sizeEl.innerText = 1;
+        gameTime = 0; // 重置游戏时间
+        sizeEl.innerText = 1; // 初始为1天
         frameCount = 0;
         isPaused = false;
         unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
         currentEvent = null; nextEventCooldown = 600; eventBanner.style.opacity = 0;
         discoveredRareFish = new Set(); // 重置稀有鱼种发现记录
+        fishSchools = []; // 重置鱼群
+        fishSchoolCooldown = 0; // 重置鱼群冷却
         input.x = canvas.width / 2; input.y = canvas.height / 2;
         updateBuffUI(player.buffs, guardian.active);
         startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
@@ -2772,6 +3160,11 @@
         if (!gameRunning) return;
         if (isPaused) return;
 
+        // 更新游戏时间（每秒60帧，每帧增加1/60秒）
+        gameTime += 1 / 60;
+        // 更新天数显示（1分钟=1天）
+        sizeEl.innerText = Math.floor(gameTime / 60) + 1;
+
         // 更新屏幕震动
         if (screenShake.intensity > 0) {
             screenShake.x = (Math.random() - 0.5) * screenShake.intensity;
@@ -2787,36 +3180,19 @@
         ctx.save();
         ctx.translate(screenShake.x, screenShake.y);
         
-        // 绘制背景渐变，确保在移动端H5正确显示
-        let bgGradient;
-        if (score > 2000) {
-            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, '#000000');
-            bgGradient.addColorStop(1, '#434343');
-        } else if (score > 1000) {
-            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, '#0f2027');
-            bgGradient.addColorStop(0.5, '#203a43');
-            bgGradient.addColorStop(1, '#2c5364');
-        } else if (score > 500) {
-            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, '#6a11cb');
-            bgGradient.addColorStop(1, '#2575fc');
-        } else {
-            bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        // 绘制背景渐变（作为背景图的底层，仅在背景图未加载时显示）
+        if (!bgImageLoaded) {
+            // 如果背景图未加载，使用默认渐变作为后备
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
             bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
             bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
-        }
-        
-        // 如果背景图未加载，让canvas半透明以显示CSS背景
-        if (!bgImageLoaded) {
-            ctx.globalAlpha = 0.3; // 半透明，让CSS背景显示
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         } else {
+            // 背景图已加载，不绘制渐变，让背景图完全显示
             ctx.globalAlpha = 1.0;
         }
-        
-        ctx.fillStyle = bgGradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // 绘制背景图片（如果已加载）
         if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
@@ -2880,9 +3256,16 @@
                 }
             }
         }
+        
+        // 绘制鱼群（在玩家之前绘制，这样玩家可以在鱼群上方）
+        fishSchools.forEach(school => school.draw());
+        
         player.draw();
 
         updateEventLogic();
+        
+        // 鱼群系统：更新和生成
+        updateFishSchools();
 
         frameCount++;
         if (frameCount % currentDifficulty.spawnRate === 0) {
@@ -2953,7 +3336,7 @@
                         
                         player.radius += growth;
                         if (guardian.active) guardian.radius += growth * 0.8; // 守护者成长稍慢
-                        sizeEl.innerText = Math.floor(player.radius - 9);
+                        // 天数已改为基于游戏时间，不再基于半径
                     }
                 }
                 else if (item.type === 'buff') {
@@ -3048,7 +3431,7 @@
                                 
                                 player.radius += growth + bonusGrowth; // 基础成长 + 稀有奖励成长
                                 if (guardian.active) guardian.radius += (growth + bonusGrowth) * 0.8;
-                                sizeEl.innerText = Math.floor(player.radius - 9);
+                                // 天数已改为基于游戏时间，不再基于半径
                             }
                             
                             if(navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
@@ -3074,7 +3457,7 @@
                                 // 无敌模式下吃坏鱼成长和吃爱心一样
                                 player.radius += growth;
                                 if (guardian.active) guardian.radius += growth * 0.8;
-                                sizeEl.innerText = Math.floor(player.radius - 9);
+                                // 天数已改为基于游戏时间，不再基于半径
                             }
                         }
                     }
@@ -3112,7 +3495,7 @@
                                 if (player.radius < 60) {
                                     player.radius += bonusGrowth;
                                     if (guardian.active) guardian.radius += bonusGrowth * 0.8;
-                                    sizeEl.innerText = Math.floor(player.radius - 9);
+                                    // 天数已改为基于游戏时间，不再基于半径
                                 }
                                 
                                 if(navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
@@ -3142,7 +3525,7 @@
                                     
                                     player.radius += growth;
                                     if (guardian.active) guardian.radius += growth * 0.8;
-                                    sizeEl.innerText = Math.floor(player.radius - 9);
+                                    // 天数已改为基于游戏时间，不再基于半径
                                 }
                             }
                         } else {
@@ -3231,6 +3614,12 @@
     function resumeGame() { isPaused = false; pauseScreen.style.display = 'none'; gameLoop(); }
     function quitGameFromPause() { pauseScreen.style.display = 'none'; deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~"; endGame(); }
     function showStartScreen() {
+        // 立即隐藏事件标题，避免与首页重叠
+        eventBanner.style.opacity = 0;
+        eventBanner.style.transition = 'none';
+        setTimeout(() => {
+            eventBanner.style.transition = 'opacity 0.5s';
+        }, 100);
         startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
         pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none';
         
@@ -3256,6 +3645,12 @@
     }
     function endGame() {
         gameRunning = false; isPaused = false; cancelAnimationFrame(animationId);
+        // 立即隐藏事件标题，避免与首页重叠
+        eventBanner.style.opacity = 0;
+        eventBanner.style.transition = 'none'; // 禁用过渡动画，立即隐藏
+        setTimeout(() => {
+            eventBanner.style.transition = 'opacity 0.5s'; // 恢复过渡动画
+        }, 100);
         finalScoreEl.innerText = score; pauseBtn.style.display = 'none'; gameOverScreen.style.display = 'flex';
         body.classList.remove('fever-mode-bg'); body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
     }
