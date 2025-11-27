@@ -381,9 +381,9 @@
             bad: 0.75     // 坏鱼 75%
         },
         hard: {
-            good: 0.08,   // 爱心 8%
-            buff: 0.02,    // Buff 2%
-            bad: 0.90      // 坏鱼 90%
+            good: 0.12,   // 爱心 12%（从8%提升）
+            buff: 0.03,    // Buff 3%（从2%提升）
+            bad: 0.85      // 坏鱼 85%（从90%降低）
         }
     };
 
@@ -436,7 +436,7 @@
             eventProb: EVENT_WEIGHTS.normal
         },
         'hard':   {
-            spawnRate: 25, speedMultiplier: 1.4, feverFactor: 0.3, // 生成频率
+            spawnRate: 22, speedMultiplier: 1.4, feverFactor: 0.3, // 生成频率（从25减少到22，稍微增加生成频率）
             fogRadius: 18,
             weights: [GAME_WEIGHTS.hard.good, GAME_WEIGHTS.hard.buff, GAME_WEIGHTS.hard.bad],
             eventProb: EVENT_WEIGHTS.hard
@@ -2783,34 +2783,65 @@
                 const largeFish = availableItems.filter(i => i.r >= 30 && i.r < 50);   // 较大鱼种
                 const hugeFish = availableItems.filter(i => i.r >= 50);     // 超大型鱼种
                 
-                // 根据分数段设置权重
+                // 根据分数段和难度模式设置权重
                 let earlyWeight, mediumWeight, largeWeight, hugeWeight;
+                
+                // 基础权重（简单模式）
+                let baseEarly, baseMedium, baseLarge, baseHuge;
                 
                 if (score < 1000) {
                     // 0-1000分：早期鱼种为主，中等鱼种次之，少量大鱼
-                    earlyWeight = 0.5;    // 50%
-                    mediumWeight = 0.3;   // 30%
-                    largeWeight = 0.15;   // 15%
-                    hugeWeight = 0.05;    // 5%
+                    baseEarly = 0.5;    // 50%
+                    baseMedium = 0.3;   // 30%
+                    baseLarge = 0.15;   // 15%
+                    baseHuge = 0.05;    // 5%
                 } else if (score < 2000) {
                     // 1000-2000分：中等和较大鱼种为主，早期鱼种减少
-                    earlyWeight = 0.25;   // 25%
-                    mediumWeight = 0.35;  // 35%
-                    largeWeight = 0.3;     // 30%
-                    hugeWeight = 0.1;     // 10%
+                    baseEarly = 0.25;   // 25%
+                    baseMedium = 0.35;  // 35%
+                    baseLarge = 0.3;     // 30%
+                    baseHuge = 0.1;     // 10%
                 } else if (score < 3000) {
                     // 2000-3000分：较大和超大型鱼种为主
-                    earlyWeight = 0.15;   // 15%
-                    mediumWeight = 0.25;  // 25%
-                    largeWeight = 0.35;    // 35%
-                    hugeWeight = 0.25;    // 25%
+                    baseEarly = 0.15;   // 15%
+                    baseMedium = 0.25;  // 25%
+                    baseLarge = 0.35;    // 35%
+                    baseHuge = 0.25;    // 25%
                 } else {
                     // 3000+分：超大型和较大鱼种为主，早期鱼种保持最低
-                    earlyWeight = 0.1;    // 10%
-                    mediumWeight = 0.2;   // 20%
-                    largeWeight = 0.35;    // 35%
-                    hugeWeight = 0.35;    // 35%
+                    baseEarly = 0.1;    // 10%
+                    baseMedium = 0.2;   // 20%
+                    baseLarge = 0.35;    // 35%
+                    baseHuge = 0.35;    // 35%
                 }
+                
+                // 根据难度模式调整权重
+                if (currentDifficultyName === 'hard') {
+                    // 困难模式：增加大鱼权重，减少小鱼权重
+                    earlyWeight = baseEarly * 0.7;      // 减少30%
+                    mediumWeight = baseMedium * 0.8;   // 减少20%
+                    largeWeight = baseLarge * 1.2;      // 增加20%
+                    hugeWeight = baseHuge * 1.3;        // 增加30%
+                } else if (currentDifficultyName === 'normal') {
+                    // 普通模式：略微增加大鱼权重
+                    earlyWeight = baseEarly * 0.9;      // 减少10%
+                    mediumWeight = baseMedium * 0.95;   // 减少5%
+                    largeWeight = baseLarge * 1.1;       // 增加10%
+                    hugeWeight = baseHuge * 1.15;       // 增加15%
+                } else {
+                    // 简单模式：使用基础权重
+                    earlyWeight = baseEarly;
+                    mediumWeight = baseMedium;
+                    largeWeight = baseLarge;
+                    hugeWeight = baseHuge;
+                }
+                
+                // 归一化权重（确保总和为1）
+                const totalBaseWeight = earlyWeight + mediumWeight + largeWeight + hugeWeight;
+                earlyWeight = earlyWeight / totalBaseWeight;
+                mediumWeight = mediumWeight / totalBaseWeight;
+                largeWeight = largeWeight / totalBaseWeight;
+                hugeWeight = hugeWeight / totalBaseWeight;
                 
                 // 如果某个类别没有可用鱼种，将其权重设为0
                 const weights = [
