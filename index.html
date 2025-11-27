@@ -399,6 +399,11 @@
             { type: 'bad', subtype: 'seahorse', r: 9, color: '#FFB6C1', speed: [1.5, 2], name: '小烦恼', minScore: 0 },
             { type: 'bad', subtype: 'jellyfish', r: 10, color: '#E6E6FA', speed: [1.2, 2.2], name: '小困扰', minScore: 0 },
             { type: 'bad', subtype: 'flounder', r: 8, color: '#DDA0DD', speed: [1.8, 2.5], name: '小波折', minScore: 0 },
+            { type: 'bad', subtype: 'sardine', r: 7, color: '#87CEEB', speed: [2, 3], name: '小烦恼', minScore: 0 },
+            { type: 'bad', subtype: 'anchovy', r: 6, color: '#B0E0E6', speed: [2.2, 3.2], name: '小困扰', minScore: 0 },
+            { type: 'bad', subtype: 'mackerel', r: 9, color: '#4682B4', speed: [2.5, 3.5], name: '小波折', minScore: 0 },
+            { type: 'bad', subtype: 'trout', r: 10, color: '#FF7F50', speed: [1.8, 2.8], name: '小插曲', minScore: 0 },
+            { type: 'bad', subtype: 'perch', r: 8, color: '#20B2AA', speed: [2, 3], name: '小麻烦', minScore: 0 },
             
             // 中等大小的鱼（r: 20-30），50-200分阶段
             { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 50 },
@@ -410,6 +415,11 @@
             { type: 'bad', subtype: 'seahorse', r: 26, color: '#FF69B4', speed: [1.8, 2.5], name: '中等烦恼', minScore: 100 },
             { type: 'bad', subtype: 'jellyfish', r: 27, color: '#9370DB', speed: [1.5, 2.2], name: '中等困扰', minScore: 100 },
             { type: 'bad', subtype: 'grouper', r: 25, color: '#8B4513', speed: [1.6, 2.4], name: '中等波折', minScore: 150 },
+            { type: 'bad', subtype: 'tuna', r: 24, color: '#4169E1', speed: [2.5, 3.5], name: '中等压力', minScore: 100 },
+            { type: 'bad', subtype: 'salmon', r: 23, color: '#FF6347', speed: [2, 3], name: '中等困扰', minScore: 100 },
+            { type: 'bad', subtype: 'carp', r: 26, color: '#FFA500', speed: [1.8, 2.8], name: '中等波折', minScore: 150 },
+            { type: 'bad', subtype: 'bass', r: 22, color: '#32CD32', speed: [2.2, 3.2], name: '中等麻烦', minScore: 100 },
+            { type: 'bad', subtype: 'catfish', r: 27, color: '#696969', speed: [1.5, 2.5], name: '中等压力', minScore: 150 },
             
             // 较大的鱼（r: 30-50），300-1000分阶段
             { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 300 },
@@ -428,10 +438,17 @@
             { type: 'bad', subtype: 'angelfish', r: 20, color: '#FF9800', speed: [2.5, 3.5], name: '小烦恼', minScore: 600 },
             { type: 'bad', subtype: 'goldfish', r: 42, color: '#FF4500', speed: [2, 3], name: '巨大困扰', minScore: 800 },
             { type: 'bad', subtype: 'dolphin', r: 45, color: '#0000CD', speed: [2.5, 3.5], name: '巨大压力', minScore: 1000 },
+            { type: 'bad', subtype: 'tuna', r: 38, color: '#1E90FF', speed: [3, 4], name: '大压力', minScore: 400 },
+            { type: 'bad', subtype: 'salmon', r: 35, color: '#FF69B4', speed: [2.5, 3.5], name: '大困扰', minScore: 400 },
+            { type: 'bad', subtype: 'eel', r: 40, color: '#8B7355', speed: [3.5, 4.5], name: '大麻烦', minScore: 500 },
+            { type: 'bad', subtype: 'ray', r: 44, color: '#708090', speed: [2, 3], name: '大压力', minScore: 600 },
+            { type: 'bad', subtype: 'swordfish', r: 48, color: '#4682B4', speed: [4, 5], name: '大危机', minScore: 700 },
+            { type: 'bad', subtype: 'barracuda', r: 46, color: '#2F4F4F', speed: [3.5, 4.5], name: '大威胁', minScore: 800 },
+            { type: 'bad', subtype: 'stingray', r: 42, color: '#556B2F', speed: [2.5, 3.5], name: '大危险', minScore: 900 },
             
-            // 超大型鱼（r: 50+），1500分以上
-            { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 1500 },
-            { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 2500 },
+            // 超大型鱼（r: 50+），2000分以上
+            { type: 'bad', subtype: 'whale', r: 100, color: '#37474F', speed: [0.8, 1.2], name: '现实压力', minScore: 2000 },
+            { type: 'bad', subtype: 'shark', r: 50, color: '#D32F2F', speed: [5, 7], name: '情感危机', minScore: 3000 },
             { type: 'bad', subtype: 'goldfish', r: 60, color: '#DC143C', speed: [1.5, 2.5], name: '终极困扰', minScore: 2000 },
             { type: 'bad', subtype: 'tropical', r: 55, color: '#C71585', speed: [3, 4], name: '终极波折', minScore: 2000 },
             { type: 'bad', subtype: 'dolphin', r: 65, color: '#191970', speed: [2, 3], name: '终极压力', minScore: 2000 },
@@ -439,7 +456,13 @@
             { type: 'bad', subtype: 'whale', r: 90, color: '#2F4F4F', speed: [1, 1.5], name: '深海压力', minScore: 3000 },
             { type: 'bad', subtype: 'shark', r: 70, color: '#8B0000', speed: [6, 8], name: '终极危机', minScore: 3500 },
             { type: 'bad', subtype: 'jellyfish', r: 55, color: '#8A2BE2', speed: [2, 3], name: '终极困扰', minScore: 2500 },
-            { type: 'bad', subtype: 'grouper', r: 62, color: '#4B0082', speed: [1.8, 2.5], name: '终极波折', minScore: 2800 }
+            { type: 'bad', subtype: 'grouper', r: 62, color: '#4B0082', speed: [1.8, 2.5], name: '终极波折', minScore: 2800 },
+            { type: 'bad', subtype: 'tuna', r: 58, color: '#0000FF', speed: [3, 4], name: '终极压力', minScore: 2000 },
+            { type: 'bad', subtype: 'salmon', r: 56, color: '#FF1493', speed: [2.5, 3.5], name: '终极困扰', minScore: 2200 },
+            { type: 'bad', subtype: 'swordfish', r: 68, color: '#1C86EE', speed: [4.5, 5.5], name: '终极危机', minScore: 2500 },
+            { type: 'bad', subtype: 'barracuda', r: 64, color: '#2F2F2F', speed: [4, 5], name: '终极威胁', minScore: 2600 },
+            { type: 'bad', subtype: 'stingray', r: 60, color: '#3D5A3D', speed: [3, 4], name: '终极危险', minScore: 2700 },
+            { type: 'bad', subtype: 'eel', r: 66, color: '#4B4B4B', speed: [4, 5], name: '终极麻烦', minScore: 2400 }
         ]
     };
 
@@ -466,7 +489,7 @@
         };
     }
 
-    function drawFishArt(ctx, x, y, r, color, angle, frameCount, type) {
+    function drawFishArt(ctx, x, y, r, color, angle, frameCount, type, playerInstance) {
         ctx.save();
         ctx.translate(x, y);
         if (type === 'player' || type === 'guardian') { ctx.rotate(angle); }
@@ -536,6 +559,85 @@
         else if (type === 'grouper') {
             // 石斑鱼：圆形尾巴
             ctx.arc(-r * 1.3, 0, r * 0.4, 0, Math.PI * 2);
+        }
+        else if (type === 'tuna') {
+            // 金枪鱼：新月形尾巴
+            ctx.lineTo(-r * 1.6, -r * 0.7);
+            ctx.quadraticCurveTo(-r * 1.8, 0, -r * 1.6, r * 0.7);
+        }
+        else if (type === 'salmon') {
+            // 三文鱼：分叉尾巴
+            ctx.lineTo(-r * 1.3, -r * 0.6);
+            ctx.lineTo(-r * 1.5, -r * 0.9);
+            ctx.lineTo(-r * 1.0, 0);
+            ctx.lineTo(-r * 1.5, r * 0.9);
+            ctx.lineTo(-r * 1.3, r * 0.6);
+        }
+        else if (type === 'carp') {
+            // 鲤鱼：长尾
+            ctx.lineTo(-r * 1.5, -r * 0.5);
+            ctx.quadraticCurveTo(-r * 1.7, 0, -r * 1.5, r * 0.5);
+        }
+        else if (type === 'bass') {
+            // 鲈鱼：圆形尾巴
+            ctx.arc(-r * 1.2, 0, r * 0.5, 0, Math.PI * 2);
+        }
+        else if (type === 'eel') {
+            // 鳗鱼：细长尾巴
+            ctx.lineTo(-r * 2.0, -r * 0.2);
+            ctx.lineTo(-r * 2.0, r * 0.2);
+        }
+        else if (type === 'ray') {
+            // 鳐鱼：宽大扇形
+            ctx.lineTo(-r * 1.0, -r * 1.2);
+            ctx.quadraticCurveTo(-r * 1.5, 0, -r * 1.0, r * 1.2);
+        }
+        else if (type === 'swordfish') {
+            // 剑鱼：尖尾
+            ctx.lineTo(-r * 1.8, -r * 0.4);
+            ctx.lineTo(-r * 2.0, 0);
+            ctx.lineTo(-r * 1.8, r * 0.4);
+        }
+        else if (type === 'mackerel') {
+            // 鲭鱼：分叉尾
+            ctx.lineTo(-r * 1.2, -r * 0.5);
+            ctx.lineTo(-r * 1.4, -r * 0.8);
+            ctx.lineTo(-r * 1.0, 0);
+            ctx.lineTo(-r * 1.4, r * 0.8);
+            ctx.lineTo(-r * 1.2, r * 0.5);
+        }
+        else if (type === 'sardine' || type === 'anchovy') {
+            // 沙丁鱼/凤尾鱼：小尾巴
+            ctx.lineTo(-r * 1.1, -r * 0.4);
+            ctx.lineTo(-r * 1.1, r * 0.4);
+        }
+        else if (type === 'trout') {
+            // 鳟鱼：圆尾
+            ctx.arc(-r * 1.2, 0, r * 0.4, 0, Math.PI * 2);
+        }
+        else if (type === 'perch') {
+            // 鲈鱼：分叉尾
+            ctx.lineTo(-r * 1.2, -r * 0.5);
+            ctx.lineTo(-r * 1.3, -r * 0.7);
+            ctx.lineTo(-r * 1.0, 0);
+            ctx.lineTo(-r * 1.3, r * 0.7);
+            ctx.lineTo(-r * 1.2, r * 0.5);
+        }
+        else if (type === 'catfish') {
+            // 鲶鱼：宽尾
+            ctx.lineTo(-r * 1.4, -r * 0.6);
+            ctx.quadraticCurveTo(-r * 1.6, 0, -r * 1.4, r * 0.6);
+        }
+        else if (type === 'stingray') {
+            // 黄貂鱼：宽大扇形
+            ctx.lineTo(-r * 0.8, -r * 1.0);
+            ctx.quadraticCurveTo(-r * 1.2, 0, -r * 0.8, r * 1.0);
+        }
+        else if (type === 'barracuda') {
+            // 梭鱼：长尖尾
+            ctx.lineTo(-r * 1.7, -r * 0.5);
+            ctx.lineTo(-r * 1.9, 0);
+            ctx.lineTo(-r * 1.7, r * 0.5);
         }
         else {
             ctx.lineTo(-r * 1.2, -r * 0.6); 
@@ -658,6 +760,84 @@
             bodyGrad.addColorStop(0.3, '#8B4513');
             bodyGrad.addColorStop(0.6, '#654321');
             bodyGrad.addColorStop(1, '#4B0082');
+        }
+        else if (type === 'tuna') {
+            bodyGrad.addColorStop(0, '#4169E1');
+            bodyGrad.addColorStop(0.4, '#1E90FF');
+            bodyGrad.addColorStop(0.7, '#0000CD');
+            bodyGrad.addColorStop(1, '#191970');
+        }
+        else if (type === 'salmon') {
+            bodyGrad.addColorStop(0, '#FF6347');
+            bodyGrad.addColorStop(0.3, '#FF4500');
+            bodyGrad.addColorStop(0.6, '#DC143C');
+            bodyGrad.addColorStop(1, '#8B0000');
+        }
+        else if (type === 'carp') {
+            bodyGrad.addColorStop(0, '#FFA500');
+            bodyGrad.addColorStop(0.4, '#FF8C00');
+            bodyGrad.addColorStop(0.7, '#FF7F50');
+            bodyGrad.addColorStop(1, '#FF6347');
+        }
+        else if (type === 'bass') {
+            bodyGrad.addColorStop(0, '#32CD32');
+            bodyGrad.addColorStop(0.4, '#228B22');
+            bodyGrad.addColorStop(0.7, '#006400');
+            bodyGrad.addColorStop(1, '#2F4F2F');
+        }
+        else if (type === 'eel') {
+            bodyGrad.addColorStop(0, '#8B7355');
+            bodyGrad.addColorStop(0.4, '#696969');
+            bodyGrad.addColorStop(0.7, '#556B2F');
+            bodyGrad.addColorStop(1, '#2F4F2F');
+        }
+        else if (type === 'ray' || type === 'stingray') {
+            bodyGrad.addColorStop(0, '#708090');
+            bodyGrad.addColorStop(0.4, '#556B2F');
+            bodyGrad.addColorStop(0.7, '#2F4F2F');
+            bodyGrad.addColorStop(1, '#1C1C1C');
+        }
+        else if (type === 'swordfish') {
+            bodyGrad.addColorStop(0, '#4682B4');
+            bodyGrad.addColorStop(0.4, '#1C86EE');
+            bodyGrad.addColorStop(0.7, '#0000FF');
+            bodyGrad.addColorStop(1, '#000080');
+        }
+        else if (type === 'mackerel') {
+            bodyGrad.addColorStop(0, '#4682B4');
+            bodyGrad.addColorStop(0.4, '#4169E1');
+            bodyGrad.addColorStop(0.7, '#1E90FF');
+            bodyGrad.addColorStop(1, '#0000CD');
+        }
+        else if (type === 'sardine' || type === 'anchovy') {
+            bodyGrad.addColorStop(0, '#87CEEB');
+            bodyGrad.addColorStop(0.4, '#B0E0E6');
+            bodyGrad.addColorStop(0.7, '#4682B4');
+            bodyGrad.addColorStop(1, '#1E90FF');
+        }
+        else if (type === 'trout') {
+            bodyGrad.addColorStop(0, '#FF7F50');
+            bodyGrad.addColorStop(0.4, '#FF6347');
+            bodyGrad.addColorStop(0.7, '#FF4500');
+            bodyGrad.addColorStop(1, '#DC143C');
+        }
+        else if (type === 'perch') {
+            bodyGrad.addColorStop(0, '#20B2AA');
+            bodyGrad.addColorStop(0.4, '#48D1CC');
+            bodyGrad.addColorStop(0.7, '#008B8B');
+            bodyGrad.addColorStop(1, '#2F4F4F');
+        }
+        else if (type === 'catfish') {
+            bodyGrad.addColorStop(0, '#696969');
+            bodyGrad.addColorStop(0.4, '#808080');
+            bodyGrad.addColorStop(0.7, '#2F2F2F');
+            bodyGrad.addColorStop(1, '#1C1C1C');
+        }
+        else if (type === 'barracuda') {
+            bodyGrad.addColorStop(0, '#2F4F4F');
+            bodyGrad.addColorStop(0.4, '#2F2F2F');
+            bodyGrad.addColorStop(0.7, '#1C1C1C');
+            bodyGrad.addColorStop(1, '#000000');
         }
         else {
             bodyGrad.addColorStop(0, '#ffffff'); 
@@ -1106,7 +1286,12 @@
         }
         else if (item.subtype === 'goldfish' || item.subtype === 'clownfish' || item.subtype === 'tropical' || 
                  item.subtype === 'angelfish' || item.subtype === 'dolphin' || item.subtype === 'seahorse' ||
-                 item.subtype === 'jellyfish' || item.subtype === 'flounder' || item.subtype === 'grouper') {
+                 item.subtype === 'jellyfish' || item.subtype === 'flounder' || item.subtype === 'grouper' ||
+                 item.subtype === 'tuna' || item.subtype === 'salmon' || item.subtype === 'carp' || 
+                 item.subtype === 'bass' || item.subtype === 'eel' || item.subtype === 'ray' ||
+                 item.subtype === 'swordfish' || item.subtype === 'mackerel' || item.subtype === 'sardine' ||
+                 item.subtype === 'anchovy' || item.subtype === 'trout' || item.subtype === 'perch' ||
+                 item.subtype === 'catfish' || item.subtype === 'stingray' || item.subtype === 'barracuda') {
             // 所有鱼类类型，使用鱼类绘制
             let fishType = item.subtype;
             
@@ -1153,9 +1338,12 @@
             ctx.strokeStyle = 'orange'; ctx.lineWidth = 2; ctx.stroke();
         }
         else if (item.subtype === 'ice') {
-            ctx.fillStyle = 'rgba(200, 240, 255, 0.6)'; ctx.fillRect(-r, -r, r*2, r*2);
-            ctx.strokeStyle = 'white'; ctx.lineWidth = 2; ctx.strokeRect(-r, -r, r*2, r*2);
-            ctx.scale(item.vx < 0 ? -1 : 1, 1); ctx.fillStyle = 'white'; ctx.font = '16px Arial'; ctx.textAlign='center'; ctx.fillText('❄️', 0, 5);
+            // 直接绘制放大的雪花emoji，不绘制方块背景
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold ' + (r * 2) + 'px Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+            ctx.fillStyle = '#00BCD4';
+            ctx.fillText('❄️', 0, 0);
         }
         else if (item.subtype === 'puffer') {
             ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
@@ -1177,6 +1365,21 @@
             if (item.subtype === 'shark') fishType = 'shark';
             else if (item.subtype === 'whale') fishType = 'whale';
             else if (item.subtype === 'tropical') fishType = 'tropical';
+            else if (item.subtype === 'tuna') fishType = 'tuna';
+            else if (item.subtype === 'salmon') fishType = 'salmon';
+            else if (item.subtype === 'carp') fishType = 'carp';
+            else if (item.subtype === 'bass') fishType = 'bass';
+            else if (item.subtype === 'eel') fishType = 'eel';
+            else if (item.subtype === 'ray') fishType = 'ray';
+            else if (item.subtype === 'swordfish') fishType = 'swordfish';
+            else if (item.subtype === 'mackerel') fishType = 'mackerel';
+            else if (item.subtype === 'sardine') fishType = 'sardine';
+            else if (item.subtype === 'anchovy') fishType = 'anchovy';
+            else if (item.subtype === 'trout') fishType = 'trout';
+            else if (item.subtype === 'perch') fishType = 'perch';
+            else if (item.subtype === 'catfish') fishType = 'catfish';
+            else if (item.subtype === 'stingray') fishType = 'stingray';
+            else if (item.subtype === 'barracuda') fishType = 'barracuda';
             else if (item.subtype === 'angelfish') fishType = 'angelfish';
             else if (item.subtype === 'goldfish') fishType = 'goldfish';
             else if (item.subtype === 'clownfish') fishType = 'clownfish';
@@ -1652,6 +1855,7 @@
             this.x = canvas.width / 2; this.y = canvas.height / 2;
             this.radius = 10; this.angle = 0;
             this.buffs = { speed: 0, magnet: 0, slowed: 0, hunter: 0, guardian: 0 };
+            this.mouthAnimationTimer = 0; // 嘴巴动画计时器
         }
         update() {
             const dx = input.x - this.x; const dy = input.y - this.y;
@@ -1671,6 +1875,7 @@
             if (this.buffs.magnet > 0) this.buffs.magnet--;
             if (this.buffs.slowed > 0) this.buffs.slowed--;
             if (this.buffs.hunter > 0) this.buffs.hunter--;
+            if (this.mouthAnimationTimer > 0) this.mouthAnimationTimer--;
             if (this.buffs.guardian > 0) {
                 this.buffs.guardian--;
                 // 守护时间到了，聪仔去打工了（标记为离开，让Guardian自己处理游走）
@@ -1711,7 +1916,7 @@
             ctx.beginPath(); ctx.fillStyle = 'rgba(255, 182, 193, 0.3)';
             ctx.arc(0, 0, this.radius * 2.0 + Math.sin(frameCount * 0.1) * 2, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
-            drawFishArt(ctx, this.x, this.y, this.radius, '#FF69B4', this.angle, frameCount, 'player');
+            drawFishArt(ctx, this.x, this.y, this.radius, '#FF69B4', this.angle, frameCount, 'player', this);
         }
     }
 
@@ -1911,8 +2116,8 @@
                         c = availableItems[Math.floor(Math.random() * availableItems.length)];
                     }
                 }
-                // 后期阶段（1000+），确保大鱼品种丰富
-                else if (score >= 1000) {
+                // 后期阶段（1000-2000），确保大鱼品种丰富
+                else if (score >= 1000 && score < 2000) {
                     const bigFish = availableItems.filter(i => i.r >= 30);
                     if (bigFish.length > 0 && Math.random() < 0.4) {
                         // 优先选择有颜色的大鱼（非whale和shark）
@@ -1921,6 +2126,45 @@
                         );
                         if (colorfulBig.length > 0) {
                             c = colorfulBig[Math.floor(Math.random() * colorfulBig.length)];
+                        } else {
+                            c = bigFish[Math.floor(Math.random() * bigFish.length)];
+                        }
+                    } else {
+                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                    }
+                }
+                // 2000分以上，增加whale出现概率
+                else if (score >= 2000 && score < 3000) {
+                    const bigFish = availableItems.filter(i => i.r >= 30);
+                    if (bigFish.length > 0 && Math.random() < 0.5) {
+                        // 30%概率选择whale，70%选择其他大鱼
+                        const whales = bigFish.filter(i => i.subtype === 'whale');
+                        if (whales.length > 0 && Math.random() < 0.3) {
+                            c = whales[Math.floor(Math.random() * whales.length)];
+                        } else {
+                            const colorfulBig = bigFish.filter(i => i.subtype !== 'shark');
+                            if (colorfulBig.length > 0) {
+                                c = colorfulBig[Math.floor(Math.random() * colorfulBig.length)];
+                            } else {
+                                c = bigFish[Math.floor(Math.random() * bigFish.length)];
+                            }
+                        }
+                    } else {
+                        c = availableItems[Math.floor(Math.random() * availableItems.length)];
+                    }
+                }
+                // 3000分以上，增加shark出现概率
+                else if (score >= 3000) {
+                    const bigFish = availableItems.filter(i => i.r >= 30);
+                    if (bigFish.length > 0 && Math.random() < 0.5) {
+                        // 30%概率选择shark，30%概率选择whale，40%选择其他大鱼
+                        const sharks = bigFish.filter(i => i.subtype === 'shark');
+                        const whales = bigFish.filter(i => i.subtype === 'whale');
+                        const rand = Math.random();
+                        if (sharks.length > 0 && rand < 0.3) {
+                            c = sharks[Math.floor(Math.random() * sharks.length)];
+                        } else if (whales.length > 0 && rand < 0.6) {
+                            c = whales[Math.floor(Math.random() * whales.length)];
                         } else {
                             c = bigFish[Math.floor(Math.random() * bigFish.length)];
                         }
@@ -2336,6 +2580,9 @@
                     scoreEl.innerText = score;
                     checkGameEvolution();
                     
+                    // 触发嘴巴动画
+                    player.mouthAnimationTimer = 15;
+                    
                     // 添加粒子特效
                     createParticleExplosion(item.x, item.y, item.color, 12);
 
@@ -2379,6 +2626,8 @@
                 }
                 else if (item.type === 'buff') {
                     items.splice(i, 1);
+                    // 触发嘴巴动画
+                    player.mouthAnimationTimer = 15;
                     // 添加粒子特效
                     createParticleExplosion(item.x, item.y, item.color, 15);
                     if (item.subtype === 'summon') {
@@ -2434,6 +2683,8 @@
                 else if (item.type === 'bad') {
                     if (isFeverMode) {
                         items.splice(i, 1);
+                        // 触发嘴巴动画
+                        player.mouthAnimationTimer = 15;
                         
                         // 检查是否是稀有鱼种
                         if (item.isRare) {
@@ -2504,6 +2755,8 @@
                     else {
                         if (player.radius > item.radius) {
                             items.splice(i, 1);
+                            // 触发嘴巴动画
+                            player.mouthAnimationTimer = 15;
                             
                             // 检查是否是稀有鱼种
                             if (item.isRare) {
