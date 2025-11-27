@@ -171,8 +171,36 @@
             position: absolute; top: 150px; width: 100%; text-align: center;
             pointer-events: none; z-index: 55; opacity: 0; transition: opacity 0.5s;
         }
-        .event-title { font-size: 28px; font-weight: 900; color: #fff; text-shadow: 0 0 10px #ff0055; margin-bottom: 5px; }
-        .event-desc { font-size: 16px; color: #fff; text-shadow: 1px 1px 2px #000; background: rgba(0,0,0,0.4); display: inline-block; padding: 5px 15px; border-radius: 20px;}
+        .event-title { 
+            font-size: 42px; 
+            font-weight: 900; 
+            color: #fff; 
+            text-align: center;
+            margin-bottom: 15px;
+            /* 强力文字描边和阴影，确保在动态背景上清晰可见 */
+            text-shadow: 
+                0 0 15px rgba(255, 105, 180, 0.9),
+                0 0 25px rgba(255, 105, 180, 0.6),
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                -2px -2px 4px rgba(0, 0, 0, 0.8),
+                2px -2px 4px rgba(0, 0, 0, 0.8),
+                -2px 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 3px;
+            display: block;
+        }
+        .event-desc { 
+            font-size: 18px; 
+            color: #fff; 
+            text-align: center;
+            line-height: 1.8;
+            max-width: 90%;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.4);
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 15px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body>
@@ -278,6 +306,13 @@
     let lightRays = []; // 光斑效果
     let particles = []; // 粒子特效
     let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
+    
+    // 背景图片
+    const bgImage = new Image();
+    bgImage.src = 'bag.jpg';
+    bgImage.onerror = function() {
+        console.log('背景图片加载失败，将使用渐变背景');
+    };
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -404,6 +439,13 @@
             { type: 'bad', subtype: 'mackerel', r: 9, color: '#4682B4', speed: [2.5, 3.5], name: '小波折', minScore: 0 },
             { type: 'bad', subtype: 'trout', r: 10, color: '#FF7F50', speed: [1.8, 2.8], name: '小插曲', minScore: 0 },
             { type: 'bad', subtype: 'perch', r: 8, color: '#20B2AA', speed: [2, 3], name: '小麻烦', minScore: 0 },
+            { type: 'bad', subtype: 'butterflyfish', r: 9, color: '#FFD700', speed: [2, 3], name: '小困扰', minScore: 0 },
+            { type: 'bad', subtype: 'parrotfish', r: 10, color: '#00CED1', speed: [1.8, 2.5], name: '小烦恼', minScore: 0 },
+            { type: 'bad', subtype: 'lionfish', r: 11, color: '#FF4500', speed: [1.5, 2.2], name: '小危险', minScore: 0 },
+            { type: 'bad', subtype: 'puffer', r: 8, color: '#FFA500', speed: [1.2, 2], name: '小麻烦', minScore: 0 },
+            { type: 'bad', subtype: 'octopus', r: 12, color: '#9370DB', speed: [1.5, 2.5], name: '小困扰', minScore: 0 },
+            { type: 'bad', subtype: 'crab', r: 7, color: '#FF6347', speed: [2, 3], name: '小波折', minScore: 0 },
+            { type: 'bad', subtype: 'turtle', r: 10, color: '#20B2AA', speed: [1, 1.8], name: '小烦恼', minScore: 0 },
             
             // 中等大小的鱼（r: 20-30），50-200分阶段
             { type: 'bad', subtype: 'normal', r: 25, color: '#9E9E9E', speed: [1.5, 2.5], name: '坏情绪', minScore: 50 },
@@ -420,6 +462,12 @@
             { type: 'bad', subtype: 'carp', r: 26, color: '#FFA500', speed: [1.8, 2.8], name: '中等波折', minScore: 150 },
             { type: 'bad', subtype: 'bass', r: 22, color: '#32CD32', speed: [2.2, 3.2], name: '中等麻烦', minScore: 100 },
             { type: 'bad', subtype: 'catfish', r: 27, color: '#696969', speed: [1.5, 2.5], name: '中等压力', minScore: 150 },
+            { type: 'bad', subtype: 'butterflyfish', r: 24, color: '#FFD700', speed: [2, 3], name: '中等困扰', minScore: 100 },
+            { type: 'bad', subtype: 'parrotfish', r: 25, color: '#00CED1', speed: [1.8, 2.8], name: '中等烦恼', minScore: 120 },
+            { type: 'bad', subtype: 'lionfish', r: 26, color: '#FF4500', speed: [2, 3], name: '中等危险', minScore: 150 },
+            { type: 'bad', subtype: 'octopus', r: 28, color: '#9370DB', speed: [1.8, 2.8], name: '中等压力', minScore: 150 },
+            { type: 'bad', subtype: 'turtle', r: 30, color: '#20B2AA', speed: [1.2, 2], name: '中等困扰', minScore: 180 },
+            { type: 'bad', subtype: 'moray', r: 27, color: '#4B0082', speed: [2.5, 3.5], name: '中等威胁', minScore: 150 },
             
             // 较大的鱼（r: 30-50），300-1000分阶段
             { type: 'bad', subtype: 'lightning', r: 15, color: '#FFEB3B', speed: [4, 6], name: '争吵', minScore: 300 },
@@ -432,6 +480,14 @@
             { type: 'bad', subtype: 'tropical', r: 18, color: '#E91E63', speed: [3, 4], name: '烂桃花', minScore: 500 },
             { type: 'bad', subtype: 'puffer', r: 22, color: '#9C27B0', speed: [2, 3], name: '嫉妒', minScore: 800 },
             { type: 'bad', subtype: 'seahorse', r: 32, color: '#FF1493', speed: [2, 2.8], name: '大烦恼', minScore: 400 },
+            { type: 'bad', subtype: 'butterflyfish', r: 35, color: '#FFD700', speed: [2.5, 3.5], name: '大困扰', minScore: 400 },
+            { type: 'bad', subtype: 'parrotfish', r: 38, color: '#00CED1', speed: [2, 3], name: '大压力', minScore: 500 },
+            { type: 'bad', subtype: 'lionfish', r: 36, color: '#FF4500', speed: [2.5, 3.5], name: '大危险', minScore: 600 },
+            { type: 'bad', subtype: 'octopus', r: 42, color: '#9370DB', speed: [2, 3], name: '大威胁', minScore: 700 },
+            { type: 'bad', subtype: 'turtle', r: 40, color: '#20B2AA', speed: [1.5, 2.5], name: '大困扰', minScore: 600 },
+            { type: 'bad', subtype: 'moray', r: 44, color: '#4B0082', speed: [3, 4], name: '大威胁', minScore: 700 },
+            { type: 'bad', subtype: 'hammerhead', r: 48, color: '#2F4F4F', speed: [3.5, 4.5], name: '大危机', minScore: 800 },
+            { type: 'bad', subtype: 'manta', r: 50, color: '#1C1C1C', speed: [2, 3], name: '大压力', minScore: 900 },
             { type: 'bad', subtype: 'jellyfish', r: 35, color: '#BA55D3', speed: [1.8, 2.5], name: '大困扰', minScore: 500 },
             { type: 'bad', subtype: 'grouper', r: 40, color: '#654321', speed: [1.5, 2.2], name: '大波折', minScore: 600 },
             { type: 'bad', subtype: 'flounder', r: 36, color: '#9370DB', speed: [2, 3], name: '大插曲', minScore: 500 },
@@ -462,7 +518,15 @@
             { type: 'bad', subtype: 'swordfish', r: 68, color: '#1C86EE', speed: [4.5, 5.5], name: '终极危机', minScore: 2500 },
             { type: 'bad', subtype: 'barracuda', r: 64, color: '#2F2F2F', speed: [4, 5], name: '终极威胁', minScore: 2600 },
             { type: 'bad', subtype: 'stingray', r: 60, color: '#3D5A3D', speed: [3, 4], name: '终极危险', minScore: 2700 },
-            { type: 'bad', subtype: 'eel', r: 66, color: '#4B4B4B', speed: [4, 5], name: '终极麻烦', minScore: 2400 }
+            { type: 'bad', subtype: 'eel', r: 66, color: '#4B4B4B', speed: [4, 5], name: '终极麻烦', minScore: 2400 },
+            { type: 'bad', subtype: 'butterflyfish', r: 58, color: '#FFD700', speed: [3, 4], name: '终极困扰', minScore: 2500 },
+            { type: 'bad', subtype: 'parrotfish', r: 62, color: '#00CED1', speed: [2.5, 3.5], name: '终极压力', minScore: 2600 },
+            { type: 'bad', subtype: 'lionfish', r: 60, color: '#FF4500', speed: [3, 4], name: '终极危险', minScore: 2700 },
+            { type: 'bad', subtype: 'octopus', r: 68, color: '#9370DB', speed: [2.5, 3.5], name: '终极威胁', minScore: 2800 },
+            { type: 'bad', subtype: 'turtle', r: 65, color: '#20B2AA', speed: [2, 3], name: '终极困扰', minScore: 2600 },
+            { type: 'bad', subtype: 'moray', r: 70, color: '#4B0082', speed: [4, 5], name: '终极威胁', minScore: 2900 },
+            { type: 'bad', subtype: 'hammerhead', r: 72, color: '#2F4F4F', speed: [4.5, 5.5], name: '终极危机', minScore: 3000 },
+            { type: 'bad', subtype: 'manta', r: 75, color: '#1C1C1C', speed: [3, 4], name: '终极压力', minScore: 3100 }
         ]
     };
 
@@ -639,6 +703,52 @@
             ctx.lineTo(-r * 1.9, 0);
             ctx.lineTo(-r * 1.7, r * 0.5);
         }
+        else if (type === 'butterflyfish') {
+            // 蝴蝶鱼：圆形尾巴
+            ctx.arc(-r * 1.3, 0, r * 0.5, 0, Math.PI * 2);
+        }
+        else if (type === 'parrotfish') {
+            // 鹦鹉鱼：扇形尾巴
+            ctx.lineTo(-r * 1.4, -r * 0.6);
+            ctx.quadraticCurveTo(-r * 1.6, 0, -r * 1.4, r * 0.6);
+        }
+        else if (type === 'lionfish') {
+            // 狮子鱼：分叉尾
+            ctx.lineTo(-r * 1.3, -r * 0.5);
+            ctx.lineTo(-r * 1.5, -r * 0.8);
+            ctx.lineTo(-r * 1.0, 0);
+            ctx.lineTo(-r * 1.5, r * 0.8);
+            ctx.lineTo(-r * 1.3, r * 0.5);
+        }
+        else if (type === 'octopus') {
+            // 章鱼：不绘制尾巴，触手会在身体下方绘制
+            ctx.lineTo(0, 0);
+        }
+        else if (type === 'crab') {
+            // 螃蟹：小尾巴
+            ctx.lineTo(-r * 0.8, -r * 0.3);
+            ctx.lineTo(-r * 0.8, r * 0.3);
+        }
+        else if (type === 'turtle') {
+            // 海龟：短尾
+            ctx.lineTo(-r * 1.0, -r * 0.4);
+            ctx.quadraticCurveTo(-r * 1.2, 0, -r * 1.0, r * 0.4);
+        }
+        else if (type === 'moray') {
+            // 海鳗：细长尾
+            ctx.lineTo(-r * 2.2, -r * 0.3);
+            ctx.lineTo(-r * 2.2, r * 0.3);
+        }
+        else if (type === 'hammerhead') {
+            // 锤头鲨：宽尾
+            ctx.lineTo(-r * 1.6, -r * 0.7);
+            ctx.quadraticCurveTo(-r * 1.8, 0, -r * 1.6, r * 0.7);
+        }
+        else if (type === 'manta') {
+            // 魔鬼鱼：宽大扇形
+            ctx.lineTo(-r * 0.8, -r * 1.5);
+            ctx.quadraticCurveTo(-r * 1.5, 0, -r * 0.8, r * 1.5);
+        }
         else {
             ctx.lineTo(-r * 1.2, -r * 0.6); 
             ctx.lineTo(-r * 1.2, r * 0.6); 
@@ -702,6 +812,42 @@
         else if (type === 'grouper') {
             // 石斑鱼：圆润身体
             ctx.ellipse(0, 0, r * 1.3, r * 1.1, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'butterflyfish') {
+            // 蝴蝶鱼：圆形身体
+            ctx.ellipse(0, 0, r * 1.2, r * 1.0, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'parrotfish') {
+            // 鹦鹉鱼：椭圆形
+            ctx.ellipse(0, 0, r * 1.4, r * 0.9, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'lionfish') {
+            // 狮子鱼：圆形身体
+            ctx.ellipse(0, 0, r * 1.3, r * 1.1, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'octopus') {
+            // 章鱼：圆形身体
+            ctx.ellipse(0, 0, r * 1.2, r * 1.0, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'crab') {
+            // 螃蟹：圆形身体
+            ctx.ellipse(0, 0, r * 1.0, r * 0.8, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'turtle') {
+            // 海龟：椭圆形
+            ctx.ellipse(0, 0, r * 1.4, r * 1.0, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'moray') {
+            // 海鳗：细长身体
+            ctx.ellipse(0, 0, r * 2.0, r * 0.4, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'hammerhead') {
+            // 锤头鲨：宽扁身体
+            ctx.ellipse(0, 0, r * 1.8, r * 0.6, 0, 0, Math.PI * 2);
+        }
+        else if (type === 'manta') {
+            // 魔鬼鱼：宽大扁平
+            ctx.ellipse(0, 0, r * 2.0, r * 0.5, 0, 0, Math.PI * 2);
         }
         else {
             ctx.ellipse(0, 0, r * 1.3, r * 0.9, 0, 0, Math.PI * 2);
@@ -839,6 +985,60 @@
             bodyGrad.addColorStop(0.7, '#1C1C1C');
             bodyGrad.addColorStop(1, '#000000');
         }
+        else if (type === 'butterflyfish') {
+            bodyGrad.addColorStop(0, '#FFD700');
+            bodyGrad.addColorStop(0.3, '#FFA500');
+            bodyGrad.addColorStop(0.6, '#FF8C00');
+            bodyGrad.addColorStop(1, '#FF6347');
+        }
+        else if (type === 'parrotfish') {
+            bodyGrad.addColorStop(0, '#00CED1');
+            bodyGrad.addColorStop(0.3, '#20B2AA');
+            bodyGrad.addColorStop(0.6, '#008B8B');
+            bodyGrad.addColorStop(1, '#2F4F4F');
+        }
+        else if (type === 'lionfish') {
+            bodyGrad.addColorStop(0, '#FF4500');
+            bodyGrad.addColorStop(0.3, '#FF6347');
+            bodyGrad.addColorStop(0.6, '#DC143C');
+            bodyGrad.addColorStop(1, '#8B0000');
+        }
+        else if (type === 'octopus') {
+            bodyGrad.addColorStop(0, '#9370DB');
+            bodyGrad.addColorStop(0.3, '#8A2BE2');
+            bodyGrad.addColorStop(0.6, '#4B0082');
+            bodyGrad.addColorStop(1, '#2F1B69');
+        }
+        else if (type === 'crab') {
+            bodyGrad.addColorStop(0, '#FF6347');
+            bodyGrad.addColorStop(0.4, '#DC143C');
+            bodyGrad.addColorStop(0.7, '#B22222');
+            bodyGrad.addColorStop(1, '#8B0000');
+        }
+        else if (type === 'turtle') {
+            bodyGrad.addColorStop(0, '#20B2AA');
+            bodyGrad.addColorStop(0.3, '#48D1CC');
+            bodyGrad.addColorStop(0.6, '#008B8B');
+            bodyGrad.addColorStop(1, '#2F4F4F');
+        }
+        else if (type === 'moray') {
+            bodyGrad.addColorStop(0, '#4B0082');
+            bodyGrad.addColorStop(0.3, '#6A5ACD');
+            bodyGrad.addColorStop(0.6, '#483D8B');
+            bodyGrad.addColorStop(1, '#191970');
+        }
+        else if (type === 'hammerhead') {
+            bodyGrad.addColorStop(0, '#2F4F4F');
+            bodyGrad.addColorStop(0.3, '#696969');
+            bodyGrad.addColorStop(0.6, '#2F2F2F');
+            bodyGrad.addColorStop(1, '#1C1C1C');
+        }
+        else if (type === 'manta') {
+            bodyGrad.addColorStop(0, '#1C1C1C');
+            bodyGrad.addColorStop(0.3, '#2F2F2F');
+            bodyGrad.addColorStop(0.6, '#000000');
+            bodyGrad.addColorStop(1, '#000000');
+        }
         else {
             bodyGrad.addColorStop(0, '#ffffff'); 
             bodyGrad.addColorStop(0.3, color); 
@@ -952,6 +1152,109 @@
                     ctx.arc(-r * 0.5 + i * r * 0.2, -r * 0.4 + j * r * 0.3, r * 0.08, 0, Math.PI * 2);
                     ctx.stroke();
                 }
+            }
+        }
+        else if (type === 'butterflyfish') {
+            // 蝴蝶鱼：条纹和斑点
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.6 + i * r * 0.3, -r * 0.5);
+                ctx.lineTo(-r * 0.6 + i * r * 0.3, r * 0.5);
+                ctx.stroke();
+            }
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            ctx.arc(r * 0.3, -r * 0.3, r * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        else if (type === 'parrotfish') {
+            // 鹦鹉鱼：鳞片纹理
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            for (let i = 0; i < 6; i++) {
+                ctx.beginPath();
+                ctx.arc(-r * 0.4 + i * r * 0.2, Math.sin(i) * r * 0.2, r * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        else if (type === 'lionfish') {
+            // 狮子鱼：条纹
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.5, -r * 0.6 + i * r * 0.3);
+                ctx.lineTo(r * 0.5, -r * 0.6 + i * r * 0.3);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'octopus') {
+            // 章鱼：触手（在身体下方绘制）
+            ctx.fillStyle = color;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const tentacleX = Math.cos(angle) * r * 0.8;
+                const tentacleY = Math.sin(angle) * r * 0.8 + r * 0.5;
+                ctx.beginPath();
+                ctx.ellipse(tentacleX, tentacleY, r * 0.15, r * 0.8, angle, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        else if (type === 'crab') {
+            // 螃蟹：钳子和腿
+            ctx.fillStyle = color;
+            // 左钳
+            ctx.beginPath();
+            ctx.ellipse(-r * 0.8, -r * 0.4, r * 0.2, r * 0.3, -0.5, 0, Math.PI * 2);
+            ctx.fill();
+            // 右钳
+            ctx.beginPath();
+            ctx.ellipse(r * 0.8, -r * 0.4, r * 0.2, r * 0.3, 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            // 腿
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.5 + i * r * 0.3, r * 0.4);
+                ctx.lineTo(-r * 0.5 + i * r * 0.3, r * 0.8);
+                ctx.stroke();
+            }
+        }
+        else if (type === 'turtle') {
+            // 海龟：壳的纹理
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.lineWidth = 2;
+            // 六边形纹理
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.3 + i * r * 0.3, -r * 0.3);
+                ctx.lineTo(-r * 0.2 + i * r * 0.3, -r * 0.5);
+                ctx.lineTo(r * 0.2 + i * r * 0.3, -r * 0.5);
+                ctx.lineTo(r * 0.3 + i * r * 0.3, -r * 0.3);
+                ctx.lineTo(r * 0.2 + i * r * 0.3, -r * 0.1);
+                ctx.lineTo(-r * 0.2 + i * r * 0.3, -r * 0.1);
+                ctx.closePath();
+                ctx.stroke();
+            }
+        }
+        else if (type === 'hammerhead') {
+            // 锤头鲨：锤头形状
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, r * 0.8, r * 0.3, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        else if (type === 'manta') {
+            // 魔鬼鱼：翅膀纹理
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-r * 1.5, -r * 0.3 + i * r * 0.3);
+                ctx.quadraticCurveTo(0, -r * 0.1 + i * r * 0.3, r * 1.5, -r * 0.3 + i * r * 0.3);
+                ctx.stroke();
             }
         }
         
@@ -1709,6 +2012,16 @@
             bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景图片（如果已加载）
+            if (bgImage.complete && bgImage.naturalWidth > 0) {
+                const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+                const scaledWidth = bgImage.width * scale;
+                const scaledHeight = bgImage.height * scale;
+                const x = (canvas.width - scaledWidth) / 2;
+                const y = (canvas.height - scaledHeight) / 2;
+                ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+            }
         }
     }
     
@@ -1791,7 +2104,8 @@
             title = "🌠 幸运流星"; desc = "属于我们的高光时刻，快许愿！"; bgColor = "#FFD700";
         }
 
-        eventTitle.innerText = title; eventDesc.innerText = desc; eventTitle.style.color = bgColor;
+        eventTitle.innerText = title; 
+        eventDesc.innerText = desc;
         eventBanner.style.opacity = 1;
         setTimeout(() => { eventBanner.style.opacity = 0; }, 4000);
     }
@@ -2401,6 +2715,16 @@
         bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制背景图片（如果已加载）
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
+            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const scaledWidth = bgImage.width * scale;
+            const scaledHeight = bgImage.height * scale;
+            const x = (canvas.width - scaledWidth) / 2;
+            const y = (canvas.height - scaledHeight) / 2;
+            ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+        }
 
         // 绘制首页背景鱼
         ambientFish.forEach(f => { f.update(); f.draw(); });
@@ -2500,6 +2824,17 @@
         }
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制背景图片（如果已加载）
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
+            // 计算缩放比例，使图片覆盖整个canvas
+            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const scaledWidth = bgImage.width * scale;
+            const scaledHeight = bgImage.height * scale;
+            const x = (canvas.width - scaledWidth) / 2;
+            const y = (canvas.height - scaledHeight) / 2;
+            ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+        }
         
         // 绘制背景美化效果：光斑
         lightRays.forEach(ray => {
@@ -2908,6 +3243,16 @@
         bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制背景图片（如果已加载）
+        if (bgImage.complete && bgImage.naturalWidth > 0) {
+            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const scaledWidth = bgImage.width * scale;
+            const scaledHeight = bgImage.height * scale;
+            const x = (canvas.width - scaledWidth) / 2;
+            const y = (canvas.height - scaledHeight) / 2;
+            ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+        }
         
         startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
         initAmbient(); // 启动首页背景动画
