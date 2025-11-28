@@ -450,19 +450,19 @@
 
     const DIFFICULTY_SETTINGS = {
         'easy':   {
-            spawnRate: 40, speedMultiplier: 0.6, feverFactor: 2.0,
+            spawnRate: 20, speedMultiplier: 0.6, feverFactor: 2.0,
             fogRadius: 80,
             weights: [GAME_WEIGHTS.easy.good, GAME_WEIGHTS.easy.buff, GAME_WEIGHTS.easy.bad],
             eventProb: EVENT_WEIGHTS.easy
         },
         'normal': {
-            spawnRate: 45, speedMultiplier: 0.9, feverFactor: 1.0,
+            spawnRate: 15, speedMultiplier: 0.9, feverFactor: 1.0,
             fogRadius: 50,
             weights: [GAME_WEIGHTS.normal.good, GAME_WEIGHTS.normal.buff, GAME_WEIGHTS.normal.bad],
             eventProb: EVENT_WEIGHTS.normal
         },
         'hard':   {
-            spawnRate: 22, speedMultiplier: 1.4, feverFactor: 0.3, // 生成频率（从25减少到22，稍微增加生成频率）
+            spawnRate: 25, speedMultiplier: 1.4, feverFactor: 0.3, // 生成频率（从25减少到22，稍微增加生成频率）
             fogRadius: 18,
             weights: [GAME_WEIGHTS.hard.good, GAME_WEIGHTS.hard.buff, GAME_WEIGHTS.hard.bad],
             eventProb: EVENT_WEIGHTS.hard
