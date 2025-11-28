@@ -328,8 +328,24 @@
     };
     bgImage.onerror = function() {
         console.log('背景图片加载失败，将使用CSS背景');
+        bgImageLoaded = false;
     };
-    bgImage.src = 'static/images/bag.jpg';
+    // 移动端优化：延迟设置src，确保DOM完全加载
+    if (document.readyState === 'complete') {
+        bgImage.src = 'static/images/bag.jpg';
+    } else {
+        window.addEventListener('load', function() {
+            bgImage.src = 'static/images/bag.jpg';
+        });
+    }
+    
+    // 移动端延迟检查：如果图片加载较慢，延迟一段时间后再次检查
+    setTimeout(function() {
+        if (!bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+            bgImageLoaded = true;
+            console.log('背景图片延迟加载成功（移动端）');
+        }
+    }, 1000); // 1秒后再次检查
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -3225,16 +3241,26 @@
             ctx.globalAlpha = 1.0;
         }
         
-        // 绘制背景图片（如果已加载）
-        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+        // 绘制背景图片（如果已加载，移动端使用更宽松的检查）
+        // 移动端可能需要更宽松的检查条件
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const imageReady = isMobile 
+            ? (bgImage.complete && bgImage.naturalWidth > 0) || bgImageLoaded
+            : (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0);
+            
+        if (imageReady) {
             ctx.globalAlpha = 1.0; // 恢复完全不透明
-            // 计算缩放比例，使图片覆盖整个canvas
-            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
-            const scaledWidth = bgImage.width * scale;
-            const scaledHeight = bgImage.height * scale;
-            const x = (canvas.width - scaledWidth) / 2;
-            const y = (canvas.height - scaledHeight) / 2;
-            ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+            try {
+                // 计算缩放比例，使图片覆盖整个canvas
+                const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+                const scaledWidth = bgImage.width * scale;
+                const scaledHeight = bgImage.height * scale;
+                const x = (canvas.width - scaledWidth) / 2;
+                const y = (canvas.height - scaledHeight) / 2;
+                ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+            } catch (e) {
+                console.log('绘制背景图失败:', e);
+            }
         }
         
         // 恢复透明度，确保后续绘制正常
