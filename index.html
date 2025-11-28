@@ -324,23 +324,12 @@
     let bgImageLoaded = false;
     bgImage.onload = function() {
         bgImageLoaded = true;
-        console.log('背景图片加载成功，尺寸:', bgImage.width, 'x', bgImage.height);
+        console.log('背景图片加载成功');
     };
     bgImage.onerror = function() {
         console.log('背景图片加载失败，将使用CSS背景');
-        bgImageLoaded = false;
     };
-    // 加载背景图（不设置crossOrigin，避免CORS问题）
-    // 先尝试直接路径
     bgImage.src = 'static/images/bag.jpg';
-    
-    // 延迟检查，如果加载失败尝试其他路径
-    setTimeout(function() {
-        if (!bgImage.complete || bgImage.naturalWidth === 0) {
-            console.log('背景图未加载，尝试备用路径');
-            bgImage.src = './static/images/bag.jpg';
-        }
-    }, 500);
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -3222,28 +3211,30 @@
         ctx.save();
         ctx.translate(screenShake.x, screenShake.y);
         
-        // 绘制背景图片（始终显示）
-        // 检查背景图是否可用（使用多种检查方式）
-        const isImageReady = bgImage.complete && bgImage.naturalWidth > 0 && bgImage.naturalHeight > 0;
-        
-        if (isImageReady) {
-            // 背景图已加载，绘制背景图
+        // 绘制背景渐变（作为背景图的底层，仅在背景图未加载时显示）
+        if (!bgImageLoaded) {
+            // 如果背景图未加载，使用默认渐变作为后备
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
             ctx.globalAlpha = 1.0;
-            try {
-                // 计算缩放比例，使图片覆盖整个canvas
-                const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
-                const scaledWidth = bgImage.width * scale;
-                const scaledHeight = bgImage.height * scale;
-                const x = (canvas.width - scaledWidth) / 2;
-                const y = (canvas.height - scaledHeight) / 2;
-                ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
-            } catch (e) {
-                console.error('绘制背景图失败:', e);
-                // 绘制失败时，不绘制任何内容，让CSS背景显示
-            }
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         } else {
-            // 如果背景图未加载，不绘制任何内容，让CSS背景图完全显示
-            // Canvas保持透明，body的background-image会显示
+            // 背景图已加载，不绘制渐变，让背景图完全显示
+            ctx.globalAlpha = 1.0;
+        }
+        
+        // 绘制背景图片（如果已加载）
+        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+            ctx.globalAlpha = 1.0; // 恢复完全不透明
+            // 计算缩放比例，使图片覆盖整个canvas
+            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const scaledWidth = bgImage.width * scale;
+            const scaledHeight = bgImage.height * scale;
+            const x = (canvas.width - scaledWidth) / 2;
+            const y = (canvas.height - scaledHeight) / 2;
+            ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
         }
         
         // 恢复透明度，确保后续绘制正常
