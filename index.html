@@ -325,11 +325,24 @@
     bgImage.onload = function() {
         bgImageLoaded = true;
         console.log('背景图片加载成功');
+        // 强制重绘一次，确保背景图显示
+        if (gameRunning) {
+            requestAnimationFrame(gameLoop);
+        }
     };
     bgImage.onerror = function() {
         console.log('背景图片加载失败，将使用CSS背景');
+        bgImageLoaded = false;
     };
+    // 尝试多个路径，确保能加载
     bgImage.src = 'static/images/bag.jpg';
+    // 如果加载失败，尝试其他路径
+    setTimeout(function() {
+        if (!bgImageLoaded && bgImage.complete && bgImage.naturalWidth === 0) {
+            console.log('尝试使用备用路径加载背景图');
+            bgImage.src = './static/images/bag.jpg';
+        }
+    }, 100);
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -3211,23 +3224,10 @@
         ctx.save();
         ctx.translate(screenShake.x, screenShake.y);
         
-        // 绘制背景渐变（作为背景图的底层，仅在背景图未加载时显示）
-        if (!bgImageLoaded) {
-            // 如果背景图未加载，使用默认渐变作为后备
-            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
-            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
-            ctx.globalAlpha = 1.0;
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } else {
-            // 背景图已加载，不绘制渐变，让背景图完全显示
-            ctx.globalAlpha = 1.0;
-        }
-        
-        // 绘制背景图片（如果已加载）
+        // 绘制背景图片（优先显示，如果未加载则使用渐变）
         if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
-            ctx.globalAlpha = 1.0; // 恢复完全不透明
+            // 背景图已加载，绘制背景图
+            ctx.globalAlpha = 1.0;
             // 计算缩放比例，使图片覆盖整个canvas
             const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
             const scaledWidth = bgImage.width * scale;
@@ -3235,6 +3235,14 @@
             const x = (canvas.width - scaledWidth) / 2;
             const y = (canvas.height - scaledHeight) / 2;
             ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+        } else {
+            // 如果背景图未加载，使用默认渐变作为后备
+            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         
         // 恢复透明度，确保后续绘制正常
