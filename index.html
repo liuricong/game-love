@@ -24,7 +24,7 @@
             background-size: cover; /* 覆盖整个屏幕 */
             background-position: center; /* 居中显示 */
             background-repeat: no-repeat; /* 不重复 */
-            background-attachment: fixed; /* 固定背景 */
+            /* background-attachment: fixed; 移动端不支持，已移除 */
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             user-select: none; 
             touch-action: none;
@@ -319,33 +319,43 @@
     let particles = []; // 粒子特效
     let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
     
-    // 背景图片 - 直接加载，写死显示
+    // 背景图片 - 直接加载，写死显示（移动端优化）
     const bgImage = new Image();
     let bgImageLoaded = false;
+    
+    // 移动端检测
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     bgImage.onload = function() {
         bgImageLoaded = true;
-        console.log('背景图片加载成功');
+        console.log('✅ 背景图片加载成功，尺寸:', bgImage.width, 'x', bgImage.height);
+        console.log('✅ 图片路径:', bgImage.src);
     };
     bgImage.onerror = function() {
-        console.log('背景图片加载失败，将使用CSS背景');
+        console.log('❌ 背景图片加载失败，将使用CSS背景');
+        console.log('❌ 尝试的路径:', bgImage.src);
         bgImageLoaded = false;
     };
-    // 移动端优化：延迟设置src，确保DOM完全加载
-    if (document.readyState === 'complete') {
-        bgImage.src = 'static/images/bag.jpg';
-    } else {
-        window.addEventListener('load', function() {
-            bgImage.src = 'static/images/bag.jpg';
-        });
-    }
     
-    // 移动端延迟检查：如果图片加载较慢，延迟一段时间后再次检查
-    setTimeout(function() {
-        if (!bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
-            bgImageLoaded = true;
-            console.log('背景图片延迟加载成功（移动端）');
-        }
-    }, 1000); // 1秒后再次检查
+    // 立即加载背景图（不延迟）
+    bgImage.src = 'static/images/bag.jpg';
+    
+    // 移动端：多次检查图片加载状态（因为移动端加载可能较慢）
+    if (isMobile) {
+        let checkCount = 0;
+        const maxChecks = 10; // 最多检查10次
+        const checkInterval = setInterval(function() {
+            checkCount++;
+            if (bgImage.complete && bgImage.naturalWidth > 0 && !bgImageLoaded) {
+                bgImageLoaded = true;
+                console.log('背景图片延迟加载成功（移动端，第' + checkCount + '次检查）');
+                clearInterval(checkInterval);
+            } else if (checkCount >= maxChecks) {
+                console.log('背景图片加载超时，使用CSS背景');
+                clearInterval(checkInterval);
+            }
+        }, 500); // 每500ms检查一次
+    }
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
 
@@ -3227,29 +3237,27 @@
         ctx.save();
         ctx.translate(screenShake.x, screenShake.y);
         
-        // 绘制背景渐变（作为背景图的底层，仅在背景图未加载时显示）
-        if (!bgImageLoaded) {
-            // 如果背景图未加载，使用默认渐变作为后备
-            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
-            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
-            ctx.globalAlpha = 1.0;
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } else {
-            // 背景图已加载，不绘制渐变，让背景图完全显示
-            ctx.globalAlpha = 1.0;
-        }
-        
-        // 绘制背景图片（如果已加载，移动端使用更宽松的检查）
-        // 移动端可能需要更宽松的检查条件
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        // 绘制背景图片（移动端优化：使用更宽松的检查条件）
+        // 移动端检查：只要图片complete且有尺寸就尝试绘制（不依赖bgImageLoaded标志）
         const imageReady = isMobile 
-            ? (bgImage.complete && bgImage.naturalWidth > 0) || bgImageLoaded
+            ? (bgImage.complete && bgImage.naturalWidth > 0 && bgImage.naturalHeight > 0)
             : (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0);
+        
+        // 移动端调试信息（每60帧打印一次，避免刷屏）
+        if (isMobile && frameCount % 60 === 0) {
+            console.log('📱 移动端背景图状态:', {
+                complete: bgImage.complete,
+                naturalWidth: bgImage.naturalWidth,
+                naturalHeight: bgImage.naturalHeight,
+                bgImageLoaded: bgImageLoaded,
+                imageReady: imageReady,
+                src: bgImage.src
+            });
+        }
             
         if (imageReady) {
-            ctx.globalAlpha = 1.0; // 恢复完全不透明
+            // 背景图已加载，绘制背景图
+            ctx.globalAlpha = 1.0;
             try {
                 // 计算缩放比例，使图片覆盖整个canvas
                 const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
@@ -3260,7 +3268,11 @@
                 ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
             } catch (e) {
                 console.log('绘制背景图失败:', e);
+                // 绘制失败时，不绘制任何内容，让CSS背景显示
             }
+        } else {
+            // 如果背景图未加载，不绘制任何内容，让CSS背景图完全显示
+            // Canvas保持透明，body的background-image会显示
         }
         
         // 恢复透明度，确保后续绘制正常
