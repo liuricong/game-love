@@ -2962,7 +2962,7 @@
                 const distToPlayer = Math.hypot(player.x - this.x, player.y - this.y);
                 // 减小追击范围：只在玩家真正靠近时才追击
                 // 大鱼追击范围：根据鱼的大小调整，但范围更小
-                const chaseRange = this.radius * (this.radius >= 50 ? 5 : 4); // 从10-12倍减少到4-5倍
+                const chaseRange = this.radius * (this.radius >= 50 ? 3 : 2.5); // 从10-12倍减少到4-5倍
 
                 // 只在玩家足够靠近时追击，可以追击到碰撞
                 if (distToPlayer < chaseRange && distToPlayer > this.radius + player.radius) {
