@@ -137,6 +137,11 @@
             cursor: pointer; pointer-events: auto; z-index: 60;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        
+        /* 音效控制按钮 - 已移除 */
+        #audio-btn {
+            display: none !important;
+        }
 
         .floating-text {
             position: absolute; font-weight: bold; font-size: 20px;
@@ -207,6 +212,221 @@
             border-radius: 15px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
+
+        /* 闯关模式样式 */
+        .btn-stage { background: linear-gradient(45deg, #667eea, #764ba2); }
+        
+        #stage-select-screen {
+            background: rgba(255, 255, 255, 0.95);
+            justify-content: flex-start; /* 从顶部开始，不居中 */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #stage-select-screen h1 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        #stage-select-screen p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+        
+        .stage-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stage-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .stage-card.locked {
+            background: linear-gradient(135deg, #999 0%, #666 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .stage-card.completed {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        }
+        
+        .stage-number {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .stage-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stage-desc {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .stage-objective {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        
+        .stage-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+        }
+        
+        #stage-objective-display {
+            position: absolute;
+            top: 70px;
+            right: max(15px, env(safe-area-inset-right));
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 10px;
+            color: #d63384;
+            font-weight: bold;
+            font-size: 13px;
+            z-index: 65;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            display: none;
+            text-align: center;
+            backdrop-filter: blur(5px);
+            min-width: 100px;
+        }
+        
+        .objective-title {
+            font-size: 10px;
+            opacity: 0.7;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .objective-progress {
+            font-size: 16px;
+            color: #d63384;
+            display: block;
+        }
+        
+        /* 移动端优化关卡目标显示 */
+        @media (max-width: 480px) {
+            #stage-objective-display {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 90px;
+            }
+            
+            .objective-title {
+                font-size: 9px;
+                margin-bottom: 2px;
+            }
+            
+            .objective-progress {
+                font-size: 14px;
+            }
+        }
+        
+        #stage-complete-screen {
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .btn-back { 
+            background: #fff; 
+            border: 2px solid #667eea; 
+            color: #667eea; 
+            margin-top: 10px;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            #stage-select-screen {
+                padding: 6px 4% 15px;
+            }
+            
+            #stage-select-screen h1 {
+                font-size: 24px;
+                margin: 3px 0 5px;
+            }
+            
+            #stage-select-screen p {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+            
+            .stage-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .stage-card {
+                padding: 15px;
+            }
+            
+            .stage-name {
+                font-size: 18px;
+            }
+            
+            .stage-desc {
+                font-size: 13px;
+            }
+            
+            .btn-back {
+                width: 100%;
+                max-width: 400px;
+                margin-top: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #stage-select-screen {
+                padding: 5px 3% 12px;
+            }
+            
+            #stage-select-screen h1 {
+                font-size: 20px;
+                margin: 2px 0 4px;
+            }
+            
+            #stage-select-screen p {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+            
+            .stage-grid {
+                gap: 10px;
+            }
+            
+            .stage-card {
+                padding: 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -229,6 +449,12 @@
     <div id="buff-bar"></div>
 </div>
 
+<!-- 关卡目标显示 -->
+<div id="stage-objective-display">
+    <div class="objective-title">关卡目标</div>
+    <div class="objective-progress" id="objective-progress">0 / 100</div>
+</div>
+
 <button id="pause-btn" style="display:none;" onclick="pauseGame(event)">⏸</button>
 
 <!-- 开始界面 (背景透明，显示Canvas) -->
@@ -239,6 +465,28 @@
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
         <button class="btn-hard" onclick="startGame('hard')">🛡️ 守护一生 (困难)</button>
+        <button class="btn-stage" onclick="showStageSelect()">🎪 闯关模式</button>
+    </div>
+</div>
+
+<!-- 关卡选择界面 -->
+<div id="stage-select-screen" class="overlay-screen" style="display: none;">
+    <h1>🎪 闯关挑战</h1>
+    <p>挑战不同的关卡目标，证明你的实力！</p>
+    <div class="stage-grid" id="stage-grid"></div>
+    <button class="btn-back" onclick="showStartScreen()">返回主菜单</button>
+</div>
+
+<!-- 关卡完成界面 -->
+<div id="stage-complete-screen" class="overlay-screen" style="display: none;">
+    <h2 style="font-size: 32px; color: #667eea;">🎉 关卡完成！</h2>
+    <p id="stage-complete-message" style="font-size: 18px; color:#666; margin:20px 0;"></p>
+    <div id="stage-rating" style="font-size: 36px; margin: 10px 0;">⭐⭐⭐</div>
+    <p style="font-size: 18px; color:#888;">用时: <span id="stage-time-used" style="color: #667eea; font-weight:bold;">0秒</span></p>
+    <p style="font-size: 20px;">获得分数: <span id="stage-final-score" style="color: #667eea; font-weight:bold;">0</span></p>
+    <div class="btn-group">
+        <button class="btn-stage" onclick="nextStage()" id="next-stage-btn">下一关</button>
+        <button class="btn-back" onclick="showStageSelect()">返回关卡选择</button>
     </div>
 </div>
 
@@ -298,6 +546,130 @@
     let unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
     let discoveredRareFish = new Set(); // 已发现的稀有鱼种
 
+    // 闯关模式变量
+    let isStageMode = false;
+    let currentStage = 0;
+    let stageProgress = 0;
+    let stageObjectiveDisplay = null;
+    let stageObjectiveProgress = null;
+    let stageSelectScreen = null;
+    let stageCompleteScreen = null;
+    let stageSurviveStartTime = 0; // 生存关卡的开始时间
+    let stageObstaclesDodged = 0; // 躲避的障碍数量
+    let stageStartTime = 0; // 关卡开始时间（用于计时和倒计时）
+    let stageTimeLimit = 0; // 关卡时间限制（秒）
+
+    // 关卡配置
+    const STAGES = [
+        {
+            id: 1,
+            name: '"初次相遇"',
+            icon: '💕',
+            desc: '收集50个爱心，开始你们的爱情故事',
+            difficulty: 'easy',
+            type: 'collect_hearts',
+            target: 50,
+            timeLimit: null,
+            objectiveText: '收集爱心',
+            completeMessage: '第一次相遇，就被你吸引了！'
+        },
+        {
+            id: 2,
+            name: '"甜蜜时光"',
+            icon: '⏱️',
+            desc: '在60秒内收集尽可能多的爱心',
+            difficulty: 'easy',
+            type: 'timed_collect',
+            target: 80,
+            timeLimit: 60,
+            objectiveText: '限时收集',
+            completeMessage: '和你在一起的每一秒都很甜蜜！'
+        },
+        {
+            id: 3,
+            name: '"生存挑战"',
+            icon: '⏰',
+            desc: '在困难中生存90秒',
+            difficulty: 'normal',
+            type: 'survive',
+            target: 90,
+            timeLimit: null,
+            objectiveText: '生存时间',
+            completeMessage: '有你在，我能度过任何困难！'
+        },
+        {
+            id: 4,
+            name: '"迷雾中的爱"',
+            icon: '🌫️',
+            desc: '在迷雾事件中收集40个爱心',
+            difficulty: 'normal',
+            type: 'fog_collect',
+            target: 40,
+            timeLimit: null,
+            objectiveText: '迷雾中收集',
+            completeMessage: '迷雾中，你就是我的灯塔！'
+        },
+        {
+            id: 5,
+            name: '"躲避大师"',
+            icon: '🎯',
+            desc: '躲避100条障碍鱼而不受伤',
+            difficulty: 'normal',
+            type: 'dodge_obstacles',
+            target: 100,
+            timeLimit: null,
+            objectiveText: '躲避障碍',
+            completeMessage: '我会躲开所有伤害你的事物！'
+        },
+        {
+            id: 6,
+            name: '"激流勇进"',
+            icon: '🌊',
+            desc: '在激流事件中收集30个爱心',
+            difficulty: 'normal',
+            type: 'current_collect',
+            target: 30,
+            timeLimit: null,
+            objectiveText: '激流中收集',
+            completeMessage: '逆风前行，因为有你在等我！'
+        },
+        {
+            id: 7,
+            name: '"终极考验"',
+            icon: '🏆',
+            desc: '在困难模式下收集100个爱心',
+            difficulty: 'hard',
+            type: 'collect_hearts',
+            target: 100,
+            timeLimit: null,
+            objectiveText: '困难收集',
+            completeMessage: '我们一起，没有什么不可能！'
+        },
+        {
+            id: 8,
+            name: '"永恒的爱"',
+            icon: '💖',
+            desc: '在困难模式下生存120秒',
+            difficulty: 'hard',
+            type: 'survive',
+            target: 120,
+            timeLimit: null,
+            objectiveText: '困难生存',
+            completeMessage: '我们的爱，经得起任何考验！'
+        }
+    ];
+
+    // 关卡进度（从 localStorage 加载）
+    let stageProgress_data = {};
+    try {
+        const saved = safeLocalStorageGet('love_game_stage_progress');
+        if (saved) {
+            stageProgress_data = JSON.parse(saved);
+        }
+    } catch (e) {
+        console.warn('加载关卡进度失败:', e);
+    }
+
     // 鱼群系统
     let fishSchools = []; // 鱼群数组
     let fishSchoolCooldown = 0; // 鱼群生成冷却时间
@@ -312,6 +684,11 @@
     let nextEventCooldown = 600;
     let currentForce = { x: 0, y: 0 };
     let flowParticles = [];
+    
+    // 新事件变量
+    let doubleScoreActive = false; // 双倍分数是否激活
+    let gravityReversed = false; // 重力是否反转
+    let heartRainActive = false; // 爱心雨是否激活
 
     // 游戏中的气泡系统
     let gameBubbles = [];
@@ -319,20 +696,124 @@
     let particles = []; // 粒子特效
     let screenShake = { x: 0, y: 0, intensity: 0 }; // 屏幕震动
 
+    // ========== 安全工具函数 ==========
+    
+    // localStorage 安全包装
+    function safeLocalStorageGet(key, defaultValue = null) {
+        try {
+            if (typeof localStorage === 'undefined') return defaultValue;
+            const value = localStorage.getItem(key);
+            return value !== null ? value : defaultValue;
+        } catch(e) {
+            console.warn('localStorage.getItem("' + key + '") 失败:', e);
+            return defaultValue;
+        }
+    }
+    
+    function safeLocalStorageSet(key, value) {
+        try {
+            if (typeof localStorage === 'undefined') return false;
+            localStorage.setItem(key, value);
+            return true;
+        } catch(e) {
+            console.warn('localStorage.setItem("' + key + '") 失败:', e);
+            return false;
+        }
+    }
+    
+    // 浏览器兼容性检查
+    function checkBrowserCompatibility() {
+        const warnings = [];
+        
+        // Canvas 支持
+        if (!canvas || !canvas.getContext) {
+            warnings.push('您的浏览器不支持 Canvas，游戏无法运行');
+        }
+        
+        // Web Audio API 支持
+        if (!window.AudioContext && !window.webkitAudioContext) {
+            warnings.push('音频功能不可用（游戏仍可正常运行）');
+        }
+        
+        // requestAnimationFrame 支持
+        if (!window.requestAnimationFrame) {
+            warnings.push('动画功能可能不流畅');
+        }
+        
+        if (warnings.length > 0) {
+            console.warn('浏览器兼容性警告:', warnings);
+        }
+        
+        return warnings;
+    }
+    
+    // 页面加载时检查
+    const browserWarnings = checkBrowserCompatibility();
+    if (browserWarnings.length > 0) {
+        // 不弹窗，只记录日志，避免干扰用户
+    }
+    
     // 背景图片 - 直接加载，写死显示
     const bgImage = new Image();
     let bgImageLoaded = false;
     bgImage.onload = function() {
         bgImageLoaded = true;
         console.log('背景图片加载成功');
+        cachedBgCanvas = null; // 重置缓存，下次绘制时重新生成
     };
     bgImage.onerror = function() {
         console.log('背景图片加载失败，将使用CSS背景');
     };
     bgImage.src = 'static/images/background.jpg';
+    
+    // 性能优化：离屏Canvas缓存背景
+    let cachedBgCanvas = null;
+    let lastCanvasWidth = 0;
+    let lastCanvasHeight = 0;
+    
+    // 生成缓存的背景
+    function generateBackgroundCache() {
+        try {
+            if (!cachedBgCanvas || lastCanvasWidth !== canvas.width || lastCanvasHeight !== canvas.height) {
+                cachedBgCanvas = document.createElement('canvas');
+                cachedBgCanvas.width = canvas.width;
+                cachedBgCanvas.height = canvas.height;
+                const cacheCtx = cachedBgCanvas.getContext('2d');
+                
+                lastCanvasWidth = canvas.width;
+                lastCanvasHeight = canvas.height;
+                
+                // 绘制渐变背景
+                const bgGradient = cacheCtx.createLinearGradient(0, 0, 0, canvas.height);
+                bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+                bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+                cacheCtx.fillStyle = bgGradient;
+                cacheCtx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制背景图片（如果已加载）
+                if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+                    const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+                    const scaledWidth = bgImage.width * scale;
+                    const scaledHeight = bgImage.height * scale;
+                    const x = (canvas.width - scaledWidth) / 2;
+                    const y = (canvas.height - scaledHeight) / 2;
+                    cacheCtx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+                }
+            }
+            return cachedBgCanvas;
+        } catch(e) {
+            console.error('背景缓存生成失败:', e);
+            return null;
+        }
+    }
 
     const LOVE_WORDS = ["爱你", "抱抱", "想你", "亲亲", "乖宝", "真棒", "好可爱", "美美哒", "贴贴", "Love U"];
-
+    
+    // 音频系统已完全移除
+    function playSound(type) {
+        // 音效已移除
+    }
+    
     const START_QUOTES = [
         // === ❤️ 深情告白篇 ===
         "迷雾中，聪仔是唯一的灯塔。<br>没有他，世界将一片漆黑。",
@@ -381,9 +862,9 @@
             bad: 0.75     // 坏鱼 75%
         },
         hard: {
-            good: 0.08,   // 爱心 8%
-            buff: 0.02,    // Buff 2%
-            bad: 0.90      // 坏鱼 90%
+            good: 0.12,   // 爱心 12% (从8%提高，保证基本收集体验)
+            buff: 0.03,   // Buff 3% (从2%提高)
+            bad: 0.85     // 坏鱼 85% (从90%降低)
         }
     };
 
@@ -403,22 +884,31 @@
         }
     };
 
-    // 事件触发权重 [迷雾, 激流, 星落] - 总和应为1.0
+    // 事件触发权重 [迷雾, 激流, 星落, 双倍分数, 爱心雨, 重力反转] - 总和应为1.0
     const EVENT_WEIGHTS = {
         easy: {
-            fog: 0.3,      // 迷雾 30%
-            current: 0.3,  // 激流 30%
-            starfall: 0.4  // 星落 40%
+            fog: 0.15,           // 迷雾 15%
+            current: 0.15,       // 激流 15%
+            starfall: 0.25,      // 星落 25%
+            doubleScore: 0.25,   // 双倍分数 25% (正面)
+            heartRain: 0.15,     // 爱心雨 15% (正面)
+            gravityReverse: 0.05 // 重力反转 5% (负面)
         },
         normal: {
-            fog: 0.4,      // 迷雾 40%
-            current: 0.4,  // 激流 40%
-            starfall: 0.2  // 星落 20%
+            fog: 0.2,            // 迷雾 20%
+            current: 0.2,        // 激流 20%
+            starfall: 0.15,      // 星落 15%
+            doubleScore: 0.2,    // 双倍分数 20% (正面)
+            heartRain: 0.1,      // 爱心雨 10% (正面)
+            gravityReverse: 0.15 // 重力反转 15% (负面)
         },
         hard: {
-            fog: 0.5,      // 迷雾 50%
-            current: 0.45, // 激流 45%
-            starfall: 0.05 // 星落 5%
+            fog: 0.28,           // 迷雾 28% (从25%提高)
+            current: 0.28,       // 激流 28% (从25%提高)
+            starfall: 0.08,      // 星落 8% (从5%提高)
+            doubleScore: 0.12,   // 双倍分数 12% (从10%提高)
+            heartRain: 0.06,     // 爱心雨 6% (从5%提高)
+            gravityReverse: 0.18 // 重力反转 18% (从30%降低，太高体验差)
         }
     };
 
@@ -447,7 +937,7 @@
         good: [
             { type: 'heart', r: 8, color: '#ff4081', score: 10, fever: 2, speed: [1, 2], name: '小惊喜', minScore: 0 },
             { type: 'heart', r: 15, color: '#ff0055', score: 20, fever: 5, speed: [1.5, 2.5], name: '大礼物', minScore: 100 },
-            { type: 'heart', subtype: 'star', r: 12, color: '#FFD700', score: 50, fever: 15, speed: [3, 5], name: '幸运星', minScore: 300 },
+            { type: 'heart', subtype: 'star', r: 12, color: '#FFD700', score: 50, fever: 5, speed: [3, 5], name: '幸运星', minScore: 300 },
             { type: 'heart', subtype: 'diamond', r: 20, color: '#E0FFFF', score: 500, fever: 100, speed: [4, 6], name: '永恒钻戒', minScore: 2500, rarity: 0.01 }
         ],
         buff: [
@@ -590,9 +1080,12 @@
         ctx.save();
         ctx.translate(x, y);
         if (type === 'player' || type === 'guardian') { ctx.rotate(angle); }
-        const tailWag = Math.sin(frameCount * 0.2) * 0.2;
-        const finWag = Math.cos(frameCount * 0.15) * 5;
-        const bodyWave = Math.sin(frameCount * 0.1) * 0.05;
+        
+        // 增强的波动效果
+        const tailWag = Math.sin(frameCount * 0.2) * 0.25; // 增强尾巴摇摆
+        const finWag = Math.cos(frameCount * 0.15) * 6; // 增强鱼鳍摇摆
+        const bodyWave = Math.sin(frameCount * 0.12) * 0.08; // 增强身体波动
+        const bodyWave2 = Math.sin(frameCount * 0.12 + Math.PI/3) * 0.06; // 第二层波动（相位延迟）
 
         // 绘制尾巴
         ctx.save(); ctx.translate(-r, 0); ctx.rotate(tailWag); ctx.beginPath(); ctx.moveTo(0, 0);
@@ -802,7 +1295,9 @@
         ctx.globalAlpha = 1.0;
         ctx.restore();
 
-        // 绘制身体
+        // 绘制身体（应用波动形变）
+        ctx.save();
+        ctx.rotate(bodyWave); // 身体整体轻微旋转
         ctx.beginPath();
         if (type === 'shark') {
             ctx.ellipse(0, 0, r * 1.8, r * 0.7, 0, 0, Math.PI * 2);
@@ -1079,6 +1574,7 @@
         }
         ctx.fillStyle = bodyGrad;
         ctx.fill();
+        ctx.restore(); // 结束身体波动形变
 
         // 添加纹理细节
         if (type === 'clownfish') {
@@ -1415,19 +1911,42 @@
             ctx.fillText("聪仔", 0, 0);
         }
 
-        // 为某些鱼类添加光晕效果
+        // 增强光晕效果（所有鱼类都有，但强度不同）
+        let glowIntensity = 0.15;
+        let glowRadius = r * 1.5;
+        
+        // 特定鱼类增强光晕
         if (type === 'goldfish' || type === 'tropical' || type === 'clownfish' || type === 'seahorse' || type === 'jellyfish') {
-            ctx.globalAlpha = 0.25;
-            ctx.beginPath();
-            ctx.arc(0, 0, r * 1.8, 0, Math.PI * 2);
-            const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 1.8);
-            glowGrad.addColorStop(0, color);
-            glowGrad.addColorStop(0.5, color);
-            glowGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = glowGrad;
-            ctx.fill();
-            ctx.globalAlpha = 1.0;
+            glowIntensity = 0.3;
+            glowRadius = r * 2.0;
+        } else if (type === 'angelfish' || type === 'butterflyfish' || type === 'parrotfish') {
+            glowIntensity = 0.25;
+            glowRadius = r * 1.8;
         }
+        
+        // 绘制多层光晕（外层）
+        ctx.globalAlpha = glowIntensity * 0.6;
+        ctx.beginPath();
+        ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
+        const glowGrad1 = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
+        glowGrad1.addColorStop(0, color);
+        glowGrad1.addColorStop(0.3, color);
+        glowGrad1.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad1;
+        ctx.fill();
+        
+        // 内层光晕（更亮）
+        ctx.globalAlpha = glowIntensity;
+        ctx.beginPath();
+        ctx.arc(0, 0, glowRadius * 0.6, 0, Math.PI * 2);
+        const glowGrad2 = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius * 0.6);
+        glowGrad2.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+        glowGrad2.addColorStop(0.5, color);
+        glowGrad2.addColorStop(1, 'transparent');
+        ctx.fillStyle = glowGrad2;
+        ctx.fill();
+        
+        ctx.globalAlpha = 1.0;
 
         // 为海豚添加水花效果
         if (type === 'dolphin' && frameCount % 10 < 3) {
@@ -1493,6 +2012,160 @@
             ctx.beginPath();
             ctx.arc(r * 0.6 + 2, -r * 0.15, r * 0.05, 0, Math.PI * 2);
             ctx.fill();
+        }
+        
+        // 为河豚添加膨胀动画
+        if (type === 'puffer') {
+            const puffScale = 1 + Math.sin(frameCount * 0.1) * 0.15; // 周期性膨胀
+            ctx.save();
+            ctx.scale(puffScale, puffScale);
+            // 绘制刺（在膨胀时变长）
+            ctx.globalAlpha = 0.8;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 12; i++) {
+                const angle = (i * Math.PI * 2) / 12;
+                const spikeLength = r * 0.4 * puffScale;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(angle) * r * 0.8, Math.sin(angle) * r * 0.8);
+                ctx.lineTo(Math.cos(angle) * (r * 0.8 + spikeLength), Math.sin(angle) * (r * 0.8 + spikeLength));
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+            ctx.restore();
+        }
+        
+        // 为鲨鱼/电鳗添加电流效果
+        if (type === 'eel' || type === 'moray') {
+            if (frameCount % 60 < 10) { // 每60帧闪瀐1次，持续10帧
+                ctx.save();
+                ctx.globalAlpha = 0.6 + Math.random() * 0.3;
+                ctx.strokeStyle = '#FFEB3B';
+                ctx.lineWidth = 2;
+                // 绘制闪电线条
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    const startX = -r + Math.random() * r * 2;
+                    const startY = -r + Math.random() * r * 2;
+                    ctx.moveTo(startX, startY);
+                    for (let j = 0; j < 3; j++) {
+                        ctx.lineTo(
+                            startX + (Math.random() - 0.5) * r * 0.5,
+                            startY + (Math.random() - 0.5) * r * 0.5
+                        );
+                    }
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+        }
+        
+        // 为鲨鱼/魔鬼鱼添加滤食流动效果
+        if (type === 'manta' || type === 'ray' || type === 'stingray') {
+            ctx.save();
+            ctx.globalAlpha = 0.3;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            // 绘制流线（从嘴部往后流动）
+            for (let i = 0; i < 5; i++) {
+                const offset = (frameCount * 0.3 + i * 15) % (r * 3);
+                ctx.beginPath();
+                ctx.moveTo(r * 0.5, -r * 0.3 + i * r * 0.15);
+                ctx.lineTo(r * 0.5 - offset * 0.5, -r * 0.3 + i * r * 0.15);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+            ctx.restore();
+        }
+        
+        // 为鲨鱼/梭鱼添加速度线（快速捕食者）
+        if (type === 'barracuda' || type === 'swordfish') {
+            ctx.save();
+            ctx.globalAlpha = 0.4;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 2;
+            // 绘制速度线
+            for (let i = 0; i < 3; i++) {
+                const length = r * (0.8 + i * 0.2);
+                const offset = (frameCount * 0.5 + i * 10) % 30;
+                ctx.beginPath();
+                ctx.moveTo(-r - offset, -r * 0.3 + i * r * 0.3);
+                ctx.lineTo(-r - offset - length, -r * 0.3 + i * r * 0.3);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+            ctx.restore();
+        }
+        
+        // 为鲨鱼添加喂水效果
+        if (type === 'whale') {
+            if (frameCount % 120 < 20) { // 每120帧喷一次水
+                ctx.save();
+                ctx.globalAlpha = 0.6;
+                ctx.fillStyle = 'rgba(135, 206, 235, 0.7)';
+                // 绘制喷水柱
+                for (let i = 0; i < 5; i++) {
+                    const t = (frameCount % 120) / 20;
+                    const height = r * 1.5 * t;
+                    const spread = i * 3;
+                    ctx.beginPath();
+                    ctx.arc(0, -r - height, 2 + i, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+        }
+        
+        // 为鲨鱼添加威胁动画（眼睛发红光）
+        if (type === 'shark') {
+            if (frameCount % 90 < 30) { // 周期性发红光
+                ctx.save();
+                ctx.globalAlpha = 0.5 + Math.sin(frameCount * 0.3) * 0.3;
+                const eyeGlow = ctx.createRadialGradient(eyeX, eyeY, 0, eyeX, eyeY, eyeSize * 2);
+                eyeGlow.addColorStop(0, '#FF0000');
+                eyeGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = eyeGlow;
+                ctx.beginPath();
+                ctx.arc(eyeX, eyeY, eyeSize * 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+        }
+        
+        // 为章鱼添加墨汁效果（受惊时）
+        if (type === 'octopus') {
+            if (frameCount % 180 < 15) { // 偶尔释放墨汁
+                ctx.save();
+                ctx.globalAlpha = 0.7 - (frameCount % 180) / 15 * 0.7; // 渐淡
+                const inkSize = r * 1.5 * ((frameCount % 180) / 15);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.beginPath();
+                ctx.arc(-r * 1.5, 0, inkSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+            }
+        }
+        
+        // 为鲤头鲨添加扫描动画（头部摇摆）
+        if (type === 'hammerhead') {
+            ctx.save();
+            const hammerSwing = Math.sin(frameCount * 0.15) * 0.15;
+            ctx.rotate(hammerSwing);
+            // 绘制扫描波纹
+            ctx.globalAlpha = 0.3;
+            ctx.strokeStyle = 'rgba(100, 200, 255, 0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 3; i++) {
+                ctx.beginPath();
+                ctx.arc(r * 0.5, 0, r * 0.5 + i * 5, -Math.PI / 4, Math.PI / 4);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1.0;
+            ctx.restore();
         }
 
         ctx.restore();
@@ -1649,7 +2322,7 @@
                 ctx.globalAlpha = 1.0;
                 ctx.restore();
 
-                // 绘制星星特效
+                // 绘制星星特效（内圈）
                 ctx.save();
                 ctx.globalAlpha = 0.8;
                 ctx.fillStyle = '#FFD700';
@@ -1661,6 +2334,35 @@
                     const starSize = 3 + Math.sin(frameCount * 0.2 + i) * 2;
                     ctx.beginPath();
                     ctx.arc(starX, starY, starSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1.0;
+                ctx.restore();
+                
+                // 绘制粒子特效（外圈，反向旋转）
+                ctx.save();
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i * Math.PI * 2 / 12) - frameCount * 0.08;
+                    const dist = r * 2.2 + Math.sin(frameCount * 0.15 + i * 0.5) * 8;
+                    const particleX = Math.cos(angle) * dist;
+                    const particleY = Math.sin(angle) * dist;
+                    const particleSize = 2 + Math.sin(frameCount * 0.25 + i) * 1;
+                    const particleAlpha = 0.4 + Math.sin(frameCount * 0.2 + i * 0.3) * 0.3;
+                    
+                    ctx.globalAlpha = particleAlpha;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.beginPath();
+                    ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 小光晕
+                    ctx.globalAlpha = particleAlpha * 0.3;
+                    const particleGlow = ctx.createRadialGradient(particleX, particleY, 0, particleX, particleY, particleSize * 3);
+                    particleGlow.addColorStop(0, '#FFFFFF');
+                    particleGlow.addColorStop(1, 'transparent');
+                    ctx.fillStyle = particleGlow;
+                    ctx.beginPath();
+                    ctx.arc(particleX, particleY, particleSize * 3, 0, Math.PI * 2);
                     ctx.fill();
                 }
                 ctx.globalAlpha = 1.0;
@@ -1923,6 +2625,11 @@
     // 粒子特效类
     class Particle {
         constructor(x, y, color, type = 'sparkle') {
+            this.reset(x, y, color, type);
+        }
+        
+        // 重置粒子状态（用于对象池）
+        reset(x, y, color, type = 'sparkle') {
             this.x = x;
             this.y = y;
             this.color = color;
@@ -1972,10 +2679,37 @@
         }
     }
 
+    // 粒子对象池（性能优化）
+    const particlePool = [];
+    const PARTICLE_POOL_SIZE = 100;
+    
+    // 预创建粒子对象池
+    for (let i = 0; i < PARTICLE_POOL_SIZE; i++) {
+        particlePool.push(new Particle(0, 0, '#fff', 'sparkle'));
+    }
+    
+    // 从对象池获取粒子
+    function getParticle(x, y, color, type) {
+        if (particlePool.length > 0) {
+            const particle = particlePool.pop();
+            particle.reset(x, y, color, type);
+            return particle;
+        }
+        return new Particle(x, y, color, type);
+    }
+    
+    // 回收粒子到对象池
+    function recycleParticle(particle) {
+        if (particlePool.length < PARTICLE_POOL_SIZE) {
+            particlePool.push(particle);
+        }
+    }
+    
     // 创建粒子爆炸效果
     function createParticleExplosion(x, y, color, count = 15) {
         for (let i = 0; i < count; i++) {
-            particles.push(new Particle(x, y, color, Math.random() < 0.5 ? 'sparkle' : 'circle'));
+            const type = Math.random() < 0.5 ? 'sparkle' : 'circle';
+            particles.push(getParticle(x, y, color, type));
         }
     }
 
@@ -1997,6 +2731,9 @@
 
         input.x = width / 2;
         input.y = height / 2;
+        
+        // 性能优化：重置背景缓存，下次绘制时重新生成
+        cachedBgCanvas = null;
     }
 
     // iOS Safari特殊处理：监听orientationchange和resize
@@ -2091,6 +2828,11 @@
         if (buffs.speed > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FFD700">🍬</div>`;
         if (buffs.magnet > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF6347">🧲</div>`;
         if (buffs.hunter > 0) buffBar.innerHTML += `<div class="buff-icon" style="background:#00CED1">🎯</div>`;
+        
+        // 新事件状态显示
+        if (doubleScoreActive) buffBar.innerHTML += `<div class="buff-icon" style="background:#FFD700; animation: pulse 0.5s infinite;">💯</div>`;
+        if (heartRainActive) buffBar.innerHTML += `<div class="buff-icon" style="background:#FF69B4">💖</div>`;
+        if (gravityReversed) buffBar.innerHTML += `<div class="buff-icon" style="background:#9C27B0">🔄</div>`;
     }
 
     function checkGameEvolution() {
@@ -2101,13 +2843,18 @@
 
     function triggerEvent(type) {
         currentEvent = type;
-        eventTimer = 600;
+        eventTimer = 600; // 10秒默认时长
         items = items.filter(i => i.subtype !== 'lightning' && i.subtype !== 'ice');
 
         let title = ""; let desc = ""; let bgColor = "";
+        
+        // 重置事件状态
+        doubleScoreActive = false;
+        gravityReversed = false;
+        heartRainActive = false;
+        
         if (type === 'fog') {
-            title = "🌫️ 迷茫之雾";
-            // 根据聪仔是否激活显示不同描述
+            title = "🌫️ 迷范之雾";
             if (guardian.active) {
                 desc = "看不清未来...但有你在";
             } else {
@@ -2130,6 +2877,18 @@
             }
         } else if (type === 'starfall') {
             title = "🌠 幸运流星"; desc = "属于我们的高光时刻，快许愿！"; bgColor = "#FFD700";
+        } else if (type === 'doubleScore') {
+            // 新事件：双倍分数
+            title = "💯 爱意爆棚"; desc = "所有得分翻倍！把握机会！"; bgColor = "#FFD700";
+            doubleScoreActive = true;
+        } else if (type === 'heartRain') {
+            // 新事件：爱心雨
+            title = "💖 爱心雨"; desc = "爱在空中飘洒，尽情收集吧！"; bgColor = "#FF69B4";
+            heartRainActive = true;
+        } else if (type === 'gravityReverse') {
+            // 新事件：重力反转
+            title = "🔄 世界颠倒"; desc = "上下反转，小心控制！"; bgColor = "#9C27B0";
+            gravityReversed = true;
         }
 
         eventTitle.innerText = title;
@@ -2141,6 +2900,8 @@
     function updateEventLogic() {
         if (currentEvent) {
             eventTimer--;
+            
+            // 原有事件逻辑
             if (currentEvent === 'current') {
                 player.x += currentForce.x; player.y += currentForce.y;
                 if (guardian.active) { guardian.x += currentForce.x * 0.8; guardian.y += currentForce.y * 0.8; }
@@ -2151,17 +2912,54 @@
                 star.color = '#FFD700'; star.score = 50; star.fever = 15; star.speed *= 2;
                 items.push(star);
             }
+            
+            // 新事件逻辑：爱心雨
+            if (currentEvent === 'heartRain' && frameCount % 20 === 0) {
+                const heart = new Item(currentDifficulty);
+                heart.type = 'heart';
+                heart.x = Math.random() * canvas.width;
+                heart.y = -50;
+                heart.vx = 0;
+                heart.vy = 2 + Math.random() * 2; // 垂直下落
+                items.push(heart);
+            }
+            
+            // 事件结束
             if (eventTimer <= 0) {
-                currentEvent = null; spawnFloatingText("风平浪静了...", player.x, player.y - 50, '#fff');
+                currentEvent = null;
+                doubleScoreActive = false;
+                gravityReversed = false;
+                heartRainActive = false;
+                spawnFloatingText("风平浪静了...", player.x, player.y - 50, '#fff');
             }
         } else {
             nextEventCooldown--;
             if (nextEventCooldown <= 0) {
                 const probs = currentDifficulty.eventProb;
                 const rand = Math.random();
-                if (rand < probs.fog) triggerEvent('fog');
-                else if (rand < probs.fog + probs.current) triggerEvent('current');
-                else triggerEvent('starfall');
+                let cumulative = 0;
+                
+                // 根据权重选择事件
+                cumulative += probs.fog;
+                if (rand < cumulative) { triggerEvent('fog'); }
+                else {
+                    cumulative += probs.current;
+                    if (rand < cumulative) { triggerEvent('current'); }
+                    else {
+                        cumulative += probs.starfall;
+                        if (rand < cumulative) { triggerEvent('starfall'); }
+                        else {
+                            cumulative += probs.doubleScore;
+                            if (rand < cumulative) { triggerEvent('doubleScore'); }
+                            else {
+                                cumulative += probs.heartRain;
+                                if (rand < cumulative) { triggerEvent('heartRain'); }
+                                else { triggerEvent('gravityReverse'); }
+                            }
+                        }
+                    }
+                }
+                
                 nextEventCooldown = Math.random() * 1000 + 1000;
             }
         }
@@ -2239,6 +3037,9 @@
         spawnFloatingText("🔥 恋爱爆发! 无敌! 🔥", canvas.width/2 - 100, canvas.height/2, '#FF1493', 30);
         body.classList.add('fever-mode-bg');
         if(navigator.vibrate) navigator.vibrate([100,50,100]);
+        
+        // 播放心动爆发音效
+        playSound('fever');
     }
 
     // ================= 角色类 =================
@@ -2783,33 +3584,33 @@
                 const largeFish = availableItems.filter(i => i.r >= 30 && i.r < 50);   // 较大鱼种
                 const hugeFish = availableItems.filter(i => i.r >= 50);     // 超大型鱼种
 
-                // 根据分数段设置权重
+                // 根据分数段设置权重（优化后：降低超大鱼，保留小鱼体验）
                 let earlyWeight, mediumWeight, largeWeight, hugeWeight;
 
                 if (score < 1000) {
-                    // 0-1000分：早期鱼种为主，中等鱼种次之，少量大鱼
+                    // 0-1000分：早期鱼种为主，渐进式升级
                     earlyWeight = 0.5;    // 50%
                     mediumWeight = 0.3;   // 30%
                     largeWeight = 0.15;   // 15%
                     hugeWeight = 0.05;    // 5%
                 } else if (score < 2000) {
-                    // 1000-2000分：中等和较大鱼种为主，早期鱼种减少
-                    earlyWeight = 0.25;   // 25%
+                    // 1000-2000分：中等鱼为主，降低超大鱼出现率
+                    earlyWeight = 0.3;    // 30% (从25%提高，保留可吃小鱼)
                     mediumWeight = 0.35;  // 35%
-                    largeWeight = 0.3;     // 30%
-                    hugeWeight = 0.1;     // 10%
+                    largeWeight = 0.3;    // 30%
+                    hugeWeight = 0.05;    // 5% (从10%降低，避免过早遇到鲸鱼)
                 } else if (score < 3000) {
-                    // 2000-3000分：较大和超大型鱼种为主
-                    earlyWeight = 0.15;   // 15%
+                    // 2000-3000分：较大鱼为主，适量超大鱼
+                    earlyWeight = 0.2;    // 20% (从15%提高)
                     mediumWeight = 0.25;  // 25%
-                    largeWeight = 0.35;    // 35%
-                    hugeWeight = 0.25;    // 25%
+                    largeWeight = 0.4;    // 40% (从35%提高)
+                    hugeWeight = 0.15;    // 15% (从25%降低)
                 } else {
-                    // 3000+分：超大型和较大鱼种为主，早期鱼种保持最低
-                    earlyWeight = 0.1;    // 10%
+                    // 3000+分：高难度，但保留小鱼体验
+                    earlyWeight = 0.15;   // 15% (从10%提高)
                     mediumWeight = 0.2;   // 20%
-                    largeWeight = 0.35;    // 35%
-                    hugeWeight = 0.35;    // 35%
+                    largeWeight = 0.4;    // 40% (从35%提高)
+                    hugeWeight = 0.25;    // 25% (从35%降低)
                 }
 
                 // 如果某个类别没有可用鱼种，将其权重设为0
@@ -3021,13 +3822,16 @@
                 this.x += this.vx;
                 // 支持垂直移动（困难模式下从上下方向生成的鱼）
                 if (this.vy !== undefined) {
-                    this.y += this.vy;
+                    // 重力反转：垂直速度反向
+                    const vyMultiplier = gravityReversed ? -1 : 1;
+                    this.y += this.vy * vyMultiplier;
                 }
             } else {
                 // 追击时仍然保留少量横向移动，但主要靠追击移动
                 this.x += this.vx * 0.3;
                 if (this.vy !== undefined) {
-                    this.y += this.vy * 0.3;
+                    const vyMultiplier = gravityReversed ? -1 : 1;
+                    this.y += this.vy * 0.3 * vyMultiplier;
                 }
             }
 
@@ -3157,13 +3961,14 @@
     }
 
     function gameLoop() {
-        if (!gameRunning) return;
-        if (isPaused) return;
+        try {
+            if (!gameRunning) return;
+            if (isPaused) return;
 
-        // 更新游戏时间（每秒60帧，每帧增加1/60秒）
-        gameTime += 1 / 60;
-        // 更新天数显示（1分钟=1天）
-        sizeEl.innerText = Math.floor(gameTime / 60) + 1;
+            // 更新游戏时间（每秒60帧，每帧增加1/60秒）
+            gameTime += 1 / 60;
+            // 更新天数显示（1分钟=1天）
+            sizeEl.innerText = Math.floor(gameTime / 60) + 1;
 
         // 更新屏幕震动
         if (screenShake.intensity > 0) {
@@ -3180,53 +3985,57 @@
         ctx.save();
         ctx.translate(screenShake.x, screenShake.y);
 
-        // 绘制背景渐变（作为背景图的底层，仅在背景图未加载时显示）
-        if (!bgImageLoaded) {
-            // 如果背景图未加载，使用默认渐变作为后备
-            const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
-            bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
-            ctx.globalAlpha = 1.0;
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // 性能优化：使用缓存的背景
+        const bgCache = generateBackgroundCache();
+        if (bgCache) {
+            ctx.drawImage(bgCache, 0, 0);
         } else {
-            // 背景图已加载，不绘制渐变，让背景图完全显示
-            ctx.globalAlpha = 1.0;
-        }
-
-        // 绘制背景图片（如果已加载）
-        if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
-            ctx.globalAlpha = 1.0; // 恢复完全不透明
-            // 计算缩放比例，使图片覆盖整个canvas
-            const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
-            const scaledWidth = bgImage.width * scale;
-            const scaledHeight = bgImage.height * scale;
-            const x = (canvas.width - scaledWidth) / 2;
-            const y = (canvas.height - scaledHeight) / 2;
-            ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+            // Fallback: 直接绘制
+            if (!bgImageLoaded) {
+                const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+                bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            if (bgImageLoaded && bgImage.complete && bgImage.naturalWidth > 0) {
+                ctx.globalAlpha = 1.0;
+                const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+                const scaledWidth = bgImage.width * scale;
+                const scaledHeight = bgImage.height * scale;
+                const x = (canvas.width - scaledWidth) / 2;
+                const y = (canvas.height - scaledHeight) / 2;
+                ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+            }
         }
 
         // 恢复透明度，确保后续绘制正常
         ctx.globalAlpha = 1.0;
 
-        // 绘制背景美化效果：光斑
-        lightRays.forEach(ray => {
-            ray.update();
-            ray.draw();
-        });
+        // 性能优化：用for循环替换forEach
+        for (let i = 0; i < lightRays.length; i++) {
+            lightRays[i].update();
+            lightRays[i].draw();
+        }
 
-        // 绘制背景美化效果：气泡
-        gameBubbles.forEach(bubble => {
-            bubble.update();
-            bubble.draw();
-        });
+        // 性能优化：用for循环替换forEach
+        for (let i = 0; i < gameBubbles.length; i++) {
+            gameBubbles[i].update();
+            gameBubbles[i].draw();
+        }
 
-        // 更新和绘制粒子
-        particles = particles.filter(p => {
-            p.update();
-            p.draw();
-            return p.life > 0;
-        });
+        // 更新和绘制粒子（使用对象池回收）
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            if (!p.update()) {
+                // 粒子生命结束，回收到对象池
+                recycleParticle(p);
+                particles.splice(i, 1);
+            } else {
+                p.draw();
+            }
+        }
 
         player.update();
         updateBuffUI(player.buffs, guardian.active);
@@ -3257,8 +4066,10 @@
             }
         }
 
-        // 绘制鱼群（在玩家之前绘制，这样玩家可以在鱼群上方）
-        fishSchools.forEach(school => school.draw());
+        // 性能优化：用for循环替换forEach
+        for (let i = 0; i < fishSchools.length; i++) {
+            fishSchools[i].draw();
+        }
 
         player.draw();
 
@@ -3281,6 +4092,14 @@
             const margin = 200;
             if (item.x < -margin || item.x > canvas.width + margin ||
                 item.y < -margin || item.y > canvas.height + margin) {
+                // 关卡5：躲避大师 - 坏鱼离开屏幕时计为成功躲避
+                if (isStageMode && item.type === 'bad') {
+                    const stage = STAGES.find(s => s.id === currentStage);
+                    if (stage && stage.type === 'dodge_obstacles') {
+                        stageObstaclesDodged++;
+                        updateStageObjective();
+                    }
+                }
                 items.splice(i, 1);
                 continue;
             }
@@ -3290,10 +4109,30 @@
 
                 if (item.type === 'heart') {
                     items.splice(i, 1);
-                    score += item.score;
+                    // 双倍分数效果
+                    const scoreGain = doubleScoreActive ? item.score * 2 : item.score;
+                    score += scoreGain;
                     addFever(item.fever || 5);
                     scoreEl.innerText = score;
                     checkGameEvolution();
+                    
+                    // 播放音效
+                    playSound('collect');
+                    
+                    // 双倍时显示特殊提示
+                    if (doubleScoreActive) {
+                        spawnFloatingText(`+${scoreGain} (x2!)`, item.x, item.y - 50, '#FFD700', 20);
+                    }
+
+                    // 闯关模式：更新关卡进度
+                    if (isStageMode) {
+                        const stage = STAGES.find(s => s.id === currentStage);
+                        if (stage && (stage.type === 'collect_hearts' || stage.type === 'fog_collect' || 
+                                      stage.type === 'current_collect' || stage.type === 'timed_collect')) {
+                            stageProgress++;
+                            updateStageObjective();
+                        }
+                    }
 
                     // 触发嘴巴动画
                     player.mouthAnimationTimer = 15;
@@ -3305,7 +4144,11 @@
                     const sweetWord = LOVE_WORDS[Math.floor(Math.random() * LOVE_WORDS.length)];
                     spawnFloatingText(sweetWord, player.x, player.y - 30, item.color);
 
-                    if (item.subtype === 'diamond') { feverValue = 100; activateFever(); }
+                    if (item.subtype === 'diamond') { 
+                        feverValue = 100; 
+                        activateFever();
+                        playSound('rare'); // 钻戒特殊音效
+                    }
 
                     if (player.radius < 60) {
                         // 根据物品大小计算成长值
@@ -3345,6 +4188,8 @@
                     player.mouthAnimationTimer = 15;
                     // 添加粒子特效
                     createParticleExplosion(item.x, item.y, item.color, 15);
+                    // 播放buff音效
+                    playSound('buff');
                     if (item.subtype === 'summon') {
                         // 根据难度设置不同的守护持续时间
                         // 简单模式：15秒（900帧），普通模式：12秒（720帧），困难模式：8秒（480帧）
@@ -3407,9 +4252,12 @@
                             const bonusFever = item.rareBonusFever || 10;
                             const bonusGrowth = item.rareBonusGrowth || 0.3;
 
-                            score += 10 + bonusScore; // 基础10分 + 稀有奖励
+                            score += 10 + bonusScore; // 基础 10分 + 稀有奖励
                             scoreEl.innerText = score;
                             addFever(bonusFever);
+                            
+                            // 稀有鱼特殊音效
+                            playSound('rare');
 
                             spawnFloatingText("✨ " + item.name + " ✨", player.x, player.y - 30, item.color, 24);
                             spawnFloatingText("+ " + bonusScore + " 分!", player.x, player.y - 50, '#FFD700', 20);
@@ -3438,6 +4286,7 @@
                         } else {
                             spawnFloatingText("粉碎障碍!", player.x, player.y - 30, '#FF1493', 24);
                             score += 10; scoreEl.innerText = score;
+                            playSound('defeat'); // 打败障碍音效
                             if(navigator.vibrate) navigator.vibrate(50);
 
                             // 无敌模式下吃坏鱼也有成长
@@ -3550,6 +4399,8 @@
                                 screenShake.intensity = 20;
                                 // 添加粒子特效
                                 createParticleExplosion(player.x, player.y, '#ff0000', 25);
+                                // 播放受伤音效
+                                playSound('damage');
                                 deathReasonEl.innerText = `被"${item.name}"绊倒了...`;
                                 endGame();
                             }
@@ -3582,24 +4433,295 @@
         if (currentEvent === 'current') {
             ctx.save();
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'; ctx.lineWidth = 2; ctx.beginPath();
-            flowParticles.forEach(p => {
+            // 性能优化：用for循环替换forEach
+            for (let i = 0; i < flowParticles.length; i++) {
+                const p = flowParticles[i];
                 p.x += currentForce.x * 2; p.y += currentForce.y * 2;
                 if(p.x > canvas.width) p.x = 0; else if(p.x < 0) p.x = canvas.width;
                 if(p.y > canvas.height) p.y = 0; else if(p.y < 0) p.y = canvas.height;
                 ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - currentForce.x * 2, p.y - currentForce.y * 2);
-            });
+            }
             ctx.stroke(); ctx.restore();
         }
 
         ctx.restore(); // 结束屏幕震动变换
 
-        animationId = requestAnimationFrame(gameLoop);
+        // 闯关模式：更新生存关卡进度
+        if (isStageMode) {
+            const stage = STAGES.find(s => s.id === currentStage);
+            if (stage && stage.type === 'survive') {
+                updateStageObjective();
+            }
+        }
+
+            animationId = requestAnimationFrame(gameLoop);
+        } catch(e) {
+            console.error('游戏循环出错:', e);
+            // 错误时尝试继续运行，避免游戏完全崩溃
+            if (gameRunning && !isPaused) {
+                animationId = requestAnimationFrame(gameLoop);
+            }
+        }
     }
 
     function startGame(difficulty) {
+        isStageMode = false;
         startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; pauseScreen.style.display = 'none';
-        uiLayer.style.display = 'block'; pauseBtn.style.display = 'flex';
-        init(difficulty); gameRunning = true; gameLoop();
+        if (stageSelectScreen) stageSelectScreen.style.display = 'none';
+        if (stageCompleteScreen) stageCompleteScreen.style.display = 'none';
+        if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
+        uiLayer.style.display = 'block'; 
+        pauseBtn.style.display = 'flex';
+        init(difficulty); gameRunning = true;
+        
+        gameLoop();
+    }
+
+    // ========== 闯关模式函数 ==========
+
+    function showStageSelect() {
+        startScreen.style.display = 'none';
+        if (!stageSelectScreen) {
+            stageSelectScreen = document.getElementById('stage-select-screen');
+        }
+        stageSelectScreen.style.display = 'flex';
+        // 重置滚动位置到顶部
+        stageSelectScreen.scrollTop = 0;
+        renderStageGrid();
+    }
+
+    function renderStageGrid() {
+        const grid = document.getElementById('stage-grid');
+        if (!grid) {
+            console.error('关卡网格元素未找到');
+            return;
+        }
+        
+        grid.innerHTML = '';
+        
+        STAGES.forEach((stage, index) => {
+            const isUnlocked = index === 0 || (stageProgress_data[STAGES[index - 1].id]?.completed === true);
+            const isCompleted = stageProgress_data[stage.id]?.completed === true;
+            
+            const card = document.createElement('div');
+            card.className = 'stage-card';
+            if (!isUnlocked) card.classList.add('locked');
+            if (isCompleted) card.classList.add('completed');
+            
+            const statusIcon = isCompleted ? '✅' : (isUnlocked ? '🔓' : '🔒');
+            
+            // 构建卡片HTML
+            let cardHTML = `
+                <div class="stage-status">${statusIcon}</div>
+                <div class="stage-number">关卡 ${stage.id}</div>
+                <div class="stage-name">${stage.icon} ${stage.name}</div>
+                <div class="stage-desc">${stage.desc}</div>
+                <div class="stage-objective">🎯 ${stage.objectiveText}: ${stage.target}${stage.type === 'survive' ? '秒' : ''}</div>
+            `;
+            
+            // 如果已完成，显示最佳成绩
+            if (isCompleted && stageProgress_data[stage.id]) {
+                const best = stageProgress_data[stage.id];
+                const rating = '⭐'.repeat(best.rating || 3);
+                cardHTML += `
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3); font-size: 12px;">
+                        <div>${rating}</div>
+                        <div style="opacity: 0.9; margin-top: 4px;">🏆 最佳: ${best.score}分 | ⏱️ ${best.timeUsed || '?'}秒</div>
+                    </div>
+                `;
+            }
+            
+            card.innerHTML = cardHTML;
+            
+            if (isUnlocked) {
+                card.onclick = () => startStage(stage.id);
+            }
+            
+            grid.appendChild(card);
+        });
+    }
+
+    function startStage(stageId) {
+        const stage = STAGES.find(s => s.id === stageId);
+        if (!stage) return;
+        
+        isStageMode = true;
+        currentStage = stageId;
+        stageProgress = 0;
+        stageObstaclesDodged = 0;
+        stageSurviveStartTime = 0;
+        stageStartTime = Date.now();
+        stageTimeLimit = stage.timeLimit || 0;
+        
+        // 隐藏关卡选择界面
+        if (stageSelectScreen) stageSelectScreen.style.display = 'none';
+        startScreen.style.display = 'none';
+        gameOverScreen.style.display = 'none';
+        if (stageCompleteScreen) stageCompleteScreen.style.display = 'none';
+        
+        // 显示游戏UI
+        uiLayer.style.display = 'block';
+        pauseBtn.style.display = 'flex';
+        if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'block';
+        // 显示关卡目标
+        if (!stageObjectiveDisplay) {
+            stageObjectiveDisplay = document.getElementById('stage-objective-display');
+            stageObjectiveProgress = document.getElementById('objective-progress');
+        }
+        stageObjectiveDisplay.style.display = 'block';
+        updateStageObjective();
+        
+        // 初始化游戏
+        init(stage.difficulty);
+        
+        // 特殊关卡设置
+        if (stage.type === 'fog_collect') {
+            // 强制进入迷雾事件
+            triggerEvent('fog');
+        } else if (stage.type === 'current_collect') {
+            // 强制进入激流事件
+            triggerEvent('current');
+        } else if (stage.type === 'survive') {
+            stageSurviveStartTime = Date.now();
+        }
+        
+        gameRunning = true;
+        gameLoop();
+    }
+
+    function updateStageObjective() {
+        if (!isStageMode || !stageObjectiveProgress) return;
+        
+        const stage = STAGES.find(s => s.id === currentStage);
+        if (!stage) return;
+        
+        let current = 0;
+        
+        // 限时关卡：检查倒计时
+        if (stageTimeLimit > 0) {
+            const elapsed = Math.floor((Date.now() - stageStartTime) / 1000);
+            const remaining = stageTimeLimit - elapsed;
+            
+            if (remaining <= 0) {
+                // 时间到，检查是否达标
+                if (stageProgress >= stage.target) {
+                    completeStage();
+                } else {
+                    deathReasonEl.innerText = `时间到！只收集了 ${stageProgress}/${stage.target} 爱心`;
+                    endGame();
+                }
+                return;
+            }
+            
+            // 显示倒计时
+            stageObjectiveProgress.textContent = `${stageProgress}/${stage.target} (剩余${remaining}秒)`;
+        } else if (stage.type === 'collect_hearts' || stage.type === 'fog_collect' || 
+                   stage.type === 'current_collect' || stage.type === 'timed_collect') {
+            current = stageProgress;
+            stageObjectiveProgress.textContent = `${current} / ${stage.target}`;
+        } else if (stage.type === 'survive') {
+            current = Math.floor((Date.now() - stageSurviveStartTime) / 1000);
+            stageObjectiveProgress.textContent = `${current} / ${stage.target}`;
+        } else if (stage.type === 'dodge_obstacles') {
+            current = stageObstaclesDodged;
+            stageObjectiveProgress.textContent = `${current} / ${stage.target}`;
+        }
+        
+        // 检查是否完成（除了限时关卡）
+        if (!stageTimeLimit && current >= stage.target) {
+            completeStage();
+        } else if (stageTimeLimit && stageProgress >= stage.target) {
+            completeStage();
+        }
+    }
+
+    function completeStage() {
+        if (!isStageMode) return;
+        
+        const stage = STAGES.find(s => s.id === currentStage);
+        if (!stage) return;
+        
+        gameRunning = false;
+        cancelAnimationFrame(animationId);
+        
+        // 计算用时
+        const timeUsed = Math.floor((Date.now() - stageStartTime) / 1000);
+        
+        // 计算评级（根据用时和分数）
+        let rating = 3; // 默认3星
+        
+        // 基于关卡类型评分
+        if (stage.type === 'survive') {
+            // 生存关卡：基于分数
+            if (score >= stage.target * 3) rating = 3;
+            else if (score >= stage.target * 2) rating = 2;
+            else rating = 1;
+        } else if (stage.type === 'timed_collect') {
+            // 限时关卡：基于完成度
+            const completion = stageProgress / stage.target;
+            if (completion >= 1.5) rating = 3;
+            else if (completion >= 1.2) rating = 2;
+            else rating = 1;
+        } else {
+            // 普通关卡：基于用时
+            const avgTime = stage.target * 2; // 假设平均每个目标花2秒
+            if (timeUsed <= avgTime * 0.7) rating = 3;
+            else if (timeUsed <= avgTime * 1.2) rating = 2;
+            else rating = 1;
+        }
+        
+        // 保存关卡进度（包括用时和评级）
+        const currentBest = stageProgress_data[stage.id];
+        const shouldUpdate = !currentBest || 
+                             score > (currentBest.score || 0) ||
+                             (score === currentBest.score && timeUsed < (currentBest.timeUsed || Infinity));
+        
+        if (shouldUpdate) {
+            stageProgress_data[stage.id] = {
+                completed: true,
+                score: score,
+                timeUsed: timeUsed,
+                rating: rating,
+                date: new Date().toISOString()
+            };
+            const saved = safeLocalStorageSet('love_game_stage_progress', JSON.stringify(stageProgress_data));
+            if (!saved) {
+                console.warn('保存关卡进度失败，可能是存储空间已满');
+            }
+        }
+        
+        // 隐藏UI
+        uiLayer.style.display = 'none';
+        pauseBtn.style.display = 'none';
+        if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
+        
+        // 显示完成界面
+        if (!stageCompleteScreen) {
+            stageCompleteScreen = document.getElementById('stage-complete-screen');
+        }
+        stageCompleteScreen.style.display = 'flex';
+        
+        document.getElementById('stage-complete-message').textContent = stage.completeMessage;
+        document.getElementById('stage-final-score').textContent = score;
+        document.getElementById('stage-time-used').textContent = timeUsed + '秒';
+        
+        // 显示评级
+        const ratingEl = document.getElementById('stage-rating');
+        ratingEl.textContent = '⭐'.repeat(rating);
+        
+        // 检查是否有下一关
+        const nextStageBtn = document.getElementById('next-stage-btn');
+        if (currentStage < STAGES.length) {
+            nextStageBtn.style.display = 'block';
+        } else {
+            nextStageBtn.style.display = 'none';
+        }
+    }
+
+    function nextStage() {
+        if (currentStage < STAGES.length) {
+            startStage(currentStage + 1);
+        }
     }
     function pauseGame(e) {
         if (e) {
@@ -3621,7 +4743,13 @@
             eventBanner.style.transition = 'opacity 0.5s';
         }, 100);
         startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
-        pauseBtn.style.display = 'none'; pauseScreen.style.display = 'none';
+        pauseBtn.style.display = 'none';
+        pauseScreen.style.display = 'none';
+        
+        // 隐藏闯关模式界面
+        if (stageSelectScreen) stageSelectScreen.style.display = 'none';
+        if (stageCompleteScreen) stageCompleteScreen.style.display = 'none';
+        if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
 
         // 先绘制背景，再清除（iOS需要立即显示背景）
         const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -3645,13 +4773,45 @@
     }
     function endGame() {
         gameRunning = false; isPaused = false; cancelAnimationFrame(animationId);
+        
         // 立即隐藏事件标题，避免与首页重叠
         eventBanner.style.opacity = 0;
         eventBanner.style.transition = 'none'; // 禁用过渡动画，立即隐藏
         setTimeout(() => {
-            eventBanner.style.transition = 'opacity 0.5s'; // 恢复过渡动画
+            eventBanner.style.transition = 'opacity 0.5s'; // 恢复过湡动画
         }, 100);
-        finalScoreEl.innerText = score; pauseBtn.style.display = 'none'; gameOverScreen.style.display = 'flex';
+        
+        // 闯关模式下的失败处理
+        if (isStageMode) {
+            const stage = STAGES.find(s => s.id === currentStage);
+            if (stage) {
+                let progressInfo = '';
+                
+                // 根据关卡类型显示进度
+                if (stage.type === 'collect_hearts' || stage.type === 'fog_collect' || 
+                    stage.type === 'current_collect' || stage.type === 'timed_collect') {
+                    progressInfo = `已收集 ${stageProgress}/${stage.target} 爱心`;
+                } else if (stage.type === 'survive') {
+                    const survived = Math.floor((Date.now() - stageSurviveStartTime) / 1000);
+                    progressInfo = `已生存 ${survived}/${stage.target} 秒`;
+                } else if (stage.type === 'dodge_obstacles') {
+                    progressInfo = `已躲避 ${stageObstaclesDodged}/${stage.target} 个障碍`;
+                }
+                
+                // 如果deathReasonEl已经有内容（例如限时关卡），则追加进度信息
+                if (!deathReasonEl.innerText || deathReasonEl.innerText.includes('关卡失败')) {
+                    deathReasonEl.innerText = `关卡失败！${progressInfo}`;
+                } else {
+                    // 已经有具体失败原因，追加进度
+                    deathReasonEl.innerText += `\n${progressInfo}`;
+                }
+            }
+            if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
+        }
+        
+        finalScoreEl.innerText = score; 
+        pauseBtn.style.display = 'none';
+        gameOverScreen.style.display = 'flex';
         body.classList.remove('fever-mode-bg'); body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
     }
 
