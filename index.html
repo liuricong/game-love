@@ -130,8 +130,41 @@
             background: rgba(255, 255, 255, 0.6); border: 2px solid #fff;
             color: #ff758c; font-size: 20px;
             display: flex; justify-content: center; align-items: center;
-            cursor: pointer; pointer-events: auto; z-index: 60;
+            cursor: pointer; pointer-events: auto; z-index: 150;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #collection-btn {
+            position: absolute;
+            top: max(15px, env(safe-area-inset-top)); right: max(70px, calc(env(safe-area-inset-right) + 55px));
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6); border: 2px solid #fff;
+            color: #ff758c; font-size: 20px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; pointer-events: auto; z-index: 150;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #collection-btn-menu {
+            position: absolute;
+            top: max(15px, env(safe-area-inset-top)); right: max(15px, env(safe-area-inset-right));
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+            border: 3px solid #fff;
+            color: #fff; font-size: 24px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; pointer-events: auto; z-index: 150;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5), 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        #collection-btn-menu:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.7), 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        #collection-btn-menu:active {
+            transform: scale(0.95);
         }
         
         /* 音效控制按钮 - 已移除 */
@@ -423,6 +456,282 @@
                 padding: 12px;
             }
         }
+        
+        /* 图鉴样式 */
+        #collection-screen {
+            background: rgba(255, 255, 255, 0.95);
+            justify-content: flex-start;
+            overflow: hidden; /* 外层不滚动 */
+            z-index: 200 !important;
+            padding: 0; /* 重置 padding */
+            pointer-events: auto !important;
+            touch-action: pan-y !important;
+        }
+        
+        /* 图鉴内容包装器 - 实际滚动区域 */
+        .collection-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y !important;
+            overscroll-behavior: contain;
+            padding: 20px;
+            padding-bottom: 80px;
+            box-sizing: border-box;
+            pointer-events: auto !important;
+        }
+        
+        #collection-screen h1 {
+            font-size: 32px;
+            color: #ff758c;
+            margin-bottom: 10px;
+        }
+        
+        .collection-progress {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        /* 标签页样式 */
+        .collection-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            touch-action: pan-y !important;
+        }
+        
+        .tab-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            color: #666;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* 图鉴关闭按钮 */
+        #collection-close-btn {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: max(15px, env(safe-area-inset-right));
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ddd;
+            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 201;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        
+        #collection-close-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+        
+        #collection-close-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .fish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            touch-action: pan-y !important;
+        }
+        
+        .fish-item {
+            background: white;
+            border-radius: 10px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            position: relative;
+            min-height: 85px;
+        }
+        
+        .fish-item:not(.locked) {
+            cursor: pointer;
+        }
+        
+        .fish-item:not(.locked):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .fish-item:not(.locked):active {
+            transform: translateY(-1px);
+        }
+        
+        .fish-item.locked {
+            background: #e0e0e0;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .fish-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+        
+        .fish-canvas {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 5px;
+        }
+        
+        .fish-name {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+        
+        .fish-item.locked .fish-name {
+            color: #999;
+        }
+        
+        /* 鱼类介绍弹窗 */
+        #fish-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .fish-detail-content {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 320px;
+            width: 85%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            text-align: center;
+        }
+        
+        .fish-detail-canvas {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+        }
+        
+        .fish-detail-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff758c;
+            margin-bottom: 10px;
+        }
+        
+        .fish-detail-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .fish-detail-close {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .fish-detail-close:hover {
+            transform: scale(1.05);
+        }
+        
+        .fish-detail-close:active {
+            transform: scale(0.95);
+        }
+        
+        @media (max-width: 768px) {
+            .fish-grid {
+                grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+                gap: 8px;
+            }
+            
+            .fish-item {
+                padding: 6px;
+                min-height: 75px;
+            }
+            
+            .fish-canvas {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .fish-name {
+                font-size: 9px;
+            }
+            
+            .fish-name {
+                font-size: 11px;
+            }
+            
+            #collection-screen h1 {
+                font-size: 24px;
+            }
+            
+            .collection-progress {
+                font-size: 16px;
+            }
+            
+            .tab-btn {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -452,6 +761,8 @@
 </div>
 
 <button id="pause-btn" style="display:none;" onclick="pauseGame(event)">⏸</button>
+<button id="collection-btn" style="display:none;" onclick="openCollection(event)">🐟</button>
+<button id="collection-btn-menu" style="display:none;" onclick="openCollectionFromMenu(event)">🐟</button>
 
 <!-- 开始界面 (背景透明，显示Canvas) -->
 <div id="start-screen" class="overlay-screen">
@@ -503,6 +814,34 @@
     <button class="btn-restart" onclick="showStartScreen()">再爱一次</button>
 </div>
 
+<!-- 图鉴界面 -->
+<div id="collection-screen" class="overlay-screen" style="display: none;">
+    <button id="collection-close-btn" onclick="closeCollection()" style="display:none;">×</button>
+    <div class="collection-container">
+        <h1>🐟 鱼类图鉴</h1>
+        <p class="collection-progress">收集进度: <span id="collection-progress">0 / 0</span></p>
+        <div class="collection-tabs">
+            <button class="tab-btn active" onclick="filterFish('all')">全部</button>
+            <button class="tab-btn" onclick="filterFish('small')">小鱼</button>
+            <button class="tab-btn" onclick="filterFish('medium')">中型鱼</button>
+            <button class="tab-btn" onclick="filterFish('large')">大鱼</button>
+            <button class="tab-btn" onclick="filterFish('huge')">巨型鱼</button>
+            <button class="tab-btn" onclick="filterFish('rare')">稀有鱼</button>
+        </div>
+        <div class="fish-grid" id="fish-grid"></div>
+    </div>
+</div>
+
+<!-- 鱼类详情弹窗 -->
+<div id="fish-detail-modal">
+    <div class="fish-detail-content">
+        <canvas id="fish-detail-canvas" class="fish-detail-canvas" width="80" height="80"></canvas>
+        <div class="fish-detail-name" id="fish-detail-name"></div>
+        <div class="fish-detail-desc" id="fish-detail-desc"></div>
+        <button class="fish-detail-close" onclick="closeFishDetail()">关闭</button>
+    </div>
+</div>
+
 <canvas id="gameCanvas"></canvas>
 
 <script>
@@ -541,6 +880,22 @@
     let feverTimer = 0;
     let unlockedStages = { 500: false, 1000: false, 2000: false, 3000: false };
     let discoveredRareFish = new Set(); // 已发现的稀有鱼种
+
+    // 图鉴系统变量
+    const collectionBtn = document.getElementById('collection-btn');
+    const collectionBtnMenu = document.getElementById('collection-btn-menu');
+    const collectionScreen = document.getElementById('collection-screen');
+    const collectionProgress = document.getElementById('collection-progress');
+    const fishGrid = document.getElementById('fish-grid');
+    const collectionCloseBtn = document.getElementById('collection-close-btn');
+    const fishDetailModal = document.getElementById('fish-detail-modal');
+    const fishDetailCanvas = document.getElementById('fish-detail-canvas');
+    const fishDetailName = document.getElementById('fish-detail-name');
+    const fishDetailDesc = document.getElementById('fish-detail-desc');
+    let collectedFish = new Set(); // 已收集的鱼类 subtype
+    let isCollectionOpen = false; // 图鉴是否打开
+    let lastSaveTime = null; // 最后一次保存时间
+    let currentFilter = 'all'; // 当前筛选类型
 
     // 闯关模式变量
     let isStageMode = false;
@@ -713,7 +1068,37 @@
             return true;
         } catch(e) {
             console.warn('localStorage.setItem("' + key + '") 失败:', e);
+            // 如果是存储空间不足，尝试清理旧数据
+            if (e.name === 'QuotaExceededError') {
+                console.warn('localStorage空间不足，请清理浏览器缓存');
+            }
             return false;
+        }
+    }
+    
+    // 检查localStorage容量
+    function checkLocalStorageSpace() {
+        try {
+            const testKey = '_storage_test_';
+            const testValue = 'x'.repeat(1024); // 1KB
+            let totalSize = 0;
+            
+            // 计算已使用空间
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += localStorage[key].length + key.length;
+                }
+            }
+            
+            return {
+                used: Math.round(totalSize / 1024), // KB
+                available: true
+            };
+        } catch (e) {
+            return {
+                used: 0,
+                available: false
+            };
         }
     }
     
@@ -1101,6 +1486,54 @@
         { baseSubtype: 'jellyfish', r: 13, name: '🔮 紫晶水母', rarity: 0.015, bonusScore: 42, bonusFever: 12, bonusGrowth: 0.36, color: '#9370DB' },
         { baseSubtype: 'grouper', r: 18, name: '⚡ 雷光石斑', rarity: 0.012, bonusScore: 60, bonusFever: 18, bonusGrowth: 0.45, color: '#FFD700' }
     ];
+
+    // 图鉴鱼类数据：包含所有鱼种（包括不同大小和特殊鱼）
+    const FISH_COLLECTION = (() => {
+        const fishList = [];
+        let fishId = 0;
+        
+        // 添加所有坏鱼
+        GAME_OBJECTS.bad.forEach(fish => {
+            const subtype = fish.subtype || 'normal';
+            fishList.push({
+                id: fishId++,
+                subtype: subtype,
+                name: fish.name,
+                color: fish.color,
+                radius: fish.r,
+                category: '普通鱼类'
+            });
+        });
+        
+        // 添加特殊鱼（lightning 和 ice）
+        const specialFish = GAME_OBJECTS.bad.filter(f => f.subtype === 'lightning' || f.subtype === 'ice');
+        specialFish.forEach(fish => {
+            // 特殊鱼已经包含在 GAME_OBJECTS.bad 中，这里不需要重复添加
+        });
+        
+        // 添加稀有鱼种
+        RARE_FISH.forEach(rareFish => {
+            fishList.push({
+                id: fishId++,
+                subtype: rareFish.baseSubtype,
+                name: rareFish.name,
+                color: rareFish.color,
+                radius: rareFish.r,
+                category: '稀有鱼类',
+                isRare: true
+            });
+        });
+        
+        // 按名称排序
+        return fishList.sort((a, b) => {
+            // 先按类别排序（稀有鱼在后面）
+            if (a.category !== b.category) {
+                return a.category.localeCompare(b.category);
+            }
+            // 再按名称排序
+            return a.name.localeCompare(b.name);
+        });
+    })();
 
     // --- 辅助绘图 ---
     if (!CanvasRenderingContext2D.prototype.roundRect) {
@@ -2778,9 +3211,20 @@
     window.addEventListener('orientationchange', function() {
         setTimeout(resizeCanvas, 100); // 延迟执行，等待orientationchange完成
     });
-    function handleInput(x, y) { if(!isPaused && gameRunning) { input.x = x; input.y = y; } }
+    function handleInput(x, y) { 
+        if(!isPaused && gameRunning) { 
+            // 世界颠倒：上下左右完全镜像反转
+            if (gravityReversed) {
+                input.x = canvas.width - x;  // 左右反转
+                input.y = canvas.height - y; // 上下反转
+            } else {
+                input.x = x;
+                input.y = y;
+            }
+        } 
+    }
     window.addEventListener('mousemove', e => {
-        // 如果鼠标在暂停按钮上，不更新input位置
+        // 如果鼠标在暂停按钮或图鉴按钮上，不更新input位置
         const pauseBtn = document.getElementById('pause-btn');
         if (pauseBtn && pauseBtn.style.display !== 'none') {
             const rect = pauseBtn.getBoundingClientRect();
@@ -2789,9 +3233,34 @@
                 return; // 鼠标在暂停按钮上，不更新位置
             }
         }
+        
+        const collectionBtn = document.getElementById('collection-btn');
+        if (collectionBtn && collectionBtn.style.display !== 'none') {
+            const rect = collectionBtn.getBoundingClientRect();
+            if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                return; // 鼠标在图鉴按钮上，不更新位置
+            }
+        }
+        
+        const collectionBtnMenu = document.getElementById('collection-btn-menu');
+        if (collectionBtnMenu && collectionBtnMenu.style.display !== 'none') {
+            const rect = collectionBtnMenu.getBoundingClientRect();
+            if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                return; // 鼠标在图鉴按钮上，不更新位置
+            }
+        }
+        
         handleInput(e.clientX, e.clientY);
     });
     const handleTouch = (e) => {
+        // 如果图鉴界面打开，不阻止默认事件，允许滚动
+        const collectionScreen = document.getElementById('collection-screen');
+        if (collectionScreen && collectionScreen.style.display === 'flex') {
+            return; // 图鉴打开时不处理触摸事件
+        }
+        
         if(e.cancelable) e.preventDefault();
         if(e.touches.length > 0) {
             // 检查触摸点是否在暂停按钮上
@@ -2804,6 +3273,29 @@
                     return; // 触摸在暂停按钮上，不更新位置
                 }
             }
+            
+            // 检查触摸点是否在图鉴按钮上
+            const collectionBtn = document.getElementById('collection-btn');
+            if (collectionBtn && collectionBtn.style.display !== 'none') {
+                const rect = collectionBtn.getBoundingClientRect();
+                const touch = e.touches[0];
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    return; // 触摸在图鉴按钮上，不更新位置
+                }
+            }
+            
+            // 检查触摸点是否在首页图鉴按钮上
+            const collectionBtnMenu = document.getElementById('collection-btn-menu');
+            if (collectionBtnMenu && collectionBtnMenu.style.display !== 'none') {
+                const rect = collectionBtnMenu.getBoundingClientRect();
+                const touch = e.touches[0];
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    return; // 触摸在图鉴按钮上，不更新位置
+                }
+            }
+            
             handleInput(e.touches[0].clientX, e.touches[0].clientY);
         }
     };
@@ -2924,7 +3416,7 @@
             heartRainActive = true;
         } else if (type === 'gravityReverse') {
             // 新事件：重力反转
-            title = "🔄 世界颠倒"; desc = "上下反转，小心控制！"; bgColor = "#9C27B0";
+            title = "🔄 世界颠倒"; desc = "上下左右反转，小心控制！"; bgColor = "#9C27B0";
             gravityReversed = true;
         }
 
@@ -2946,7 +3438,7 @@
             if (currentEvent === 'starfall' && frameCount % 45 === 0) {
                 const star = new Item(currentDifficulty);
                 star.type = 'heart'; star.subtype = 'star';
-                star.color = '#FFD700'; star.score = 50; star.fever = 15; star.speed *= 2;
+                star.color = '#FFD700'; star.score = 50; star.fever = 15; star.speed *= 4; // 流星速度加快（4倍）
                 items.push(star);
             }
             
@@ -3726,11 +4218,20 @@
                         this.rareBonusGrowth = rareFish.bonusGrowth;
                         // 记录发现的稀有鱼种
                         discoveredRareFish.add(rareFish.name);
+                        // 稀有鱼的图鉴ID：普通鱼数量 + 稀有鱼索引
+                        this.collectionId = GAME_OBJECTS.bad.length + RARE_FISH.indexOf(rareFish);
                     }
                 }
             }
 
             this.config = c;
+            // 记录图鉴ID：在GAME_OBJECTS.bad中的索引
+            if (category === 'bad') {
+                this.collectionId = GAME_OBJECTS.bad.indexOf(c);
+            } else {
+                this.collectionId = null;
+            }
+            
             if (!this.isRare) {
                 this.type = c.type; this.subtype = c.subtype || 'normal';
                 this.radius = c.r; this.color = c.color;
@@ -3859,16 +4360,13 @@
                 this.x += this.vx;
                 // 支持垂直移动（困难模式下从上下方向生成的鱼）
                 if (this.vy !== undefined) {
-                    // 重力反转：垂直速度反向
-                    const vyMultiplier = gravityReversed ? -1 : 1;
-                    this.y += this.vy * vyMultiplier;
+                    this.y += this.vy;
                 }
             } else {
                 // 追击时仍然保留少量横向移动，但主要靠追击移动
                 this.x += this.vx * 0.3;
                 if (this.vy !== undefined) {
-                    const vyMultiplier = gravityReversed ? -1 : 1;
-                    this.y += this.vy * 0.3 * vyMultiplier;
+                    this.y += this.vy * 0.3;
                 }
             }
 
@@ -4282,6 +4780,11 @@
                         items.splice(i, 1);
                         // 触发嘴巴动画
                         player.mouthAnimationTimer = 15;
+                        
+                        // 收集鱼类到图鉴
+                        if (item.collectionId !== null && item.collectionId !== undefined) {
+                            collectFish(item.collectionId);
+                        }
 
                         // 检查是否是稀有鱼种
                         if (item.isRare) {
@@ -4358,6 +4861,11 @@
                             items.splice(i, 1);
                             // 触发嘴巴动画
                             player.mouthAnimationTimer = 15;
+                            
+                            // 收集鱼类到图鉴
+                            if (item.collectionId !== null && item.collectionId !== undefined) {
+                                collectFish(item.collectionId);
+                            }
 
                             // 检查是否是稀有鱼种
                             if (item.isRare) {
@@ -4507,8 +5015,11 @@
         if (stageSelectScreen) stageSelectScreen.style.display = 'none';
         if (stageCompleteScreen) stageCompleteScreen.style.display = 'none';
         if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
+        collectionScreen.style.display = 'none';
+        collectionBtnMenu.style.display = 'none';
         uiLayer.style.display = 'block'; 
         pauseBtn.style.display = 'flex';
+        collectionBtn.style.display = 'flex';
         init(difficulty); gameRunning = true;
         
         gameLoop();
@@ -4518,6 +5029,7 @@
 
     function showStageSelect() {
         startScreen.style.display = 'none';
+        collectionBtnMenu.style.display = 'none';
         if (!stageSelectScreen) {
             stageSelectScreen = document.getElementById('stage-select-screen');
         }
@@ -4599,6 +5111,7 @@
         // 显示游戏UI
         uiLayer.style.display = 'block';
         pauseBtn.style.display = 'flex';
+        collectionBtn.style.display = 'flex';
         if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'block';
         // 显示关卡目标
         if (!stageObjectiveDisplay) {
@@ -4760,6 +5273,316 @@
             startStage(currentStage + 1);
         }
     }
+    // ========== 图鉴功能 ==========
+    
+    // 加载图鉴数据
+    function loadCollectionData() {
+        try {
+            const saved = safeLocalStorageGet('love_game_fish_collection');
+            if (saved) {
+                const data = JSON.parse(saved);
+                collectedFish = new Set(data);
+                console.log('图鉴数据加载成功, 已收集', collectedFish.size, '种鱼类');
+            } else {
+                collectedFish = new Set();
+                console.log('未发现存储的图鉴数据, 初始化空图鉴');
+            }
+        } catch (e) {
+            console.error('加载图鉴数据失败:', e);
+            collectedFish = new Set();
+        }
+    }
+    
+    // 保存图鉴数据
+    function saveCollectionData() {
+        try {
+            const data = Array.from(collectedFish);
+            const jsonData = JSON.stringify(data);
+            const success = safeLocalStorageSet('love_game_fish_collection', jsonData);
+            if (success) {
+                lastSaveTime = new Date();
+                console.log('图鉴数据保存成功, 当前已收集', collectedFish.size, '种鱼类');
+            } else {
+                console.warn('图鉴数据保存失败, 可能是localStorage空间不足');
+                // 检查存储空间
+                const spaceInfo = checkLocalStorageSpace();
+                console.log('localStorage已使用:', spaceInfo.used, 'KB');
+            }
+            return success;
+        } catch (e) {
+            console.error('保存图鉴数据失败:', e);
+            return false;
+        }
+    }
+    
+    // 收集鱼类（记录鱼的ID）
+    function collectFish(fishId) {
+        if (fishId === undefined || fishId === null) {
+            console.warn('无效的鱼类ID:', fishId);
+            return;
+        }
+        
+        const fishIdStr = String(fishId);
+        if (!collectedFish.has(fishIdStr)) {
+            collectedFish.add(fishIdStr);
+            const success = saveCollectionData();
+            
+            // 显示收集提示
+            if (success) {
+                const fishInfo = FISH_COLLECTION.find(f => f.id === fishId);
+                if (fishInfo) {
+                    console.log('✨ 新鱼类收集:', fishInfo.name);
+                }
+            }
+        }
+    }
+    
+    // 筛选鱼类
+    function filterFish(type) {
+        currentFilter = type;
+        
+        // 更新标签按钮状态
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        renderCollection();
+    }
+    
+    // 根据大小分类鱼
+    function getFishCategory(radius) {
+        if (radius < 15) return 'small';
+        if (radius < 30) return 'medium';
+        if (radius < 50) return 'large';
+        return 'huge';
+    }
+    
+    // 渲染图鉴
+    function renderCollection() {
+        fishGrid.innerHTML = '';
+        
+        // 根据当前筛选条件过滤鱼类
+        let filteredFish = FISH_COLLECTION;
+        if (currentFilter !== 'all') {
+            filteredFish = FISH_COLLECTION.filter(fish => {
+                if (currentFilter === 'rare') {
+                    return fish.isRare === true;
+                } else {
+                    return !fish.isRare && getFishCategory(fish.radius) === currentFilter;
+                }
+            });
+        }
+        
+        const collected = collectedFish.size;
+        const total = FISH_COLLECTION.length;
+        const filteredCollected = filteredFish.filter(f => collectedFish.has(String(f.id))).length;
+        
+        // 显示当前筛选的收集进度
+        if (currentFilter === 'all') {
+            collectionProgress.textContent = `${collected} / ${total}`;
+        } else {
+            collectionProgress.textContent = `${filteredCollected} / ${filteredFish.length} (总: ${collected} / ${total})`;
+        }
+        
+        filteredFish.forEach(fish => {
+            const isCollected = collectedFish.has(String(fish.id));
+            
+            const fishItem = document.createElement('div');
+            fishItem.className = 'fish-item';
+            if (!isCollected) fishItem.classList.add('locked');
+            
+            // 创建画布来绘制鱼类
+            const fishCanvas = document.createElement('canvas');
+            fishCanvas.className = 'fish-canvas';
+            fishCanvas.width = 60;
+            fishCanvas.height = 60;
+            
+            const fishCtx = fishCanvas.getContext('2d');
+            
+            // 计算缩放比例，让鱼完整显示在画布中
+            // 鱼的实际显示区域包括尾巴、身体、鱼颛，大约是半径的4倍
+            const maxSize = 25; // 最大显示大小（考虑尾巴等）
+            const fishTotalSize = fish.radius * 3.5; // 鱼的总宽度（包括尾巴）
+            const scale = Math.min(1, maxSize / fishTotalSize);
+            const displayRadius = fish.radius * scale;
+            
+            if (isCollected) {
+                // 已解锁：绘制彩色鱼类
+                fishCtx.save();
+                fishCtx.translate(30, 30);
+                drawFishArt(fishCtx, 0, 0, displayRadius, fish.color, 0, 0, fish.subtype);
+                fishCtx.restore();
+            } else {
+                // 未解锁：绘制灰色剪影
+                fishCtx.save();
+                fishCtx.translate(30, 30);
+                fishCtx.globalAlpha = 0.3;
+                drawFishArt(fishCtx, 0, 0, displayRadius, '#999999', 0, 0, fish.subtype);
+                fishCtx.restore();
+            }
+            
+            const fishName = document.createElement('div');
+            fishName.className = 'fish-name';
+            fishName.textContent = isCollected ? fish.name : '???';
+            
+            fishItem.appendChild(fishCanvas);
+            fishItem.appendChild(fishName);
+            
+            // 已收集的鱼可以点击查看详情
+            if (isCollected) {
+                fishItem.addEventListener('click', () => {
+                    showFishDetail(fish);
+                });
+            }
+            
+            fishGrid.appendChild(fishItem);
+        });
+    }
+    
+    // 生成鱼类介绍
+    function getFishDescription(fish) {
+        const name = fish.name;
+        
+        // 稀有鱼特殊介绍
+        if (fish.isRare) {
+            const rareDescs = {
+                '✨ 黄金小鱼': '幸运总会光顾相信奇迹的人。',
+                '💎 钻石热带鱼': '真爱像钻石，经过打磨才更耀眼。',
+                '🌟 星光小丑鱼': '每个人都是彼此生命中的星光。',
+                '💫 天使金鱼': '守护你的人，就像天使在身边。',
+                '🌊 蓝宝石海豚': '真心珍贵，像海一样深沉。',
+                '💖 粉钻海马': '温柔是最强大的力量。',
+                '🔮 紫晶水母': '包容彼此，像水一样流动。',
+                '⚡ 雷光石斑': '爱是电光火石，焦灰也是美好。'
+            };
+            return rareDescs[name] || '珍贵的相遇，值得珍惜。';
+        }
+        
+        // 根据鱼的名字生成介绍
+        if (name.includes('琐碎') || name.includes('小困扰') || name.includes('小波折')) {
+            return '生活里的小碎碎念，不值得计较。';
+        }
+        if (name.includes('小摩擦') || name.includes('小麻烦') || name.includes('小插曲')) {
+            return '小矛盾在所难免，沟通能解决。';
+        }
+        if (name.includes('小烦恼') || name.includes('小危险')) {
+            return '每个烦恼都是成长的契机。';
+        }
+        if (name.includes('坏情绪') || name.includes('中等')) {
+            return '情绪会过去，爱会留下。';
+        }
+        if (name.includes('压力')) {
+            return '共同面对压力，就是最好的陶炼。';
+        }
+        if (name.includes('争吵')) {
+            return '争吵后的和解，让关系更紧密。';
+        }
+        if (name.includes('冷战')) {
+            return '冷战伤心，主动破冰需要勇气。';
+        }
+        if (name.includes('烂桃花')) {
+            return '忠诚是感情的基石。';
+        }
+        if (name.includes('嫉妒')) {
+            return '小嫉妒是在乎，大嫉妒是不信任。';
+        }
+        if (name.includes('危机') || name.includes('威胁')) {
+            return '危机是考验，也是转机。';
+        }
+        if (name.includes('现实')) {
+            return '相爱不是逃避现实，而是共同面对。';
+        }
+        if (name.includes('终极')) {
+            return '度过每个难关，爱会更坚定。';
+        }
+        
+        // 默认介绍
+        return '感情里会遇到各种问题，重要的是一起面对。';
+    }
+    
+    // 显示鱼类详情
+    function showFishDetail(fish) {
+        // 绘制鱼类图像
+        const detailCtx = fishDetailCanvas.getContext('2d');
+        detailCtx.clearRect(0, 0, 80, 80);
+        
+        const maxSize = 35;
+        const fishTotalSize = fish.radius * 3.5;
+        const scale = Math.min(1, maxSize / fishTotalSize);
+        const displayRadius = fish.radius * scale;
+        
+        detailCtx.save();
+        detailCtx.translate(40, 40);
+        drawFishArt(detailCtx, 0, 0, displayRadius, fish.color, 0, 0, fish.subtype);
+        detailCtx.restore();
+        
+        // 设置名称和介绍
+        fishDetailName.textContent = fish.name;
+        fishDetailDesc.textContent = getFishDescription(fish);
+        
+        // 显示弹窗
+        fishDetailModal.style.display = 'flex';
+    }
+    
+    // 关闭鱼类详情
+    function closeFishDetail() {
+        fishDetailModal.style.display = 'none';
+    }
+    
+    // 从菜单打开图鉴（非游戏中）
+    function openCollectionFromMenu(e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        
+        collectionScreen.style.display = 'flex';
+        startScreen.style.display = 'none';
+        collectionBtnMenu.style.display = 'none';
+        collectionCloseBtn.style.display = 'flex';
+        // 禁用canvas触摸事件，允许图鉴滚动
+        canvas.style.pointerEvents = 'none';
+        renderCollection();
+    }
+    
+    // 打开图鉴（游戏中）
+    function openCollection(e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        if (!gameRunning) return;
+        
+        isCollectionOpen = true;
+        isPaused = true;
+        cancelAnimationFrame(animationId);
+        
+        collectionScreen.style.display = 'flex';
+        collectionCloseBtn.style.display = 'flex';
+        // 禁用canvas触摸事件，允许图鉴滚动
+        canvas.style.pointerEvents = 'none';
+        renderCollection();
+    }
+    
+    // 关闭图鉴
+    function closeCollection() {
+        isCollectionOpen = false;
+        collectionScreen.style.display = 'none';
+        collectionCloseBtn.style.display = 'none';
+        // 恢复canvas触摸事件
+        canvas.style.pointerEvents = 'auto';
+        
+        if (gameRunning) {
+            // 游戏中，恢复游戏
+            isPaused = false;
+            gameLoop();
+        } else {
+            // 非游戏中，返回主菜单
+            startScreen.style.display = 'flex';
+            collectionBtnMenu.style.display = 'flex';
+        }
+    }
+
     function pauseGame(e) {
         if (e) {
             e.stopPropagation(); // 阻止事件冒泡
@@ -4769,8 +5592,18 @@
         isPaused = true;
         cancelAnimationFrame(animationId);
         pauseScreen.style.display = 'flex';
+        // 暂停时隐藏按钮
+        pauseBtn.style.display = 'none';
+        collectionBtn.style.display = 'none';
     }
-    function resumeGame() { isPaused = false; pauseScreen.style.display = 'none'; gameLoop(); }
+    function resumeGame() { 
+        isPaused = false; 
+        pauseScreen.style.display = 'none'; 
+        // 恢复游戏时显示按钮
+        pauseBtn.style.display = 'flex';
+        collectionBtn.style.display = 'flex';
+        gameLoop(); 
+    }
     function quitGameFromPause() { pauseScreen.style.display = 'none'; deathReasonEl.innerText = "休息好了吗？随时都可以回来哦~"; endGame(); }
     function showStartScreen() {
         // 立即隐藏事件标题，避免与首页重叠
@@ -4781,7 +5614,10 @@
         }, 100);
         startScreen.style.display = 'flex'; gameOverScreen.style.display = 'none'; uiLayer.style.display = 'none';
         pauseBtn.style.display = 'none';
+        collectionBtn.style.display = 'none';
+        collectionBtnMenu.style.display = 'flex';
         pauseScreen.style.display = 'none';
+        collectionScreen.style.display = 'none';
         
         // 隐藏闯关模式界面
         if (stageSelectScreen) stageSelectScreen.style.display = 'none';
@@ -4848,10 +5684,40 @@
         
         finalScoreEl.innerText = score; 
         pauseBtn.style.display = 'none';
+        collectionBtn.style.display = 'none';
         gameOverScreen.style.display = 'flex';
         body.classList.remove('fever-mode-bg'); body.style.background = "linear-gradient(to bottom, #ff9a9e, #fad0c4)";
     }
 
+    // 初始化图鉴数据
+    loadCollectionData();
+    
+    // 首页显示图鉴按钮
+    if (collectionBtnMenu) {
+        collectionBtnMenu.style.display = 'flex';
+    }
+    
+    // 页面卸载前保存图鉴数据
+    window.addEventListener('beforeunload', function() {
+        if (collectedFish.size > 0) {
+            saveCollectionData();
+        }
+    });
+    
+    // 页面隐藏时保存数据（移动设备兼容）
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden && collectedFish.size > 0) {
+            saveCollectionData();
+        }
+    });
+    
+    // 定期备份图鉴数据（每30秒）
+    setInterval(function() {
+        if (collectedFish.size > 0) {
+            saveCollectionData();
+        }
+    }, 30000);
+    
     showStartScreen();
 </script>
 </body>
