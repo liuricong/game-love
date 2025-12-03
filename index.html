@@ -20,11 +20,7 @@
 
         body {
             background: linear-gradient(rgb(255, 154, 158), rgb(250, 208, 196)); /* 默认渐变背景 */
-            background-image: url('static/images/background.jpg'); /* 背景图片 */
-            background-size: cover; /* 覆盖整个屏幕 */
-            background-position: center; /* 居中显示 */
-            background-repeat: no-repeat; /* 不重复 */
-            background-attachment: fixed; /* 固定背景 */
+            /* 背景图片由 JS 动态加载，手机/桌面用不同大小 */
             font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
             user-select: none;
             touch-action: none;
@@ -753,18 +749,59 @@
         // 不弹窗，只记录日志，避免干扰用户
     }
     
-    // 背景图片 - 直接加载，写死显示
+    // 背景图片 - 懒加载优化
     const bgImage = new Image();
     let bgImageLoaded = false;
-    bgImage.onload = function() {
-        bgImageLoaded = true;
-        console.log('背景图片加载成功');
-        cachedBgCanvas = null; // 重置缓存，下次绘制时重新生成
-    };
-    bgImage.onerror = function() {
-        console.log('背景图片加载失败，将使用CSS背景');
-    };
-    bgImage.src = 'static/images/background.jpg';
+    let bgImageLoading = false;
+    
+    // 延迟加载背景图，让游戏先启动
+    function loadBackgroundImage() {
+        if (bgImageLoading || bgImageLoaded) return;
+        bgImageLoading = true;
+        
+        bgImage.onload = function() {
+            bgImageLoaded = true;
+            bgImageLoading = false;
+            console.log('背景图片加载成功');
+            cachedBgCanvas = null; // 重置缓存，下次绘制时重新生成
+            
+            // 如果在首页，重绘canvas以显示背景图
+            if (startScreen.style.display !== 'none') {
+                const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                bgGradient.addColorStop(0, 'rgb(255, 154, 158)');
+                bgGradient.addColorStop(1, 'rgb(250, 208, 196)');
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                if (bgImage.complete && bgImage.naturalWidth > 0) {
+                    const scale = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+                    const scaledWidth = bgImage.width * scale;
+                    const scaledHeight = bgImage.height * scale;
+                    const x = (canvas.width - scaledWidth) / 2;
+                    const y = (canvas.height - scaledHeight) / 2;
+                    ctx.drawImage(bgImage, x, y, scaledWidth, scaledHeight);
+                }
+            }
+        };
+        bgImage.onerror = function() {
+            bgImageLoading = false;
+            console.log('背景图片加载失败，将使用CSS背景');
+        };
+        
+        // 响应式加载：手机设备用小图 (75KB vs 171KB)
+        const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        bgImage.src = isMobile ? 'static/images/background-mobile.jpg' : 'static/images/background.jpg';
+        console.log('加载背景图:', isMobile ? '手机版 (75KB)' : '桌面版 (171KB)');
+    }
+    
+    // 页面加载完成后再加载背景图（低优先级）
+    if (document.readyState === 'complete') {
+        setTimeout(loadBackgroundImage, 100);
+    } else {
+        window.addEventListener('load', function() {
+            setTimeout(loadBackgroundImage, 100);
+        });
+    }
     
     // 性能优化：离屏Canvas缓存背景
     let cachedBgCanvas = null;
