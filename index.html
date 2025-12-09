@@ -113,6 +113,298 @@
         .btn-restart { background: #fff; border: 2px solid #ff758c; color: #ff758c; margin-top: 20px; width: 60%;}
         .btn-resume { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
         .btn-quit { background: #fff; border: 2px solid #999; color: #999; }
+        .btn-leaderboard { background: linear-gradient(45deg, #f093fb, #f5576c); }
+
+        /* 首页最高分卡片 */
+        .high-score-card {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 320px;
+            margin-bottom: 15px;
+            padding: 12px 8px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+        .high-score-item {
+            text-align: center;
+            flex: 1;
+        }
+        .high-score-item .label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            margin-bottom: 4px;
+        }
+        .high-score-item .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,105,180,0.8), 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .high-score-item.easy .value { color: #a8e063; }
+        .high-score-item.normal .value { color: #fecfef; }
+        .high-score-item.hard .value { color: #ff512f; }
+
+        /* 排行榜界面 */
+        #leaderboard-screen {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .leaderboard-container {
+            width: 90%;
+            max-width: 400px;
+        }
+        .leaderboard-title {
+            font-size: 28px;
+            color: #ff758c;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .leaderboard-card {
+            background: linear-gradient(135deg, #fff 0%, #ffeef8 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 20px rgba(255,105,180,0.2);
+            border: 2px solid transparent;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .leaderboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,105,180,0.3);
+        }
+        .leaderboard-card.easy { border-color: #a8e063; background: linear-gradient(135deg, #f0fff0 0%, #e8f5e9 100%); }
+        .leaderboard-card.normal { border-color: #ff9a9e; background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%); }
+        .leaderboard-card.hard { border-color: #ff512f; background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%); }
+        .leaderboard-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .leaderboard-card-icon {
+            font-size: 32px;
+            margin-right: 12px;
+        }
+        .leaderboard-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .leaderboard-card-subtitle {
+            font-size: 12px;
+            color: #999;
+        }
+        .leaderboard-card-score {
+            font-size: 36px;
+            font-weight: 900;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .leaderboard-card.easy .leaderboard-card-score { color: #56ab2f; }
+        .leaderboard-card.normal .leaderboard-card-score { color: #ff758c; }
+        .leaderboard-card.hard .leaderboard-card-score { color: #dd2476; }
+        .leaderboard-card-footer {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+        .btn-back-leaderboard {
+            background: #fff;
+            border: 2px solid #ff758c;
+            color: #ff758c;
+            margin-top: 10px;
+            padding: 12px 30px;
+        }
+
+        /* 破纪录撒花特效 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 200;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* 破纪录文字动画 */
+        .new-record-badge {
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 10px rgba(255,64,129,0.5); }
+            50% { transform: scale(1.05); text-shadow: 0 0 20px rgba(255,64,129,0.8), 0 0 30px rgba(255,64,129,0.5); }
+        }
+
+        /* 皮肤选择界面 */
+        #skin-screen {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .skin-container {
+            width: 90%;
+            max-width: 400px;
+            padding-bottom: 30px;
+        }
+        .skin-title {
+            font-size: 28px;
+            color: #ff758c;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .skin-subtitle {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .skin-section {
+            margin-bottom: 25px;
+        }
+        .skin-section-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 12px;
+            padding-left: 5px;
+            border-left: 3px solid #ff758c;
+        }
+        .skin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .skin-item {
+            background: linear-gradient(135deg, #fff 0%, #ffeef8 100%);
+            border-radius: 15px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .skin-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,105,180,0.2);
+        }
+        .skin-item.selected {
+            border-color: #ff758c;
+            background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%);
+        }
+        .skin-item.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .skin-item.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 12px;
+        }
+        .skin-preview {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .skin-name {
+            font-size: 12px;
+            color: #333;
+            font-weight: bold;
+        }
+        .skin-condition {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .btn-back-skin {
+            background: #fff;
+            border: 2px solid #ff758c;
+            color: #ff758c;
+            margin-top: 15px;
+            padding: 12px 30px;
+        }
+        #skin-btn-menu {
+            position: absolute;
+            top: max(15px, env(safe-area-inset-top)); right: max(135px, calc(env(safe-area-inset-right) + 120px));
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255, 183, 77, 0.95), rgba(255, 138, 101, 0.95));
+            border: 3px solid #fff;
+            color: #fff; font-size: 24px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; pointer-events: auto; z-index: 150;
+            box-shadow: 0 4px 15px rgba(255, 138, 101, 0.5), 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #skin-btn-menu:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 138, 101, 0.7), 0 3px 10px rgba(0,0,0,0.3);
+        }
+        #skin-btn-menu:active {
+            transform: scale(0.95);
+        }
+        
+        #skin-close-btn {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: max(15px, env(safe-area-inset-right));
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ddd;
+            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 201;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        #skin-close-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+        #skin-close-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 游戏中最高分提示 */
+        #high-score-hint {
+            position: absolute;
+            top: max(85px, calc(env(safe-area-inset-top) + 70px));
+            left: max(15px, env(safe-area-inset-left));
+            font-size: 12px;
+            color: #ff758c;
+            background: rgba(255,255,255,0.7);
+            padding: 4px 10px;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 50;
+            transition: all 0.3s;
+            backdrop-filter: blur(3px);
+        }
+        #high-score-hint.surpassed {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            color: #fff;
+            font-weight: bold;
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
 
         #ui-layer {
             position: absolute;
@@ -164,6 +456,28 @@
         }
         
         #collection-btn-menu:active {
+            transform: scale(0.95);
+        }
+        
+        #leaderboard-btn-menu {
+            position: absolute;
+            top: max(15px, env(safe-area-inset-top)); right: max(75px, calc(env(safe-area-inset-right) + 60px));
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.95), rgba(245, 87, 108, 0.95));
+            border: 3px solid #fff;
+            color: #fff; font-size: 24px;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; pointer-events: auto; z-index: 150;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.5), 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        #leaderboard-btn-menu:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.7), 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        #leaderboard-btn-menu:active {
             transform: scale(0.95);
         }
         
@@ -749,6 +1063,7 @@
 <div id="ui-layer" style="display:none;">
     <div class="score-text">恋爱指数: <span id="score">0</span> ❤️</div>
     <div class="sub-text">我们在一起: <span id="size-display">1</span> 天</div>
+    <div id="high-score-hint"></div>
     <div style="margin-top:12px; position:relative;">
         <div id="fever-text">心动值 💖 (吃爱心增加)</div>
         <div id="fever-container"><div id="fever-bar"></div></div>
@@ -765,11 +1080,47 @@
 <button id="pause-btn" style="display:none;" onclick="pauseGame(event)">⏸</button>
 <button id="collection-btn" style="display:none;" onclick="openCollection(event)">🐟</button>
 <button id="collection-btn-menu" style="display:none;" onclick="openCollectionFromMenu(event)">🐟</button>
+<button id="leaderboard-btn-menu" style="display:none;" onclick="showLeaderboard()">🏆</button>
+<button id="skin-btn-menu" style="display:none;" onclick="showSkinScreen()">🎀</button>
+
+<button id="skin-close-btn" onclick="hideSkinScreen()" style="display:none;">×</button>
+<!-- 皮肤选择界面 -->
+<div id="skin-screen" class="overlay-screen" style="display: none;">
+    <div class="skin-container">
+        <h2 class="skin-title">🎀 装扮小窗 🎀</h2>
+        <p class="skin-subtitle">为小粉和聪仔挑选可爱的装饰吧！</p>
+        
+        <div class="skin-section">
+            <div class="skin-section-title">🐠 小粉的装饰</div>
+            <div class="skin-grid" id="player-skin-grid"></div>
+        </div>
+        
+        <div class="skin-section">
+            <div class="skin-section-title">🐟 聪仔的装饰</div>
+            <div class="skin-grid" id="guardian-skin-grid"></div>
+        </div>
+    </div>
+</div>
 
 <!-- 开始界面 (背景透明，显示Canvas) -->
 <div id="start-screen" class="overlay-screen">
     <h1>💖 爱的守护 💖</h1>
     <p id="start-desc">正在加载爱的誓言...</p>
+    <!-- 首页最高分卡片 -->
+    <div class="high-score-card" id="home-high-scores">
+        <div class="high-score-item easy">
+            <div class="label">🍰 甜蜜约会</div>
+            <div class="value" id="home-score-easy">0</div>
+        </div>
+        <div class="high-score-item normal">
+            <div class="label">🏠 幸福日常</div>
+            <div class="value" id="home-score-normal">0</div>
+        </div>
+        <div class="high-score-item hard">
+            <div class="label">🛡️ 守护一生</div>
+            <div class="value" id="home-score-hard">0</div>
+        </div>
+    </div>
     <div class="btn-group">
         <button class="btn-easy" onclick="startGame('easy')">🍰 甜蜜约会 (简单)</button>
         <button class="btn-normal" onclick="startGame('normal')">🏠 幸福日常 (普通)</button>
@@ -802,6 +1153,8 @@
 <!-- 暂停界面 -->
 <div id="pause-screen" class="overlay-screen game-overlay" style="display: none;">
     <h2 style="color:#ff758c;">游戏暂停</h2>
+    <p style="font-size: 18px; margin: 10px 0;">当前分数: <span id="pause-current-score" style="color: #ff4081; font-weight:bold;">0</span></p>
+    <p id="pause-high-score-info" style="font-size: 14px; color: #666; margin: 5px 0 15px 0; padding: 8px 15px; background: rgba(255,64,129,0.1); border-radius: 10px;"></p>
     <div class="btn-group">
         <button class="btn-resume" onclick="resumeGame()">▶ 继续爱</button>
         <button class="btn-quit" onclick="quitGameFromPause()">✖ 休息一下 (结束)</button>
@@ -813,7 +1166,49 @@
     <h2 style="font-size: 28px; color: #ff5858;">别怕，聪仔在呢</h2>
     <p id="death-reason" style="font-size: 16px;">如果不开心了，我来哄你~</p>
     <p style="font-size: 20px;">收获爱心: <span id="final-score" style="color: #ff4081; font-weight:bold;">0</span></p>
+    <p id="game-over-high-score-info" style="font-size: 14px; color: #666; margin: 10px 0; padding: 10px 15px; background: rgba(255,64,129,0.1); border-radius: 10px; max-width: 280px;"></p>
     <button class="btn-restart" onclick="showStartScreen()">再爱一次</button>
+</div>
+
+<!-- 排行榜界面 -->
+<div id="leaderboard-screen" class="overlay-screen" style="display: none;">
+    <div class="leaderboard-container">
+        <h2 class="leaderboard-title">🏆 我的最高分 🏆</h2>
+        <div class="leaderboard-card easy">
+            <div class="leaderboard-card-header">
+                <span class="leaderboard-card-icon">🍰</span>
+                <div>
+                    <div class="leaderboard-card-title">甜蜜约会</div>
+                    <div class="leaderboard-card-subtitle">简单模式</div>
+                </div>
+            </div>
+            <div class="leaderboard-card-score" id="lb-score-easy">0</div>
+            <div class="leaderboard-card-footer">爱心约会，甜蜜满溢</div>
+        </div>
+        <div class="leaderboard-card normal">
+            <div class="leaderboard-card-header">
+                <span class="leaderboard-card-icon">🏠</span>
+                <div>
+                    <div class="leaderboard-card-title">幸福日常</div>
+                    <div class="leaderboard-card-subtitle">普通模式</div>
+                </div>
+            </div>
+            <div class="leaderboard-card-score" id="lb-score-normal">0</div>
+            <div class="leaderboard-card-footer">简单的幸福，平凡的快乐</div>
+        </div>
+        <div class="leaderboard-card hard">
+            <div class="leaderboard-card-header">
+                <span class="leaderboard-card-icon">🛡️</span>
+                <div>
+                    <div class="leaderboard-card-title">守护一生</div>
+                    <div class="leaderboard-card-subtitle">困难模式</div>
+                </div>
+            </div>
+            <div class="leaderboard-card-score" id="lb-score-hard">0</div>
+            <div class="leaderboard-card-footer">爱的守护，永不放弃</div>
+        </div>
+        <button class="btn-back-leaderboard" onclick="hideLeaderboard()">返回</button>
+    </div>
 </div>
 
 <!-- 图鉴界面 -->
@@ -1022,6 +1417,608 @@
         }
     } catch (e) {
         console.warn('加载关卡进度失败:', e);
+    }
+
+    // ========== 最高分系统 ==========
+    let highScores = { easy: 0, normal: 0, hard: 0 };
+    
+    // 加载最高分
+    function loadHighScores() {
+        try {
+            const saved = safeLocalStorageGet('love_game_high_scores');
+            if (saved) {
+                highScores = JSON.parse(saved);
+                console.log('最高分加载成功:', highScores);
+            }
+        } catch (e) {
+            console.warn('加载最高分失败:', e);
+        }
+    }
+    
+    // 保存最高分
+    function saveHighScores() {
+        try {
+            safeLocalStorageSet('love_game_high_scores', JSON.stringify(highScores));
+        } catch (e) {
+            console.warn('保存最高分失败:', e);
+        }
+    }
+    
+    // 检查并更新最高分，返回是否破纪录
+    function checkAndUpdateHighScore() {
+        if (!currentDifficultyName || isStageMode) return false;
+        const currentHigh = highScores[currentDifficultyName] || 0;
+        if (score > currentHigh) {
+            highScores[currentDifficultyName] = score;
+            saveHighScores();
+            return true;
+        }
+        return false;
+    }
+    
+    // 获取鼓励语
+    function getEncouragementText(isNewRecord, difficultyName) {
+        const difficultyLabels = { easy: '甜蜜约会', normal: '幸福日常', hard: '守护一生' };
+        const label = difficultyLabels[difficultyName] || difficultyName;
+        
+        if (isNewRecord) {
+            const newRecordTexts = [
+                `🎉 新纪录！你在「${label}」模式创造了新的最高分！`,
+                `✨ 太厉害了！「${label}」模式最高分被你刷新了！`,
+                `💖 哇！你打破了「${label}」模式的记录！`,
+                `🏆 恭喜！「${label}」模式新纪录诞生！`,
+                `🌟 你是最棒的！「${label}」最高分已更新！`
+            ];
+            return newRecordTexts[Math.floor(Math.random() * newRecordTexts.length)];
+        } else {
+            const highScore = highScores[difficultyName] || 0;
+            if (score === 0) {
+                return `加油！「${label}」最高分: ${highScore}`;
+            } else if (score < highScore * 0.5) {
+                const texts = [
+                    `继续努力！离「${label}」最高分 ${highScore} 还有一段距离~`,
+                    `别灰心！「${label}」最高分 ${highScore} 在等你超越！`,
+                    `慢慢来～「${label}」最高分是 ${highScore}，你可以的！`
+                ];
+                return texts[Math.floor(Math.random() * texts.length)];
+            } else if (score < highScore) {
+                const texts = [
+                    `很接近了！「${label}」最高分 ${highScore}，再加把劲！`,
+                    `就差一点点！「${label}」最高分 ${highScore}，下次一定行！`,
+                    `好厉害！离「${label}」最高分 ${highScore} 只差 ${highScore - score} 分！`
+                ];
+                return texts[Math.floor(Math.random() * texts.length)];
+            } else {
+                return `「${label}」最高分: ${highScore}，保持得很好！`;
+            }
+        }
+    }
+    
+    // 初始化时加载最高分
+    loadHighScores();
+    
+    // ========== 装饰皮肤系统 ==========
+    const DECORATIONS = {
+        player: [
+            { id: 'none', name: '无装饰', icon: '✨', unlocked: true },
+            { id: 'flower', name: '小花花', icon: '🌸', condition: { type: 'score', difficulty: 'easy', value: 200 }, conditionText: '甜蜜约会200分' },
+            { id: 'bow', name: '蝴蝶结', icon: '🎀', condition: { type: 'score', difficulty: 'easy', value: 400 }, conditionText: '甜蜜约会400分' },
+            { id: 'heart', name: '爱心发卡', icon: '💕', condition: { type: 'score', difficulty: 'easy', value: 600 }, conditionText: '甜蜜约会600分' },
+            { id: 'cherry', name: '樱桃发夹', icon: '🍒', condition: { type: 'score', difficulty: 'normal', value: 300 }, conditionText: '幸福日常300分' },
+            { id: 'tiara', name: '公主皇冠', icon: '👸', condition: { type: 'score', difficulty: 'normal', value: 600 }, conditionText: '幸福日常600分' },
+            { id: 'crown', name: '小皇冠', icon: '👑', condition: { type: 'score', difficulty: 'normal', value: 1000 }, conditionText: '幸福日常1000分' },
+            { id: 'star', name: '星星发饰', icon: '⭐', condition: { type: 'score', difficulty: 'hard', value: 400 }, conditionText: '守护一生400分' },
+            { id: 'butterfly', name: '蝴蝶发簪', icon: '🦋', condition: { type: 'score', difficulty: 'hard', value: 800 }, conditionText: '守护一生800分' },
+            { id: 'halo', name: '天使光环', icon: '😇', condition: { type: 'score', difficulty: 'hard', value: 1200 }, conditionText: '守护一生1200分' },
+            { id: 'rainbow', name: '彩虹光轮', icon: '🌈', condition: { type: 'score', difficulty: 'hard', value: 2000 }, conditionText: '守护一生2000分' },
+        ],
+        guardian: [
+            { id: 'none', name: '无装饰', icon: '✨', unlocked: true },
+            { id: 'glasses', name: '酷酷墨镜', icon: '🕶️', condition: { type: 'score', difficulty: 'easy', value: 250 }, conditionText: '甜蜜约会250分' },
+            { id: 'bowtie', name: '绅士领结', icon: '🎀', condition: { type: 'score', difficulty: 'easy', value: 500 }, conditionText: '甜蜜约会500分' },
+            { id: 'scarf', name: '英勇围巾', icon: '🧣', condition: { type: 'score', difficulty: 'easy', value: 800 }, conditionText: '甜蜜约会800分' },
+            { id: 'cap', name: '小帽子', icon: '🧢', condition: { type: 'score', difficulty: 'normal', value: 500 }, conditionText: '幸福日常500分' },
+            { id: 'headband', name: '运动头带', icon: '🏃', condition: { type: 'score', difficulty: 'normal', value: 800 }, conditionText: '幸福日常800分' },
+            { id: 'tophat', name: '魔术帽', icon: '🎩', condition: { type: 'score', difficulty: 'normal', value: 1200 }, conditionText: '幸福日常1200分' },
+            { id: 'shield', name: '守护之盾', icon: '🛡️', condition: { type: 'score', difficulty: 'hard', value: 600 }, conditionText: '守护一生600分' },
+            { id: 'sword', name: '勇者之剑', icon: '⚔️', condition: { type: 'score', difficulty: 'hard', value: 1000 }, conditionText: '守护一生1000分' },
+            { id: 'cape', name: '英雄披风', icon: '🦸', condition: { type: 'score', difficulty: 'hard', value: 1500 }, conditionText: '守护一生1500分' },
+            { id: 'flame', name: '烈焰光环', icon: '🔥', condition: { type: 'score', difficulty: 'hard', value: 2500 }, conditionText: '守护一生2500分' },
+        ]
+    };
+    
+    let currentSkins = { player: 'none', guardian: 'none' };
+    let unlockedSkins = { player: ['none'], guardian: ['none'] };
+    
+    // 加载皮肤数据
+    function loadSkinData() {
+        try {
+            const saved = safeLocalStorageGet('love_game_skins');
+            if (saved) {
+                const data = JSON.parse(saved);
+                currentSkins = data.current || { player: 'none', guardian: 'none' };
+                unlockedSkins = data.unlocked || { player: ['none'], guardian: ['none'] };
+            }
+        } catch (e) {
+            console.warn('加载皮肤数据失败:', e);
+        }
+    }
+    
+    // 保存皮肤数据
+    function saveSkinData() {
+        try {
+            safeLocalStorageSet('love_game_skins', JSON.stringify({
+                current: currentSkins,
+                unlocked: unlockedSkins
+            }));
+        } catch (e) {
+            console.warn('保存皮肤数据失败:', e);
+        }
+    }
+    
+    // 检查皮肤解锁条件
+    function checkSkinUnlocks() {
+        let newUnlocks = false;
+        
+        ['player', 'guardian'].forEach(role => {
+            DECORATIONS[role].forEach(skin => {
+                if (skin.unlocked || unlockedSkins[role].includes(skin.id)) return;
+                
+                if (skin.condition) {
+                    const { type, difficulty, value } = skin.condition;
+                    if (type === 'score' && highScores[difficulty] >= value) {
+                        unlockedSkins[role].push(skin.id);
+                        newUnlocks = true;
+                    }
+                }
+            });
+        });
+        
+        if (newUnlocks) saveSkinData();
+        return newUnlocks;
+    }
+    
+    // 显示皮肤界面
+    function showSkinScreen() {
+        checkSkinUnlocks();
+        renderSkinGrid();
+        document.getElementById('skin-screen').style.display = 'flex';
+        document.getElementById('skin-close-btn').style.display = 'flex';
+        startScreen.style.display = 'none';
+        collectionBtnMenu.style.display = 'none';
+        document.getElementById('leaderboard-btn-menu').style.display = 'none';
+        document.getElementById('skin-btn-menu').style.display = 'none';
+    }
+    
+    // 隐藏皮肤界面
+    function hideSkinScreen() {
+        document.getElementById('skin-screen').style.display = 'none';
+        document.getElementById('skin-close-btn').style.display = 'none';
+        startScreen.style.display = 'flex';
+        collectionBtnMenu.style.display = 'flex';
+        document.getElementById('leaderboard-btn-menu').style.display = 'flex';
+        document.getElementById('skin-btn-menu').style.display = 'flex';
+    }
+    
+    // 渲染皮肤选择网格
+    function renderSkinGrid() {
+        ['player', 'guardian'].forEach(role => {
+            const grid = document.getElementById(role + '-skin-grid');
+            grid.innerHTML = '';
+            
+            DECORATIONS[role].forEach(skin => {
+                const isUnlocked = skin.unlocked || unlockedSkins[role].includes(skin.id);
+                const isSelected = currentSkins[role] === skin.id;
+                
+                const item = document.createElement('div');
+                item.className = 'skin-item' + (isSelected ? ' selected' : '') + (isUnlocked ? '' : ' locked');
+                
+                item.innerHTML = `
+                    <div class="skin-preview">${skin.icon}</div>
+                    <div class="skin-name">${skin.name}</div>
+                    ${!isUnlocked && skin.conditionText ? `<div class="skin-condition">${skin.conditionText}</div>` : ''}
+                `;
+                
+                if (isUnlocked) {
+                    item.onclick = () => selectSkin(role, skin.id);
+                }
+                
+                grid.appendChild(item);
+            });
+        });
+    }
+    
+    // 选择皮肤
+    function selectSkin(role, skinId) {
+        currentSkins[role] = skinId;
+        saveSkinData();
+        renderSkinGrid();
+    }
+    
+    // 绘制装饰
+    function drawDecoration(ctx, type, decorationId, r, frameCount) {
+        if (!decorationId || decorationId === 'none') return;
+        
+        ctx.save();
+        
+        if (type === 'player') {
+            // 粉粉的装饰（头顶位置）
+            if (decorationId === 'bow') {
+                // 蝴蝶结
+                ctx.fillStyle = '#ff69b4';
+                ctx.beginPath();
+                ctx.ellipse(0, -r * 1.1, r * 0.4, r * 0.25, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(0, -r * 1.1, r * 0.4, r * 0.25, 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(0, -r * 1.1, r * 0.12, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff1493';
+                ctx.fill();
+            } else if (decorationId === 'crown') {
+                // 小皇冠
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.5, -r * 0.9);
+                ctx.lineTo(-r * 0.4, -r * 1.4);
+                ctx.lineTo(-r * 0.15, -r * 1.1);
+                ctx.lineTo(0, -r * 1.5);
+                ctx.lineTo(r * 0.15, -r * 1.1);
+                ctx.lineTo(r * 0.4, -r * 1.4);
+                ctx.lineTo(r * 0.5, -r * 0.9);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#ff6b6b';
+                ctx.beginPath();
+                ctx.arc(0, -r * 1.15, r * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (decorationId === 'flower') {
+                // 小花花
+                ctx.fillStyle = '#ffb6c1';
+                for (let i = 0; i < 5; i++) {
+                    ctx.beginPath();
+                    const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+                    ctx.ellipse(
+                        Math.cos(angle) * r * 0.2, 
+                        -r * 1.1 + Math.sin(angle) * r * 0.2, 
+                        r * 0.15, r * 0.1, angle, 0, Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#ffeb3b';
+                ctx.beginPath();
+                ctx.arc(0, -r * 1.1, r * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (decorationId === 'heart') {
+                // 爱心发卡
+                ctx.fillStyle = '#ff4081';
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 1.0);
+                ctx.bezierCurveTo(-r * 0.3, -r * 1.4, -r * 0.5, -r * 1.1, 0, -r * 0.85);
+                ctx.bezierCurveTo(r * 0.5, -r * 1.1, r * 0.3, -r * 1.4, 0, -r * 1.0);
+                ctx.fill();
+            } else if (decorationId === 'star') {
+                // 星星发饰
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+                    const outerX = Math.cos(angle) * r * 0.3;
+                    const outerY = -r * 1.2 + Math.sin(angle) * r * 0.3;
+                    const innerAngle = angle + Math.PI / 5;
+                    const innerX = Math.cos(innerAngle) * r * 0.12;
+                    const innerY = -r * 1.2 + Math.sin(innerAngle) * r * 0.12;
+                    if (i === 0) ctx.moveTo(outerX, outerY);
+                    else ctx.lineTo(outerX, outerY);
+                    ctx.lineTo(innerX, innerY);
+                }
+                ctx.closePath();
+                ctx.fill();
+            } else if (decorationId === 'halo') {
+                // 天使光环
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.ellipse(0, -r * 1.3, r * 0.4, r * 0.15, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 0.3 + Math.sin(frameCount * 0.1) * 0.2;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            } else if (decorationId === 'cherry') {
+                // 樱桃发夹
+                ctx.fillStyle = '#dc143c';
+                ctx.beginPath();
+                ctx.arc(-r * 0.15, -r * 1.1, r * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(r * 0.15, -r * 1.0, r * 0.15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#228b22';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.15, -r * 1.25);
+                ctx.quadraticCurveTo(0, -r * 1.5, r * 0.15, -r * 1.15);
+                ctx.stroke();
+            } else if (decorationId === 'tiara') {
+                // 公主皇冠
+                ctx.fillStyle = '#ffc0cb';
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.4, -r * 0.9);
+                ctx.lineTo(-r * 0.3, -r * 1.2);
+                ctx.lineTo(-r * 0.1, -r * 1.0);
+                ctx.lineTo(0, -r * 1.3);
+                ctx.lineTo(r * 0.1, -r * 1.0);
+                ctx.lineTo(r * 0.3, -r * 1.2);
+                ctx.lineTo(r * 0.4, -r * 0.9);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#ff69b4';
+                ctx.beginPath();
+                ctx.arc(0, -r * 1.1, r * 0.06, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (decorationId === 'butterfly') {
+                // 蝴蝶发簪
+                const flutter = Math.sin(frameCount * 0.15) * 0.2;
+                ctx.fillStyle = '#da70d6';
+                ctx.beginPath();
+                ctx.ellipse(-r * 0.2, -r * 1.1, r * 0.25, r * 0.15, -0.5 + flutter, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(r * 0.2, -r * 1.1, r * 0.25, r * 0.15, 0.5 - flutter, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#4b0082';
+                ctx.fillRect(-r * 0.03, -r * 1.2, r * 0.06, r * 0.25);
+            } else if (decorationId === 'rainbow') {
+                // 彩虹光轮
+                const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+                for (let i = 0; i < 7; i++) {
+                    ctx.strokeStyle = colors[i];
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.6 + Math.sin(frameCount * 0.1 + i) * 0.3;
+                    ctx.beginPath();
+                    ctx.arc(0, -r * 0.5, r * 1.0 + i * 3, Math.PI * 1.1, Math.PI * 1.9);
+                    ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+            }
+        } else if (type === 'guardian') {
+            // 聪仔的装饰
+            if (decorationId === 'glasses') {
+                // 墨镜
+                ctx.fillStyle = '#333';
+                ctx.beginPath();
+                ctx.roundRect(r * 0.2, -r * 0.5, r * 0.5, r * 0.35, 5);
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(r * 0.2, -r * 0.35);
+                ctx.lineTo(-r * 0.3, -r * 0.35);
+                ctx.stroke();
+            } else if (decorationId === 'cap') {
+                // 小帽子
+                ctx.fillStyle = '#4169e1';
+                ctx.beginPath();
+                ctx.arc(0, -r * 0.8, r * 0.5, Math.PI, 0);
+                ctx.fill();
+                ctx.fillStyle = '#1e3a8a';
+                ctx.beginPath();
+                ctx.ellipse(r * 0.3, -r * 0.75, r * 0.4, r * 0.1, 0.2, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (decorationId === 'bowtie') {
+                // 领结
+                ctx.fillStyle = '#dc143c';
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.6);
+                ctx.lineTo(-r * 0.35, r * 0.4);
+                ctx.lineTo(-r * 0.35, r * 0.8);
+                ctx.closePath();
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.6);
+                ctx.lineTo(r * 0.35, r * 0.4);
+                ctx.lineTo(r * 0.35, r * 0.8);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#8b0000';
+                ctx.beginPath();
+                ctx.arc(0, r * 0.6, r * 0.1, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (decorationId === 'shield') {
+                // 盾牌
+                ctx.fillStyle = '#4fc3f7';
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.8, -r * 0.3);
+                ctx.lineTo(-r * 0.8, r * 0.2);
+                ctx.quadraticCurveTo(-r * 0.8, r * 0.6, -r * 0.5, r * 0.6);
+                ctx.lineTo(-r * 0.5, -r * 0.3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#0288d1';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            } else if (decorationId === 'sword') {
+                // 剑
+                ctx.fillStyle = '#c0c0c0';
+                ctx.beginPath();
+                ctx.moveTo(r * 1.0, -r * 0.1);
+                ctx.lineTo(r * 1.8, 0);
+                ctx.lineTo(r * 1.0, r * 0.1);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(r * 0.85, -r * 0.15, r * 0.2, r * 0.3);
+                ctx.fillStyle = '#ffd700';
+                ctx.fillRect(r * 0.8, -r * 0.2, r * 0.1, r * 0.4);
+            } else if (decorationId === 'scarf') {
+                // 英勇围巾
+                ctx.fillStyle = '#1e90ff';
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.3, r * 0.5);
+                ctx.lineTo(-r * 0.5, r * 1.2);
+                ctx.lineTo(-r * 0.2, r * 1.1);
+                ctx.lineTo(0, r * 0.6);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#4169e1';
+                ctx.fillRect(-r * 0.4, r * 0.9, r * 0.25, r * 0.08);
+                ctx.fillRect(-r * 0.4, r * 1.0, r * 0.25, r * 0.08);
+            } else if (decorationId === 'headband') {
+                // 运动头带
+                ctx.fillStyle = '#ff4500';
+                ctx.beginPath();
+                ctx.ellipse(0, -r * 0.85, r * 0.55, r * 0.12, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = `bold ${r * 0.15}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('加油', 0, -r * 0.82);
+            } else if (decorationId === 'tophat') {
+                // 魔术帽
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.ellipse(0, -r * 0.85, r * 0.5, r * 0.1, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillRect(-r * 0.3, -r * 1.4, r * 0.6, r * 0.55);
+                ctx.fillStyle = '#8b0000';
+                ctx.fillRect(-r * 0.3, -r * 0.95, r * 0.6, r * 0.1);
+            } else if (decorationId === 'cape') {
+                // 英雄披风
+                ctx.fillStyle = '#dc143c';
+                ctx.beginPath();
+                ctx.moveTo(-r * 0.6, -r * 0.3);
+                ctx.quadraticCurveTo(-r * 1.2, r * 0.5, -r * 0.8, r * 1.2);
+                ctx.lineTo(-r * 0.3, r * 0.8);
+                ctx.lineTo(-r * 0.3, -r * 0.2);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(-r * 0.45, -r * 0.1, r * 0.08, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (decorationId === 'flame') {
+                // 烈焰光环
+                const flicker = Math.sin(frameCount * 0.2) * 0.3;
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i * Math.PI * 2) / 8 + frameCount * 0.05;
+                    const flameH = r * 0.4 + Math.sin(frameCount * 0.3 + i) * r * 0.1;
+                    ctx.fillStyle = i % 2 === 0 ? '#ff4500' : '#ffd700';
+                    ctx.globalAlpha = 0.7 + flicker;
+                    ctx.beginPath();
+                    const fx = Math.cos(angle) * r * 0.9;
+                    const fy = Math.sin(angle) * r * 0.9;
+                    ctx.moveTo(fx, fy);
+                    ctx.lineTo(fx + Math.cos(angle) * flameH, fy + Math.sin(angle) * flameH);
+                    ctx.lineTo(fx + Math.cos(angle + 0.3) * flameH * 0.5, fy + Math.sin(angle + 0.3) * flameH * 0.5);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        ctx.restore();
+    }
+    
+    // 初始化加载皮肤数据
+    loadSkinData();
+
+    // 更新首页最高分显示
+    function updateHomeHighScores() {
+        const easyEl = document.getElementById('home-score-easy');
+        const normalEl = document.getElementById('home-score-normal');
+        const hardEl = document.getElementById('home-score-hard');
+        if (easyEl) easyEl.textContent = highScores.easy || 0;
+        if (normalEl) normalEl.textContent = highScores.normal || 0;
+        if (hardEl) hardEl.textContent = highScores.hard || 0;
+    }
+    
+    // 显示排行榜
+    function showLeaderboard() {
+        document.getElementById('lb-score-easy').textContent = highScores.easy || 0;
+        document.getElementById('lb-score-normal').textContent = highScores.normal || 0;
+        document.getElementById('lb-score-hard').textContent = highScores.hard || 0;
+        document.getElementById('leaderboard-screen').style.display = 'flex';
+        startScreen.style.display = 'none';
+        collectionBtnMenu.style.display = 'none';
+        document.getElementById('leaderboard-btn-menu').style.display = 'none';
+    }
+    
+    // 隐藏排行榜
+    function hideLeaderboard() {
+        document.getElementById('leaderboard-screen').style.display = 'none';
+        startScreen.style.display = 'flex';
+        collectionBtnMenu.style.display = 'flex';
+        document.getElementById('leaderboard-btn-menu').style.display = 'flex';
+    }
+    
+    // 撒花特效
+    function createConfetti() {
+        const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43', '#ee5a24', '#a8e063'];
+        const confettiCount = 50;
+        
+        for (let i = 0; i < confettiCount; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }, i * 30);
+        }
+    }
+    
+    // 更新游戏中的最高分提示
+    let hasShownSurpassedHint = false;
+    function updateHighScoreHint() {
+        if (isStageMode || !currentDifficultyName) return;
+        
+        const hintEl = document.getElementById('high-score-hint');
+        if (!hintEl) return;
+        
+        const currentHigh = highScores[currentDifficultyName] || 0;
+        
+        if (currentHigh === 0) {
+            hintEl.textContent = '创造你的第一个纪录吧！';
+            hintEl.classList.remove('surpassed');
+        } else if (score > currentHigh) {
+            if (!hasShownSurpassedHint) {
+                hasShownSurpassedHint = true;
+            }
+            hintEl.innerHTML = '🌟 已超越最高分！';
+            hintEl.classList.add('surpassed');
+        } else if (score === currentHigh && score > 0) {
+            hintEl.textContent = '🏆 平了最高分！';
+            hintEl.classList.remove('surpassed');
+        } else {
+            const diff = currentHigh - score;
+            hintEl.textContent = `距最高分还差 ${diff} 分`;
+            hintEl.classList.remove('surpassed');
+        }
+    }
+    
+    // 封装分数更新函数
+    function updateScore(newScore) {
+        score = newScore;
+        scoreEl.innerText = score;
+        updateHighScoreHint();
+    }
+    
+    function addScore(amount) {
+        score += amount;
+        scoreEl.innerText = score;
+        updateHighScoreHint();
     }
 
     // 鱼群系统
@@ -2388,6 +3385,13 @@
             ctx.font = `bold ${r*0.8}px Arial`;
             ctx.textAlign = 'center';
             ctx.fillText("聪仔", 0, 0);
+        }
+        
+        // 绘制装饰
+        if (type === 'player' && currentSkins) {
+            drawDecoration(ctx, 'player', currentSkins.player, r, frameCount);
+        } else if (type === 'guardian' && currentSkins) {
+            drawDecoration(ctx, 'guardian', currentSkins.guardian, r, frameCount);
         }
 
         // 增强光晕效果（所有鱼类都有，但强度不同）
@@ -4678,9 +5682,8 @@
                     items.splice(i, 1);
                     // 双倍分数效果
                     const scoreGain = doubleScoreActive ? item.score * 2 : item.score;
-                    score += scoreGain;
+                    addScore(scoreGain);
                     addFever(item.fever || 5);
-                    scoreEl.innerText = score;
                     checkGameEvolution();
                     
                     // 播放音效
@@ -4857,7 +5860,7 @@
                             if(navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
                         } else {
                             spawnFloatingText("粉碎障碍!", player.x, player.y - 30, '#FF1493', 24);
-                            score += 10; scoreEl.innerText = score;
+                            addScore(10);
                             playSound('defeat'); // 打败障碍音效
                             if(navigator.vibrate) navigator.vibrate(50);
 
@@ -4906,8 +5909,7 @@
                                 const bonusFever = item.rareBonusFever || 10;
                                 const bonusGrowth = item.rareBonusGrowth || 0.3;
 
-                                score += 5 + bonusScore; // 基础5分 + 稀有奖励
-                                scoreEl.innerText = score;
+                                addScore(5 + bonusScore); // 基础5分 + 稀有奖励
                                 addFever(bonusFever);
 
                                 spawnFloatingText("✨ " + item.name + " ✨", player.x, player.y - 30, item.color, 24);
@@ -4927,7 +5929,7 @@
                                 if(navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
                             } else {
                                 spawnFloatingText("打败" + item.name + "!", player.x, player.y - 30);
-                                score += 5; scoreEl.innerText = score;
+                                addScore(5);
 
                                 // 添加粒子特效
                                 createParticleExplosion(item.x, item.y, item.color, 10);
@@ -5043,16 +6045,22 @@
 
     function startGame(difficulty) {
         isStageMode = false;
+        hasShownSurpassedHint = false; // 重置超越最高分提示状态
         startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; pauseScreen.style.display = 'none';
         if (stageSelectScreen) stageSelectScreen.style.display = 'none';
         if (stageCompleteScreen) stageCompleteScreen.style.display = 'none';
         if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
         collectionScreen.style.display = 'none';
         collectionBtnMenu.style.display = 'none';
-        uiLayer.style.display = 'block'; 
+        document.getElementById('leaderboard-btn-menu').style.display = 'none';
+        document.getElementById('skin-btn-menu').style.display = 'none';
+        uiLayer.style.display = 'block';
         pauseBtn.style.display = 'flex';
         collectionBtn.style.display = 'flex';
         init(difficulty); gameRunning = true;
+        
+        // 初始化最高分提示
+        updateHighScoreHint();
         
         gameLoop();
     }
@@ -5062,6 +6070,8 @@
     function showStageSelect() {
         startScreen.style.display = 'none';
         collectionBtnMenu.style.display = 'none';
+        document.getElementById('leaderboard-btn-menu').style.display = 'none';
+        document.getElementById('skin-btn-menu').style.display = 'none';
         if (!stageSelectScreen) {
             stageSelectScreen = document.getElementById('stage-select-screen');
         }
@@ -5577,6 +6587,7 @@
         collectionScreen.style.display = 'flex';
         startScreen.style.display = 'none';
         collectionBtnMenu.style.display = 'none';
+        document.getElementById('leaderboard-btn-menu').style.display = 'none';
         collectionCloseBtn.style.display = 'flex';
         // 禁用canvas触摸事件，允许图鉴滚动
         canvas.style.pointerEvents = 'none';
@@ -5618,6 +6629,7 @@
             // 非游戏中，返回主菜单
             startScreen.style.display = 'flex';
             collectionBtnMenu.style.display = 'flex';
+            document.getElementById('leaderboard-btn-menu').style.display = 'flex';
         }
     }
 
@@ -5629,6 +6641,26 @@
         if (!gameRunning) return;
         isPaused = true;
         cancelAnimationFrame(animationId);
+        
+        // 更新暂停界面的分数和最高分信息
+        document.getElementById('pause-current-score').innerText = score;
+        const highScore = highScores[currentDifficultyName] || 0;
+        const pauseHighScoreInfo = document.getElementById('pause-high-score-info');
+        if (pauseHighScoreInfo && !isStageMode) {
+            const difficultyLabels = { easy: '甜蜜约会', normal: '幸福日常', hard: '守护一生' };
+            const label = difficultyLabels[currentDifficultyName] || currentDifficultyName;
+            if (score > highScore) {
+                pauseHighScoreInfo.innerHTML = `🌟 <span style="color:#ff4081;">已超越最高分！</span>「${label}」原纪录: ${highScore}`;
+            } else if (score === highScore && score > 0) {
+                pauseHighScoreInfo.innerHTML = `🏆 平了「${label}」最高分纪录！`;
+            } else {
+                pauseHighScoreInfo.innerHTML = `「${label}」最高分: ${highScore}，还差 ${highScore - score} 分~`;
+            }
+            pauseHighScoreInfo.style.display = 'block';
+        } else if (pauseHighScoreInfo) {
+            pauseHighScoreInfo.style.display = 'none';
+        }
+        
         pauseScreen.style.display = 'flex';
         // 暂停时隐藏按钮
         pauseBtn.style.display = 'none';
@@ -5654,8 +6686,11 @@
         pauseBtn.style.display = 'none';
         collectionBtn.style.display = 'none';
         collectionBtnMenu.style.display = 'flex';
+        document.getElementById('leaderboard-btn-menu').style.display = 'flex';
+        document.getElementById('skin-btn-menu').style.display = 'flex';
         pauseScreen.style.display = 'none';
         collectionScreen.style.display = 'none';
+        document.getElementById('leaderboard-screen').style.display = 'none';
         
         // 隐藏闯关模式界面
         if (stageSelectScreen) stageSelectScreen.style.display = 'none';
@@ -5680,6 +6715,7 @@
         }
 
         startDesc.innerHTML = START_QUOTES[Math.floor(Math.random() * START_QUOTES.length)];
+        updateHomeHighScores(); // 更新首页最高分显示
         initAmbient(); // 启动首页背景动画
     }
     function endGame() {
@@ -5720,7 +6756,26 @@
             if (stageObjectiveDisplay) stageObjectiveDisplay.style.display = 'none';
         }
         
-        finalScoreEl.innerText = score; 
+        finalScoreEl.innerText = score;
+        
+        // 检查并更新最高分，显示鼓励语
+        const gameOverHighScoreInfo = document.getElementById('game-over-high-score-info');
+        if (gameOverHighScoreInfo && !isStageMode && currentDifficultyName) {
+            const isNewRecord = checkAndUpdateHighScore();
+            gameOverHighScoreInfo.innerHTML = getEncouragementText(isNewRecord, currentDifficultyName);
+            gameOverHighScoreInfo.style.display = 'block';
+            
+            // 破纪录时播放撒花特效
+            if (isNewRecord) {
+                gameOverHighScoreInfo.classList.add('new-record-badge');
+                createConfetti();
+            } else {
+                gameOverHighScoreInfo.classList.remove('new-record-badge');
+            }
+        } else if (gameOverHighScoreInfo) {
+            gameOverHighScoreInfo.style.display = 'none';
+        }
+        
         pauseBtn.style.display = 'none';
         collectionBtn.style.display = 'none';
         gameOverScreen.style.display = 'flex';
