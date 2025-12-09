@@ -52,7 +52,6 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             z-index: 100;
             transition: opacity 0.3s;
@@ -152,10 +151,13 @@
         #leaderboard-screen {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .leaderboard-container {
             width: 90%;
             max-width: 400px;
+            padding-bottom: 30px;
         }
         .leaderboard-title {
             font-size: 28px;
@@ -217,6 +219,34 @@
             color: #ff758c;
             margin-top: 10px;
             padding: 12px 30px;
+        }
+        
+        #leaderboard-close-btn {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: max(15px, env(safe-area-inset-right));
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ddd;
+            color: #666;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 201;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        #leaderboard-close-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+        #leaderboard-close-btn:active {
+            transform: scale(0.95);
         }
 
         /* 破纪录撒花特效 */
@@ -1084,6 +1114,7 @@
 <button id="skin-btn-menu" style="display:none;" onclick="showSkinScreen()">🎀</button>
 
 <button id="skin-close-btn" onclick="hideSkinScreen()" style="display:none;">×</button>
+<button id="leaderboard-close-btn" onclick="hideLeaderboard()" style="display:none;">×</button>
 <!-- 皮肤选择界面 -->
 <div id="skin-screen" class="overlay-screen" style="display: none;">
     <div class="skin-container">
@@ -1207,7 +1238,6 @@
             <div class="leaderboard-card-score" id="lb-score-hard">0</div>
             <div class="leaderboard-card-footer">爱的守护，永不放弃</div>
         </div>
-        <button class="btn-back-leaderboard" onclick="hideLeaderboard()">返回</button>
     </div>
 </div>
 
@@ -1942,17 +1972,21 @@
         document.getElementById('lb-score-normal').textContent = highScores.normal || 0;
         document.getElementById('lb-score-hard').textContent = highScores.hard || 0;
         document.getElementById('leaderboard-screen').style.display = 'flex';
+        document.getElementById('leaderboard-close-btn').style.display = 'flex';
         startScreen.style.display = 'none';
         collectionBtnMenu.style.display = 'none';
         document.getElementById('leaderboard-btn-menu').style.display = 'none';
+        document.getElementById('skin-btn-menu').style.display = 'none';
     }
     
     // 隐藏排行榜
     function hideLeaderboard() {
         document.getElementById('leaderboard-screen').style.display = 'none';
+        document.getElementById('leaderboard-close-btn').style.display = 'none';
         startScreen.style.display = 'flex';
         collectionBtnMenu.style.display = 'flex';
         document.getElementById('leaderboard-btn-menu').style.display = 'flex';
+        document.getElementById('skin-btn-menu').style.display = 'flex';
     }
     
     // 撒花特效
