@@ -2347,31 +2347,28 @@
         }
     };
 
-    // 事件触发权重 [迷雾, 激流, 星落, 双倍分数, 爱心雨, 重力反转] - 总和应为1.0
+    // 事件触发权重 [迷雾, 激流, 星落, 双倍分数, 爱心雨] - 总和应为1.0
     const EVENT_WEIGHTS = {
         easy: {
             fog: 0.15,           // 迷雾 15%
             current: 0.15,       // 激流 15%
-            starfall: 0.25,      // 星落 25%
+            starfall: 0.30,      // 星落 30%
             doubleScore: 0.25,   // 双倍分数 25% (正面)
-            heartRain: 0.15,     // 爱心雨 15% (正面)
-            gravityReverse: 0.05 // 重力反转 5% (负面)
+            heartRain: 0.15      // 爱心雨 15% (正面)
         },
         normal: {
-            fog: 0.2,            // 迷雾 20%
-            current: 0.2,        // 激流 20%
-            starfall: 0.15,      // 星落 15%
-            doubleScore: 0.2,    // 双倍分数 20% (正面)
-            heartRain: 0.1,      // 爱心雨 10% (正面)
-            gravityReverse: 0.15 // 重力反转 15% (负面)
+            fog: 0.22,           // 迷雾 22%
+            current: 0.22,       // 激流 22%
+            starfall: 0.18,      // 星落 18%
+            doubleScore: 0.23,   // 双倍分数 23% (正面)
+            heartRain: 0.15      // 爱心雨 15% (正面)
         },
         hard: {
-            fog: 0.28,           // 迷雾 28% (从25%提高)
-            current: 0.28,       // 激流 28% (从25%提高)
-            starfall: 0.08,      // 星落 8% (从5%提高)
-            doubleScore: 0.12,   // 双倍分数 12% (从10%提高)
-            heartRain: 0.06,     // 爱心雨 6% (从5%提高)
-            gravityReverse: 0.18 // 重力反转 18% (从30%降低，太高体验差)
+            fog: 0.30,           // 迷雾 30%
+            current: 0.32,       // 激流 32%
+            starfall: 0.12,      // 星落 12%
+            doubleScore: 0.16,   // 双倍分数 16%
+            heartRain: 0.10      // 爱心雨 10%
         }
     };
 
@@ -4543,11 +4540,7 @@
                         else {
                             cumulative += probs.doubleScore;
                             if (rand < cumulative) { triggerEvent('doubleScore'); }
-                            else {
-                                cumulative += probs.heartRain;
-                                if (rand < cumulative) { triggerEvent('heartRain'); }
-                                else { triggerEvent('gravityReverse'); }
-                            }
+                            else { triggerEvent('heartRain'); }
                         }
                     }
                 }
